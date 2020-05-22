@@ -189,16 +189,16 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
 
     num_batches = len(data_train)//batch_size
 
-    saver = tf.train.Saver(keep_checkpoint_every_n_hours=2.)
-    summaries = tf.summary.merge_all()
+    saver = tf.compat.v1.train.Saver(keep_checkpoint_every_n_hours=2.)
+    summaries = tf.compat.v1.summary.merge_all()
 
-    with tf.Session() as sess:
-        sess.run(tf.global_variables_initializer())
+    with tf.compat.v1.Session() as sess:
+        sess.run(tf.compat.v1.global_variables_initializer())
         patience_count = 0
         test_losses = []
         with LogFileWriter(ex):
-            train_writer = tf.summary.FileWriter(logdir+"/train", sess.graph)
-            test_writer = tf.summary.FileWriter(logdir+"/test", sess.graph)
+            train_writer = tf.compat.v1.summary.FileWriter(logdir+"/train", sess.graph)
+            test_writer = tf.compat.v1.summary.FileWriter(logdir+"/test", sess.graph)
         print("Training...")
         train_step_SOMVAE, train_step_prob = model.optimize
         try:
@@ -208,7 +208,7 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
                 batch_val = next(val_gen)
                 test_loss, summary = sess.run([model.loss, summaries], feed_dict={x: batch_val})
                 test_losses.append(test_loss)
-                test_writer.add_summary(summary, tf.train.global_step(sess, model.global_step))
+                test_writer.add_summary(summary, tf.compat.v1.train.global_step(sess, model.global_step))
                 if test_losses[-1] == min(test_losses):
                     saver.save(sess, modelpath, global_step=epoch)
                     patience_count = 0
@@ -220,7 +220,7 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
                     batch_data = next(train_gen)
                     if i%100 == 0:
                         train_loss, summary = sess.run([model.loss, summaries], feed_dict={x: batch_data})
-                        train_writer.add_summary(summary, tf.train.global_step(sess, model.global_step))
+                        train_writer.add_summary(summary, tf.compat.v1.train.global_step(sess, model.global_step))
                     train_step_SOMVAE.run(feed_dict={x: batch_data, lr_val:learning_rate})
                     train_step_prob.run(feed_dict={x: batch_data, lr_val:learning_rate*100})
                     if interactive:
@@ -250,12 +250,12 @@ def evaluate_model(model, x, modelpath, batch_size):
     Returns:
         dict: Dictionary of evaluation results (NMI, Purity, MSE).
     """
-    saver = tf.train.Saver(keep_checkpoint_every_n_hours=2.)
+    saver = tf.compat.v1.train.Saver(keep_checkpoint_every_n_hours=2.)
 
     num_batches = len(data_val)//batch_size
 
-    with tf.Session() as sess:
-        sess.run(tf.global_variables_initializer())
+    with tf.compat.v1.Session() as sess:
+        sess.run(tf.compat.v1.global_variables_initializer())
         saver.restore(sess, modelpath)
 
         test_k_all = []
@@ -304,11 +304,11 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     # Dimensions for MNIST-like data
     input_length = 28
     input_channels = 28
-    x = tf.placeholder(tf.float32, shape=[None, 28, 28, 1])
+    x = tf.compat.v1.placeholder(tf.float32, shape=[None, 28, 28, 1])
 
     data_generator = get_data_generator()
 
-    lr_val = tf.placeholder_with_default(learning_rate, [])
+    lr_val = tf.compat.v1.placeholder_with_default(learning_rate, [])
 
     model = SOMVAE(inputs=x, latent_dim=latent_dim, som_dim=som_dim, learning_rate=lr_val, decay_factor=decay_factor,
             input_length=input_length, input_channels=input_channels, alpha=alpha, beta=beta, gamma=gamma,
