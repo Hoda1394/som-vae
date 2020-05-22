@@ -41,7 +41,6 @@ ex.captured_out_filter = sacred.utils.apply_backspaces_and_linefeeds
 
 # assistant = LabAssistant(ex, "somvae_hyperopt", optimizer=SMAC, url="localhost:{}".format(db_port))
 
-
 @ex.config
 def ex_config():
     """Sacred configuration for the experiment.
