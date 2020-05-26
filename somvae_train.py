@@ -336,5 +336,5 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     #if not save_model:
     #    shutil.rmtree(os.path.dirname(modelpath))
 
-    return result
+    return 1
 
