@@ -161,6 +161,8 @@ def get_data_generator(time_series):
                 for i in range(len(images)//batch_size):
                     yield images[i*batch_size:(i+1)*batch_size]
 
+    batch_generator()
+
     return batch_generator
 
 
@@ -316,9 +318,7 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     input_channels = 28            #update for brains
 
     # get data 
-    batch_generator(mode="train", batch_size=100)
     data_generator = get_data_generator()
-
 
     # build model
     #model = SOMVAE(inputs=x, latent_dim=latent_dim, som_dim=som_dim, learning_rate=lr_val, decay_factor=decay_factor,
