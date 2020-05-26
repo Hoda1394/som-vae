@@ -39,7 +39,7 @@ ex.captured_out_filter = sacred.utils.apply_backspaces_and_linefeeds
 # ex.observers.append(sacred.observers.MongoObserver.create(db_name="somvae_hyperopt"))
 
 # assistant = LabAssistant(ex, "somvae_hyperopt", optimizer=SMAC, url="localhost:{}".format(db_port))
-
+tf.compat.v1.disable_eager_execution()
 @ex.config
 def ex_config():
     """Sacred configuration for the experiment.
