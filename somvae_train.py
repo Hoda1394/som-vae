@@ -151,7 +151,6 @@ def get_data_generator(time_series):
             labels = labels[indices]
 
             if time_series:
-                print('yes')
                 for i, image in enumerate(images):
                     start_image = image
                     end_image = images[np.random.choice(np.where(labels == (labels[i] + 1) % 10)[0])]
@@ -216,6 +215,7 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
             #test_losses.append(test_loss)
             #test_writer.add_summary(summary, tf.compat.v1.train.global_step(sess, model.global_step))
             #if test_losses[-1] == min(test_losses):
+
             #    saver.save(sess, modelpath, global_step=epoch)
             #    patience_count = 0
             #else:
@@ -318,9 +318,9 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     data_generator = get_data_generator()
 
     # build model
-    model = SOMVAE(inputs=x, latent_dim=latent_dim, som_dim=som_dim, learning_rate=lr_val, decay_factor=decay_factor,
-            input_length=input_length, inputcd so_channels=input_channels, alpha=alpha, beta=beta, gamma=gamma,
-            tau=tau, mnist=mnist)
+    #model = SOMVAE(inputs=x, latent_dim=latent_dim, som_dim=som_dim, learning_rate=lr_val, decay_factor=decay_factor,
+    #        input_length=input_length, inputcd so_channels=input_channels, alpha=alpha, beta=beta, gamma=gamma,
+    #        tau=tau, mnist=mnist)
     
 
     #x = tf.compat.v1.placeholder(tf.float32, shape=[None, 28, 28, 1])
