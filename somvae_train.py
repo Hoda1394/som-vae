@@ -115,7 +115,7 @@ data_train = data_train[:45000]
 labels_train = data_train[:45000]
 
 
-@ex.capture
+#@ex.capture
 def get_data_generator(time_series):
     """Creates a data generator for the training.
     
@@ -318,7 +318,7 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     input_channels = 28            #update for brains
 
     # get data 
-    data_generator = get_data_generator()
+    data_generator = get_data_generator('True')
 
     # build model
     #model = SOMVAE(inputs=x, latent_dim=latent_dim, som_dim=som_dim, learning_rate=lr_val, decay_factor=decay_factor,
