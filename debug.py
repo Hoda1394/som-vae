@@ -80,8 +80,8 @@ def test():
     # get data 
     
     print('testing')
-    #mode="train"
-    #batch_size=100
+    mode="train"
+    batch_size=100
     #assert mode in ["train", "val"], "The mode should be in {train, val}."
     #if mode=="train":
     #    images = data_train.copy()
