@@ -50,10 +50,10 @@ def batch_generator(mode="train", batch_size=100):
                 start_image = image
                 end_image = images[np.random.choice(np.where(labels == (labels[i] + 1) % 10)[0])]
                 interpolation = interpolate_arrays(start_image, end_image, batch_size)
-                yield interpolation + np.random.normal(scale=0.01, size=interpolation.shape)
+                #yield interpolation + np.random.normal(scale=0.01, size=interpolation.shape)
         else:
             for i in range(len(images)//batch_size):
-                yield images[i*batch_size:(i+1)*batch_size]
+                #yield images[i*batch_size:(i+1)*batch_size]
 
 def main():
     """Main method to build a model, train it and evaluate it.
@@ -86,7 +86,6 @@ def main():
     #        input_length=input_length, inputcd so_channels=input_channels, alpha=alpha, beta=beta, gamma=gamma,
     #        tau=tau, mnist=mnist)
     
-
     #x = tf.compat.v1.placeholder(tf.float32, shape=[None, 28, 28, 1])
     #lr_val = tf.compat.v1.placeholder_with_default(learning_rate, [])
 
