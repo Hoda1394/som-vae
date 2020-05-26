@@ -23,7 +23,7 @@ def bias_variable(shape, name):
     return tf.Variable(initial, name=name)
 
 
-def conv2d(x, shape, name, strides=[1,1,1,1]):
+def conv2d(x, shape, name, strides=(1,1)):
     """Creates a 2D convolutional layer with weight and bias variables.
     
     Args:
