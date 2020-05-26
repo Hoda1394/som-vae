@@ -144,7 +144,7 @@ def get_data_generator(time_series):
         elif mode=="val":
             images = data_val.copy()
             labels = labels_val.copy()
-        print('hey')
+        print('test')
         while True:
             indices = np.random.permutation(np.arange(len(images)))
             images = images[indices]
@@ -163,7 +163,7 @@ def get_data_generator(time_series):
 
     batch_generator()
 
-    return batch_generator
+    return 1
 
 
 @ex.capture
