@@ -224,16 +224,14 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
             for i in range(num_batches):
                 batch_data = next(train_gen)
 
-
                 #if i%100 == 0:
                 #    train_loss, summary = sess.run([model.loss, summaries], feed_dict={x: batch_data})
                 #    train_writer.add_summary(summary, tf.compat.v1.train.global_step(sess, model.global_step))
-                @tf.function
-                def minimize(x,lr_val):
-                    train_step_SOMVAE(x,lr_val)
-                    train_step_prob(x,lr_val)
-                    
-                minimize(batch_data,learning_rate)    
+                
+
+                loss = model.forward_pass(input=batch_data)
+                print(loss)
+
                 #train_step_SOMVAE.run(feed_dict={x: batch_data, lr_val:learning_rate})
                 #train_step_prob.run(feed_dict={x: batch_data, lr_val:learning_rate*100})
                 if interactive:
