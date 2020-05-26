@@ -238,7 +238,7 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
     except KeyboardInterrupt:
         pass
     finally:
-        saver.save(sess, modelpath)
+        #saver.save(sess, modelpath)
         if interactive:
             pbar.close()
 
