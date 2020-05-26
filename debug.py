@@ -91,20 +91,20 @@ def test():
         labels = labels_val.copy()
     
     #while True:
-    #    indices = np.random.permutation(np.arange(len(images)))
-    #    images = images[indices]
-    #    labels = labels[indices]
-    #    time_series=True
-    #    if time_series:
-    #        print('yes')
-    #        for i, image in enumerate(images):
-    #            start_image = image
-    #            end_image = images[np.random.choice(np.where(labels == (labels[i] + 1) % 10)[0])]
-    #            interpolation = interpolate_arrays(start_image, end_image, batch_size)
-    #            yield interpolation + np.random.normal(scale=0.01, size=interpolation.shape)
-    #    else:
-    #        for i in range(len(images)//batch_size):
-    #            yield images[i*batch_size:(i+1)*batch_size] 
+    indices = np.random.permutation(np.arange(len(images)))
+    images = images[indices]
+    labels = labels[indices]
+    time_series=True
+    if time_series:
+        print('yes')
+        for i, image in enumerate(images):
+            start_image = image
+            end_image = images[np.random.choice(np.where(labels == (labels[i] + 1) % 10)[0])]
+            interpolation = interpolate_arrays(start_image, end_image, batch_size)
+            yield interpolation + np.random.normal(scale=0.01, size=interpolation.shape)
+    else:
+        for i in range(len(images)//batch_size):
+            yield images[i*batch_size:(i+1)*batch_size] 
 
 
 
