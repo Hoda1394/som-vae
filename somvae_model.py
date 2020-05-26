@@ -34,10 +34,11 @@ def conv2d(x, shape, name, strides=[1,1,1,1]):
     Returns:
         tf.Tensor: The convolution defined by the weight matrix and the biases with the given strides.
     """
-    weight = weight_variable(shape, "{}_W".format(name))
-    bias = bias_variable([shape[-1]], "{}_b".format(name))
-    print(outshape)
-    return tf.nn.conv2d(input=x, filters=weight, strides=strides, padding='SAME', name=name) + bias
+    #weight = weight_variable(shape, "{}_W".format(name))
+    #bias = bias_variable([shape[-1]], "{}_b".format(name))
+    #return tf.nn.conv2d(input=x, filters=weight, strides=strides, padding='SAME', name=name) + bias
+    return tf.keras.layers.Conv2D( filters=shape[-1], kernel=(shape[0],shape[0]),strides=strides, padding="same",name=name,
+        use_bias=True,kernel_initializer=tf.keras.initializers.TruncatedNormal(mean=0.0,stddev=0.1),bias_initializer=tf.constant_initializer(value=0.1))(x)
 
 
 def conv2d_transposed(x, shape, outshape, name, strides=[1,1,1,1]):
