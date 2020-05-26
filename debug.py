@@ -76,35 +76,35 @@ def test():
     # Dimensions for MNIST-like data
     input_length = 28              #update for brains
     input_channels = 28            #update for brains
-    print('ty',flush=True)
+    print('ty')
     # get data 
     
-    print('testing',flush=True)
-    mode="train"
-    batch_size=100
+    print('testing')
+    #mode="train"
+    #batch_size=100
     #assert mode in ["train", "val"], "The mode should be in {train, val}."
-    if mode=="train":
-        images = data_train.copy()
-        labels = labels_train.copy()
-    elif mode=="val":
-        images = data_val.copy()
-        labels = labels_val.copy()
+    #if mode=="train":
+    #    images = data_train.copy()
+    #    labels = labels_train.copy()
+    #elif mode=="val":
+    #    images = data_val.copy()
+    #    labels = labels_val.copy()
     
-    while True:
-        indices = np.random.permutation(np.arange(len(images)))
-        images = images[indices]
-        labels = labels[indices]
-        time_series=True
-        if time_series:
-            print('yes')
-            for i, image in enumerate(images):
-                start_image = image
-                end_image = images[np.random.choice(np.where(labels == (labels[i] + 1) % 10)[0])]
-                interpolation = interpolate_arrays(start_image, end_image, batch_size)
-                yield interpolation + np.random.normal(scale=0.01, size=interpolation.shape)
-        else:
-            for i in range(len(images)//batch_size):
-                yield images[i*batch_size:(i+1)*batch_size] 
+    #while True:
+    #    indices = np.random.permutation(np.arange(len(images)))
+    #    images = images[indices]
+    #    labels = labels[indices]
+    #    time_series=True
+    #    if time_series:
+    #        print('yes')
+    #        for i, image in enumerate(images):
+    #            start_image = image
+    #            end_image = images[np.random.choice(np.where(labels == (labels[i] + 1) % 10)[0])]
+    #            interpolation = interpolate_arrays(start_image, end_image, batch_size)
+    #            yield interpolation + np.random.normal(scale=0.01, size=interpolation.shape)
+    #    else:
+    #        for i in range(len(images)//batch_size):
+    #            yield images[i*batch_size:(i+1)*batch_size] 
 
 
 
@@ -131,3 +131,4 @@ def test():
 if __name__ == '__main__':
     print('start')
     test()
+    print('stop')
