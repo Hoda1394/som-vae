@@ -83,12 +83,12 @@ def test():
     mode="train"
     batch_size=100
     #assert mode in ["train", "val"], "The mode should be in {train, val}."
-    #if mode=="train":
-    #    images = data_train.copy()
-    #    labels = labels_train.copy()
-    #elif mode=="val":
-    #    images = data_val.copy()
-    #    labels = labels_val.copy()
+    if mode=="train":
+        images = data_train.copy()
+        labels = labels_train.copy()
+    elif mode=="val":
+        images = data_val.copy()
+        labels = labels_val.copy()
     
     #while True:
     #    indices = np.random.permutation(np.arange(len(images)))
