@@ -218,7 +218,8 @@ class SOMVAE:
             h_conv2 = tf.nn.relu(conv2d(h_pool1, [4,4,256,256], "conv2"))
             h_pool2 = max_pool_2x2(h_conv2)
             flat_size = 7*7*256
-            h_flat = tf.reshape(h_pool2, [-1, flat_size])
+            #h_flat = tf.reshape(h_pool2, [-1, flat_size])
+            h_flat = tf.keras.layers.Flatten()(h_pool2)
             print(self.latent_dim,h_flat,h_pool2)
             z_e = tf.keras.layers.Dense(self.latent_dim)(h_flat)
         return tf.keras.models.Model(inputs=[h_0], outputs=[z_e], name='encoder')
