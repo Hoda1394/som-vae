@@ -40,7 +40,6 @@ ex.captured_out_filter = sacred.utils.apply_backspaces_and_linefeeds
 
 # assistant = LabAssistant(ex, "somvae_hyperopt", optimizer=SMAC, url="localhost:{}".format(db_port))
 
-
 @ex.config
 def ex_config():
     """Sacred configuration for the experiment.
@@ -152,6 +151,7 @@ def get_data_generator(time_series):
             labels = labels[indices]
 
             if time_series:
+                print('yes')
                 for i, image in enumerate(images):
                     start_image = image
                     end_image = images[np.random.choice(np.where(labels == (labels[i] + 1) % 10)[0])]
@@ -319,7 +319,7 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
 
     # build model
     model = SOMVAE(inputs=x, latent_dim=latent_dim, som_dim=som_dim, learning_rate=lr_val, decay_factor=decay_factor,
-            input_length=input_length, input_channels=input_channels, alpha=alpha, beta=beta, gamma=gamma,
+            input_length=input_length, inputcd so_channels=input_channels, alpha=alpha, beta=beta, gamma=gamma,
             tau=tau, mnist=mnist)
     
 
