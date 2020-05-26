@@ -294,8 +294,9 @@ def evaluate_model(model, x, modelpath, batch_size):
     return results
  
 
-@ex.automain
-def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, tau, modelpath, save_model, mnist):
+#@ex.automain
+#def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, tau, modelpath, save_model, mnist):
+def main():
     """Main method to build a model, train it and evaluate it.
     
     Args:
@@ -338,3 +339,5 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
 
     return 1
 
+if __name__ == '__main__':
+    main()
