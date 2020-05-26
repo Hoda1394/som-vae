@@ -228,9 +228,14 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
                 #if i%100 == 0:
                 #    train_loss, summary = sess.run([model.loss, summaries], feed_dict={x: batch_data})
                 #    train_writer.add_summary(summary, tf.compat.v1.train.global_step(sess, model.global_step))
-                
-                train_step_SOMVAE.run(feed_dict={x: batch_data, lr_val:learning_rate})
-                train_step_prob.run(feed_dict={x: batch_data, lr_val:learning_rate*100})
+                @tf.function
+                def minimize(x,lr_val):
+                    train_step_SOMVAE(x,lr_val)
+                    train_step_prob(x,lr_val)
+                    
+                minimize(batch_data,learning_rate)    
+                #train_step_SOMVAE.run(feed_dict={x: batch_data, lr_val:learning_rate})
+                #train_step_prob.run(feed_dict={x: batch_data, lr_val:learning_rate*100})
                 if interactive:
                     pbar.set_postfix(epoch=epoch, train_loss=train_loss, test_loss=test_loss, refresh=False)
                     pbar.update(1)
@@ -312,6 +317,7 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     # Dimensions for MNIST-like data
     input_length = 28              #update for brains
     input_channels = 28            #update for brains
+    input_duration = 100 
 
     # get data 
     data_generator = get_data_generator(True)
@@ -324,7 +330,6 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
                 input_length=input_length, input_channels=input_channels, alpha=alpha, beta=beta, gamma=gamma,
                 tau=tau, mnist=mnist)
     
-
     #x = tf.compat.v1.placeholder(tf.float32, shape=[None, 28, 28, 1])
     #lr_val = tf.compat.v1.placeholder_with_default(learning_rate, [])
 

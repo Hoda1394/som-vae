@@ -142,21 +142,21 @@ class SOMVAE:
         self.gamma = gamma
         self.tau = tau
         self.mnist = mnist
-        self.batch_size
-        self.embeddings
-        self.transition_probabilities
-        self.global_step
-        self.z_e
-        self.z_e_old
-        self.z_dist_flat
-        self.k
-        self.z_q
-        self.z_q_neighbors
-        self.reconstruction_q
-        self.reconstruction_e
-        self.loss_reconstruction
-        self.loss_commit
-        self.loss_som
+        #self.batch_size
+        #self.embeddings
+        #self.transition_probabilities
+        #self.global_step
+        #self.z_e
+        #self.z_e_old
+        #self.z_dist_flat
+        #self.k
+        #self.z_q
+        #self.z_q_neighbors
+        #self.reconstruction_q
+        #self.reconstruction_e
+        #self.loss_reconstruction
+        #self.loss_commit
+        #self.loss_som
         self.loss_probabilities
         self.loss_z_prob
         self.loss
@@ -202,6 +202,7 @@ class SOMVAE:
         """Computes the latent encodings of the inputs."""
         if not self.mnist:
             with tf.compat.v1.variable_scope("encoder"):
+                # Input layer
                 h_1 = tf.keras.layers.Dense(256, activation="relu")(self.inputs)
                 h_2 = tf.keras.layers.Dense(128, activation="relu")(h_1)
                 z_e = tf.keras.layers.Dense(self.latent_dim, activation="relu")(h_2)
@@ -390,7 +391,13 @@ class SOMVAE:
     def optimize(self):
         """Optimizes the model's loss using Adam with exponential learning rate decay."""
         lr_decay = tf.compat.v1.train.exponential_decay(self.learning_rate, self.global_step, self.decay_steps, self.decay_factor, staircase=True)
-        optimizer = tf.compat.v1.train.AdamOptimizer(lr_decay)
-        train_step = optimizer.minimize(self.loss, global_step=self.global_step)
-        train_step_prob = optimizer.minimize(self.loss_probabilities, global_step=self.global_step)
+        #optimizer = tf.compat.v1.train.AdamOptimizer(lr_decay)
+        #train_step = optimizer.minimize(self.loss, global_step=self.global_step)
+        #train_step_prob = optimizer.minimize(self.loss_probabilities, global_step=self.global_step)
+        #return train_step, train_step_prob
+
+        optimizer = tf.keras.optimizers.Adam(learning_rate=lr_decay)
+        train_step = optimizer.minimize(self.loss)
+        train_step_prob = optimizer.minimize(self.loss_probabilities)
+
         return train_step, train_step_prob
