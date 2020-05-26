@@ -125,7 +125,7 @@ def get_data_generator(time_series):
     
     Returns:
         generator: Data generator for the batches."""
-    print('ab')
+
     def batch_generator(mode="train", batch_size=100):
         """Generator for the data batches.
         
@@ -161,7 +161,7 @@ def get_data_generator(time_series):
                 for i in range(len(images)//batch_size):
                     yield images[i*batch_size:(i+1)*batch_size]
 
-    batch_generator()
+    batch_generator(mode="train",batch_size=100)
 
     return 1
 
