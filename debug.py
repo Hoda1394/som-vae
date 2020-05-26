@@ -55,7 +55,7 @@ def batch_generator(mode="train", batch_size=100):
             for i in range(len(images)//batch_size):
                 yield images[i*batch_size:(i+1)*batch_size]
 
-def main():
+def test():
     """Main method to build a model, train it and evaluate it.
     
     Args:
@@ -130,4 +130,4 @@ def main():
 
 if __name__ == '__main__':
     print('start')
-    main()
+    test()
