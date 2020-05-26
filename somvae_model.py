@@ -205,7 +205,7 @@ class SOMVAE:
         if not self.mnist:
             #with tf.compat.v1.variable_scope("encoder"):
                 # Input layer
-            h_0 = tf.keras.layers.Input(shape=[None, self.input_length, self.input_channels, 1], name='input')
+            h_0 = tf.keras.layers.Input(shape=[self.input_length, self.input_channels, 1], name='input')
             h_1 = tf.keras.layers.Dense(256, activation="relu")(h_0)
             h_2 = tf.keras.layers.Dense(128, activation="relu")(h_1)
             z_e = tf.keras.layers.Dense(self.latent_dim, activation="relu")(h_2)
@@ -219,6 +219,7 @@ class SOMVAE:
             h_pool2 = max_pool_2x2(h_conv2)
             flat_size = 7*7*256
             h_flat = tf.reshape(h_pool2, [-1, flat_size])
+            print(self.latent_dim,h_flat)
             z_e = tf.keras.layers.Dense(self.latent_dim)(h_flat)
         return tf.keras.models.Model(inputs=[h_0], outputs=[z_e], name='encoder')
     
