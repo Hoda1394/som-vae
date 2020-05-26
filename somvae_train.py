@@ -125,7 +125,7 @@ def get_data_generator(time_series):
     
     Returns:
         generator: Data generator for the batches."""
-
+    print('ab')
     def batch_generator(mode="train", batch_size=100):
         """Generator for the data batches.
         
