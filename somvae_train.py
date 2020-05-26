@@ -328,7 +328,7 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     #x = tf.compat.v1.placeholder(tf.float32, shape=[None, 28, 28, 1])
     #lr_val = tf.compat.v1.placeholder_with_default(learning_rate, [])
 
-    #train_model(model, x, lr_val, generator=data_generator)
+    train_model(model, x, lr_val, generator=data_generator)
 
     #result = evaluate_model(model, x)
 
