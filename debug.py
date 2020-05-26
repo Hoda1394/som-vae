@@ -104,7 +104,7 @@ def test():
             start_image = image
             end_image = images[np.random.choice(np.where(labels == (labels[i] + 1) % 10)[0])]
             interpolation = interpolate_arrays(start_image, end_image, batch_size)
-            print(interpolation)
+            print(interpolation.shape)
             return interpolation + np.random.normal(scale=0.01, size=interpolation.shape)
     else:
         for i in range(len(images)//batch_size):
