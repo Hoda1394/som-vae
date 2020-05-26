@@ -115,41 +115,40 @@ data_train = data_train[:45000]
 labels_train = data_train[:45000]
 
 def batch_generator(mode="train", batch_size=100):
-        """Generator for the data batches.
+    """Generator for the data batches.
+    
+    Args:
+        mode (str): Mode in ['train', 'val'] that decides which data set the generator
+            samples from (default: 'train').
+        batch_size (int): The size of the batches (default: 100).
         
-        Args:
-            mode (str): Mode in ['train', 'val'] that decides which data set the generator
-                samples from (default: 'train').
-            batch_size (int): The size of the batches (default: 100).
-            
-        Yields:
-            np.array: Data batch.
-        """
-        print('testing')
-        assert mode in ["train", "val"], "The mode should be in {train, val}."
-        if mode=="train":
-            images = data_train.copy()
-            labels = labels_train.copy()
-        elif mode=="val":
-            images = data_val.copy()
-            labels = labels_val.copy()
-       
-        while True:
-            indices = np.random.permutation(np.arange(len(images)))
-            images = images[indices]
-            labels = labels[indices]
-            time_series=True
-            if time_series:
-                print('yes')
-                for i, image in enumerate(images):
-                    start_image = image
-                    end_image = images[np.random.choice(np.where(labels == (labels[i] + 1) % 10)[0])]
-                    interpolation = interpolate_arrays(start_image, end_image, batch_size)
-                    yield interpolation + np.random.normal(scale=0.01, size=interpolation.shape)
-            else:
-                for i in range(len(images)//batch_size):
-                    yield images[i*batch_size:(i+1)*batch_size]
-
+    Yields:
+        np.array: Data batch.
+    """
+    print('testing')
+    assert mode in ["train", "val"], "The mode should be in {train, val}."
+    if mode=="train":
+        images = data_train.copy()
+        labels = labels_train.copy()
+    elif mode=="val":
+        images = data_val.copy()
+        labels = labels_val.copy()
+    
+    while True:
+        indices = np.random.permutation(np.arange(len(images)))
+        images = images[indices]
+        labels = labels[indices]
+        time_series=True
+        if time_series:
+            print('yes')
+            for i, image in enumerate(images):
+                start_image = image
+                end_image = images[np.random.choice(np.where(labels == (labels[i] + 1) % 10)[0])]
+                interpolation = interpolate_arrays(start_image, end_image, batch_size)
+                yield interpolation + np.random.normal(scale=0.01, size=interpolation.shape)
+        else:
+            for i in range(len(images)//batch_size):
+                yield images[i*batch_size:(i+1)*batch_size]
 
 #@ex.capture
 def get_data_generator(time_series):
@@ -354,7 +353,7 @@ def main():
     input_channels = 28            #update for brains
     print('ty')
     # get data 
-    batch_generator(mode="train")
+    batch_generator(mode="train", batch_size=100)
     data_generator = get_data_generator(True)
 
     # build model
