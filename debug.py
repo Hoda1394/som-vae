@@ -10,6 +10,9 @@ import pandas as pd
 from sklearn.metrics import mean_squared_error
 from tqdm import tqdm, trange
 
+from somvae_model import SOMVAE
+from utils import *
+
 (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
 
 data_train = np.reshape(x_train, [-1,28,28,1])
@@ -106,10 +109,6 @@ def test():
     else:
         for i in range(len(images)//batch_size):
             return images[i*batch_size:(i+1)*batch_size] 
-
-
-
-
 
     #data_generator = get_data_generator(True)
 
