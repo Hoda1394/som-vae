@@ -82,7 +82,7 @@ def main():
     print('testing',flush=True)
     mode="train"
     batch_size=100
-    assert mode in ["train", "val"], "The mode should be in {train, val}."
+    #assert mode in ["train", "val"], "The mode should be in {train, val}."
     if mode=="train":
         images = data_train.copy()
         labels = labels_train.copy()
