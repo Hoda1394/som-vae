@@ -144,7 +144,7 @@ def get_data_generator(time_series):
         elif mode=="val":
             images = data_val.copy()
             labels = labels_val.copy()
-        
+    
         while True:
             indices = np.random.permutation(np.arange(len(images)))
             images = images[indices]
@@ -314,7 +314,7 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     input_channels = 28            #update for brains
 
     # get data 
-    data_generator = get_data_generator()
+    data_generator = get_data_generator(True)
 
     # build model
     model = SOMVAE(inputs=x, latent_dim=latent_dim, som_dim=som_dim, learning_rate=lr_val, decay_factor=decay_factor,
@@ -332,5 +332,5 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     #if not save_model:
     #    shutil.rmtree(os.path.dirname(modelpath))
 
-    return result
-
+    #return result
+    return 1
