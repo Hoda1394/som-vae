@@ -105,7 +105,7 @@ def test():
             return interpolation + np.random.normal(scale=0.01, size=interpolation.shape)
     else:
         for i in range(len(images)//batch_size):
-            yield images[i*batch_size:(i+1)*batch_size] 
+            return images[i*batch_size:(i+1)*batch_size] 
 
 
 
