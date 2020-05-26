@@ -30,7 +30,7 @@ def batch_generator(mode="train", batch_size=100):
     Yields:
         np.array: Data batch.
     """
-    print('testing')
+    print('testing',flush=True)
     assert mode in ["train", "val"], "The mode should be in {train, val}."
     if mode=="train":
         images = data_train.copy()
