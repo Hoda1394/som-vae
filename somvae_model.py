@@ -36,6 +36,7 @@ def conv2d(x, shape, name, strides=[1,1,1,1]):
     """
     weight = weight_variable(shape, "{}_W".format(name))
     bias = bias_variable([shape[-1]], "{}_b".format(name))
+    print(outshape)
     return tf.nn.conv2d(input=x, filters=weight, strides=strides, padding='SAME', name=name) + bias
 
 
@@ -52,7 +53,6 @@ def conv2d_transposed(x, shape, outshape, name, strides=[1,1,1,1]):
     """
     weight = weight_variable(shape, "{}_W".format(name))
     bias = bias_variable([shape[-2]], "{}_b".format(name))
-    print(outshape)
     return tf.nn.conv2d_transpose(x, weight, output_shape=outshape, strides=strides, padding='SAME', name=name) + bias
     #return tf.keras.layers.Conv2D( strides=strides, padding="same",name=name)(x)
 
