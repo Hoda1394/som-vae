@@ -317,7 +317,7 @@ def main():
     # Dimensions for MNIST-like data
     input_length = 28              #update for brains
     input_channels = 28            #update for brains
-
+    print('ty')
     # get data 
     data_generator = get_data_generator(True)
 
