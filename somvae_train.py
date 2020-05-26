@@ -137,6 +137,7 @@ def get_data_generator(time_series):
         Yields:
             np.array: Data batch.
         """
+        print('testing')
         assert mode in ["train", "val"], "The mode should be in {train, val}."
         if mode=="train":
             images = data_train.copy()
@@ -144,7 +145,7 @@ def get_data_generator(time_series):
         elif mode=="val":
             images = data_val.copy()
             labels = labels_val.copy()
-        print('test')
+       
         while True:
             indices = np.random.permutation(np.arange(len(images)))
             images = images[indices]
