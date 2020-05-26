@@ -318,8 +318,8 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
 
     # build model
     model = SOMVAE(inputs=x, latent_dim=latent_dim, som_dim=som_dim, learning_rate=lr_val, decay_factor=decay_factor,
-            input_length=input_length, inputcd so_channels=input_channels, alpha=alpha, beta=beta, gamma=gamma,
-            tau=tau, mnist=mnist)
+                input_length=input_length, inputcd so_channels=input_channels, alpha=alpha, beta=beta, gamma=gamma,
+                tau=tau, mnist=mnist)
     
 
     #x = tf.compat.v1.placeholder(tf.float32, shape=[None, 28, 28, 1])
