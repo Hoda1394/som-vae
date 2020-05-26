@@ -202,7 +202,7 @@ class SOMVAE:
     @lazy_scope
     def get_encoder(self):
         """Computes the latent encodings of the inputs."""
-        if not self.mnist:
+        if self.mnist:
             #with tf.compat.v1.variable_scope("encoder"):
                 # Input layer
             h_0 = tf.keras.layers.Input(shape=[self.input_length, self.input_channels, 1], name='input')
