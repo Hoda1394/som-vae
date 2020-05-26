@@ -186,8 +186,8 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
 
     num_batches = len(data_train)//batch_size
 
-    saver = tf.compat.v1.train.Saver(keep_checkpoint_every_n_hours=2.)    #could be upgraded
-    summaries = tf.compat.v1.summary.merge_all()                          #could be upgraded
+    #saver = tf.compat.v1.train.Saver(keep_checkpoint_every_n_hours=2.)    #could be upgraded
+    #summaries = tf.compat.v1.summary.merge_all()                          #could be upgraded
 
     #with tf.compat.v1.Session() as sess:
 
@@ -200,9 +200,9 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
     initialize()
     patience_count = 0
     test_losses = []
-    with LogFileWriter(ex):                                                          #Sacred
-        train_writer = tf.compat.v1.summary.FileWriter(logdir+"/train", sess.graph)  #could be upgraded to TFv.2
-        test_writer = tf.compat.v1.summary.FileWriter(logdir+"/test", sess.graph)    #could be upgraded to TFv.2
+    #with LogFileWriter(ex):                                                          #Sacred
+    #    train_writer = tf.compat.v1.summary.FileWriter(logdir+"/train", sess.graph)  #could be upgraded to TFv.2
+    #    test_writer = tf.compat.v1.summary.FileWriter(logdir+"/test", sess.graph)    #could be upgraded to TFv.2
     print("Training...")
     train_step_SOMVAE, train_step_prob = model.optimize
     try:
