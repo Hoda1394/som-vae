@@ -391,13 +391,13 @@ class SOMVAE:
     def optimize(self):
         """Optimizes the model's loss using Adam with exponential learning rate decay."""
         lr_decay = tf.compat.v1.train.exponential_decay(self.learning_rate, self.global_step, self.decay_steps, self.decay_factor, staircase=True)
-        #optimizer = tf.compat.v1.train.AdamOptimizer(lr_decay)
-        #train_step = optimizer.minimize(self.loss, global_step=self.global_step)
-        #train_step_prob = optimizer.minimize(self.loss_probabilities, global_step=self.global_step)
+        optimizer = tf.compat.v1.train.AdamOptimizer(lr_decay)
+        train_step = optimizer.minimize(self.loss, global_step=self.global_step)
+        train_step_prob = optimizer.minimize(self.loss_probabilities, global_step=self.global_step)
         #return train_step, train_step_prob
 
-        optimizer = tf.keras.optimizers.Adam(learning_rate=lr_decay)
-        train_step = optimizer.minimize(self.loss)
-        train_step_prob = optimizer.minimize(self.loss_probabilities)
+        #optimizer = tf.keras.optimizers.Adam(learning_rate=lr_decay)
+        #train_step = optimizer.minimize(self.loss)
+        #train_step_prob = optimizer.minimize(self.loss_probabilities)
 
         return train_step, train_step_prob
