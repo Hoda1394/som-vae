@@ -95,9 +95,10 @@ def test():
     images = images[indices]
     labels = labels[indices]
     time_series=True
-    #if time_series:
-    #    print('yes')
-    #    for i, image in enumerate(images):
+    if time_series:
+        print('yes')
+        for i, image in enumerate(images):
+            print('yeah')
     #        start_image = image
     #        end_image = images[np.random.choice(np.where(labels == (labels[i] + 1) % 10)[0])]
     #        interpolation = interpolate_arrays(start_image, end_image, batch_size)
