@@ -154,8 +154,8 @@ class SOMVAE:
         #Dynamic
         self.embeddings 
         self.transition_probabilities
-        self.z_e
-        print(self.z_e )
+        self.test = self.z_e()
+        print(test )
         self.z_dist_flat
         self.k
         self.z_q
