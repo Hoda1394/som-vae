@@ -327,8 +327,8 @@ class SOMVAE:
     @lazy_scope
     def loss_reconstruction(self):
         """Computes the combined reconstruction loss for both reconstructions."""
-        loss_rec_mse_zq = tf.compat.v1.losses.mean_squared_error(self.inputs, self.z_q_hat)
-        loss_rec_mse_ze = tf.compat.v1.losses.mean_squared_error(self.inputs, self.z_e_hat)
+        loss_rec_mse_zq = tf.compat.v1.losses.mean_squared_error(self.inputs, self.reconstruction_q)
+        loss_rec_mse_ze = tf.compat.v1.losses.mean_squared_error(self.inputs, self.reconstruction_e)
         loss_rec_mse = loss_rec_mse_zq + loss_rec_mse_ze
         tf.compat.v1.summary.scalar("loss_reconstruction", loss_rec_mse)
         return loss_rec_mse
@@ -400,16 +400,3 @@ class SOMVAE:
         #train_step_prob = optimizer.minimize(self.loss_probabilities)
 
         return train_step, train_step_prob
-
-    def forward_pass(self,input):
-
-        self.inputs = input
-        self.z_e = self.encoder
-        self.z_dist_flat = self.get_z_dist_flat
-        self.k = self.get_k
-        self.z_q = self.get_z_q
-        self.z_q_neighbots = self.get_z_q_neighbors
-        self.z_e_hat = self.decoder(self.z_e)
-        self.z_q_hat = self.decoder(self.z_q)
-
-        return 1
