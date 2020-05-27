@@ -150,8 +150,8 @@ class SOMVAE:
         # Does not depend on inputs
         self.encoder = self.get_encoder
         self.decoder = self.get_decoder
-        self.embeddings
-        print(embeddings)
+        self.embeddings 
+        print(self.embeddings)
         self.transition_probabilities = self.get_transition_probabilities
 
         #self.batch_size
