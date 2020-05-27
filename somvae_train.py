@@ -223,6 +223,11 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
                 batch_data = next(train_gen)
                 print(batch_data)
                 print(batch_data.shape)
+
+                model.inputs = batch_data
+                x = model.loss
+                print(x)
+
                 break
 
                 #if i%100 == 0:
@@ -327,7 +332,7 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     input_duration = 100 
 
     # get data 
-    data_generator = get_data_generator(True)
+    data_generator = get_data_generator()
 
     x = tf.Variable(tf.zeros(shape=[28, 28, 1],dtype=tf.dtypes.int32),shape=[28, 28, 1])
     lr_val = tf.compat.v1.placeholder_with_default(learning_rate, [])
