@@ -237,7 +237,7 @@ class SOMVAE:
         return tf.keras.models.Model(inputs=[h_0], outputs=[z_e], name='encoder')
 
     def z_e(self):
-        print(self.encoder(self.inputs))
+        print('hey',self.encoder(self.inputs))
         return self.encoder(self.inputs)
 
     #@lazy_scope
