@@ -113,7 +113,7 @@ def lazy_scope(function):
 class SOMVAE:
     """Class for the SOM-VAE model as described in https://arxiv.org/abs/1806.02199"""
 
-    def __init__(self, inputs, latent_dim=64, som_dim=[8,8], learning_rate=1e-4, decay_factor=0.95, decay_steps=1000,
+    def __init__(self, latent_dim=64, som_dim=[8,8], learning_rate=1e-4, decay_factor=0.95, decay_steps=1000,
             input_length=28, input_channels=28, alpha=1., beta=1., gamma=1., tau=1., mnist=True):
         """Initialization method for the SOM-VAE model object.
         
@@ -233,7 +233,7 @@ class SOMVAE:
             h_flat = tf.keras.layers.Flatten()(h_pool2)
             print(self.latent_dim,h_flat,h_pool2)
             z_e = tf.keras.layers.Dense(self.latent_dim)(h_flat)
-        return return tf.keras.models.Model(inputs=[h_0], outputs=[z_e], name='encoder')
+        return tf.keras.models.Model(inputs=[h_0], outputs=[z_e], name='encoder')
 
     def z_e(self):
         return self.encoder(self.inputs)
