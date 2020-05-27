@@ -133,7 +133,7 @@ class SOMVAE:
             tau (float): The weight for the smoothness loss (default: 1.).
             mnist (bool): Flag that tells the model if we are training in MNIST-like data (default: True).
         """
-        self.inputs = inputs
+        self.inputs = tf.Variable(tf.zeros(shape=(None,input_length,input_channels,1)), name="b")
         self.latent_dim = latent_dim
         self.som_dim = som_dim
         self.learning_rate = learning_rate
@@ -147,12 +147,20 @@ class SOMVAE:
         self.tau = tau
         self.mnist = mnist
         
-        # Does not depend on inputs
+        # Static
         self.encoder
         self.decoder
+
+        #Dynamic
         self.embeddings 
-        print(self.encoder,self.embeddings)
-        self.transition_probabilities = self.get_transition_probabilities
+        self.transition_probabilities
+        self.z_e
+        self.z_dist_flat
+        self.k
+        self.z_q
+        self.z_q_neighbors
+        self.reconstruction_e
+        self.reconstruction_q
 
         #self.batch_size
         #self.embeddings
@@ -182,8 +190,8 @@ class SOMVAE:
         #tf.compat.v1.summary.tensor_summary("embeddings", embeddings)
         return embeddings
 
-    @lazy_scope
-    def get_transition_probabilities(self):
+    #@lazy_scope
+    def transition_probabilities(self):
         """Creates tensor for the transition probabilities."""
         with tf.compat.v1.variable_scope("probabilities"):
             probabilities_raw = tf.Variable(tf.zeros(self.som_dim+self.som_dim), name="probabilities_raw")
@@ -192,33 +200,31 @@ class SOMVAE:
             probabilities_normalized = probabilities_positive / probabilities_summed
             return probabilities_normalized
 
-    @lazy_scope
+    #@lazy_scope
     def global_step(self):
         """Creates global_step variable for the optimization."""
         global_step = tf.Variable(0, trainable=False, name="global_step")
         return global_step
 
-    @lazy_scope
+    #@lazy_scope
     def batch_size(self):
         """Reads the batch size from the input tensor."""
         batch_size = tf.shape(input=self.inputs)[0]
         return batch_size
 
-    @lazy_scope
     def encoder(self):
-        """Computes the latent encodings of the inputs."""
         if not self.mnist:
             #with tf.compat.v1.variable_scope("encoder"):
                 # Input layer
             h_0 = tf.keras.layers.Input(shape=[self.input_length, self.input_channels, 1], name='input')
-            h_1 = tf.keras.layers.Dense(256, activation="relu")(h_0)
+            h_1 = tf.keras.layers.Dense(256, activation="relu")(self.inputs)
             h_2 = tf.keras.layers.Dense(128, activation="relu")(h_1)
             z_e = tf.keras.layers.Dense(self.latent_dim, activation="relu")(h_2)
 
         else:
             #with tf.compat.v1.variable_scope("encoder"):
             h_0 = tf.keras.layers.Input(shape=[self.input_length, self.input_channels,1], name='input')
-            h_conv1 = tf.nn.relu(conv2d(h_0, [4,4,1,256], "conv1"))
+            h_conv1 = tf.nn.relu(conv2d(self.inputs, [4,4,1,256], "conv1"))
             h_pool1 = max_pool_2x2(h_conv1)
             h_conv2 = tf.nn.relu(conv2d(h_pool1, [4,4,256,256], "conv2"))
             h_pool2 = max_pool_2x2(h_conv2)
@@ -227,28 +233,10 @@ class SOMVAE:
             h_flat = tf.keras.layers.Flatten()(h_pool2)
             print(self.latent_dim,h_flat,h_pool2)
             z_e = tf.keras.layers.Dense(self.latent_dim)(h_flat)
-        return tf.keras.models.Model(inputs=[h_0], outputs=[z_e], name='encoder')
-    
-    def decoder(self):
-        """Reconstructs the input from the latent space"""
-        if not self.mnist:
-            #with tf.compat.v1.variable_scope("decoder", reuse=tf.compat.v1.AUTO_REUSE):
-            h_0 = tf.keras.layers.Input(shape=self.latent_dim, name='latent_code')
-            h_3 = tf.keras.layers.Dense(128, activation="relu")(h_0)
-            h_4 = tf.keras.layers.Dense(256, activation="relu")(h_3)
-            x_hat = tf.keras.layers.Dense(self.input_channels, activation="sigmoid")(h_4)
-        else:
-            #with tf.compat.v1.variable_scope("decoder", reuse=tf.compat.v1.AUTO_REUSE):
-            h_0 = tf.keras.layers.Input(shape=self.latent_dim, name='latent_code')
-            flat_size = 7*7*256
-            h_flat_dec = tf.keras.layers.Dense(flat_size)(h_0)
-            h_reshaped = tf.reshape(h_flat_dec, [-1, 7, 7, 256])
-            h_unpool1 = tf.keras.layers.UpSampling2D((2,2))(h_reshaped)
-            h_deconv1 = tf.nn.relu(conv2d(h_unpool1, [4,4,256,256], "deconv1"))
-            h_unpool2 = tf.keras.layers.UpSampling2D((2,2))(h_deconv1)
-            h_deconv2 = tf.nn.sigmoid(conv2d(h_unpool2, [4,4,256,1], "deconv2"))
-            x_hat = h_deconv2
-        return tf.keras.models.Model(inputs=[h_0], outputs=[x_hat], name='encoder')
+        return return tf.keras.models.Model(inputs=[h_0], outputs=[z_e], name='encoder')
+
+    def z_e(self):
+        return self.encoder(self.inputs)
 
     #@lazy_scope
     #def z_e_old(self):
@@ -256,23 +244,23 @@ class SOMVAE:
     #    z_e_old = tf.concat([self.z_e[0:1], self.z_e[:-1]], axis=0)
     #    return z_e_old
 
-    @lazy_scope
-    def get_z_dist_flat(self):
+    #@lazy_scope
+    def z_dist_flat(self):
         """Computes the distances between the encodings and the embeddings."""
         z_dist = tf.math.squared_difference(tf.expand_dims(tf.expand_dims(self.z_e, 1), 1), tf.expand_dims(self.embeddings, 0))
         z_dist_red = tf.reduce_sum(input_tensor=z_dist, axis=-1)
         z_dist_flat = tf.reshape(z_dist_red, [self.batch_size, -1])
         return z_dist_flat
 
-    @lazy_scope
-    def get_k(self):
+    #@lazy_scope
+    def k(self):
         """Picks the index of the closest embedding for every encoding."""
         k = tf.argmin(input=self.z_dist_flat, axis=-1)
         tf.compat.v1.summary.histogram("clusters", k)
         return k
 
-    @lazy_scope
-    def get_z_q(self):
+    #@lazy_scope
+    def z_q(self):
         """Aggregates the respective closest embedding for every encoding."""
         k_1 = self.k // self.som_dim[1]
         k_2 = self.k % self.som_dim[1]
@@ -280,8 +268,8 @@ class SOMVAE:
         z_q = tf.gather_nd(self.embeddings, k_stacked)
         return z_q
 
-    @lazy_scope
-    def get_z_q_neighbors(self):
+    #@lazy_scope
+    def z_q_neighbors(self):
         """Aggregates the respective neighbors in the SOM for every embedding in z_q."""
         k_1 = self.k // self.som_dim[1]
         k_2 = self.k % self.som_dim[1]
@@ -309,48 +297,32 @@ class SOMVAE:
         z_q_neighbors = tf.stack([self.z_q, z_q_up, z_q_down, z_q_right, z_q_left], axis=1)
         return z_q_neighbors
 
-
-    @lazy_scope
-    def reconstruction_q(self):
-        """Reconstructs the input from the embeddings."""
+    def decoder(self):
+        """Reconstructs the input from the latent space"""
         if not self.mnist:
-            with tf.compat.v1.variable_scope("decoder", reuse=tf.compat.v1.AUTO_REUSE):
-                h_3 = tf.keras.layers.Dense(128, activation="relu")(self.z_q)
-                h_4 = tf.keras.layers.Dense(256, activation="relu")(h_3)
-                x_hat = tf.keras.layers.Dense(self.input_channels, activation="sigmoid")(h_4)
+            #with tf.compat.v1.variable_scope("decoder", reuse=tf.compat.v1.AUTO_REUSE):
+            h_0 = tf.keras.layers.Input(shape=self.latent_dim, name='latent_code')
+            h_3 = tf.keras.layers.Dense(128, activation="relu")(h_0)
+            h_4 = tf.keras.layers.Dense(256, activation="relu")(h_3)
+            x_hat = tf.keras.layers.Dense(self.input_channels, activation="sigmoid")(h_4)
         else:
-            with tf.compat.v1.variable_scope("decoder", reuse=tf.compat.v1.AUTO_REUSE):
-                flat_size = 7*7*256
-                h_flat_dec = tf.keras.layers.Dense(flat_size)(self.z_q)
-                h_reshaped = tf.reshape(h_flat_dec, [-1, 7, 7, 256])
-                h_unpool1 = tf.keras.layers.UpSampling2D((2,2))(h_reshaped)
-                h_deconv1 = tf.nn.relu(conv2d(h_unpool1, [4,4,256,256], "deconv1"))
-                h_unpool2 = tf.keras.layers.UpSampling2D((2,2))(h_deconv1)
-                h_deconv2 = tf.nn.sigmoid(conv2d(h_unpool2, [4,4,256,1], "deconv2"))
-                x_hat = h_deconv2
-        return x_hat
+            #with tf.compat.v1.variable_scope("decoder", reuse=tf.compat.v1.AUTO_REUSE):
+            h_0 = tf.keras.layers.Input(shape=self.latent_dim, name='latent_code')
+            flat_size = 7*7*256
+            h_flat_dec = tf.keras.layers.Dense(flat_size)(h_0)
+            h_reshaped = tf.reshape(h_flat_dec, [-1, 7, 7, 256])
+            h_unpool1 = tf.keras.layers.UpSampling2D((2,2))(h_reshaped)
+            h_deconv1 = tf.nn.relu(conv2d(h_unpool1, [4,4,256,256], "deconv1"))
+            h_unpool2 = tf.keras.layers.UpSampling2D((2,2))(h_deconv1)
+            h_deconv2 = tf.nn.sigmoid(conv2d(h_unpool2, [4,4,256,1], "deconv2"))
+            x_hat = h_deconv2
+        return tf.keras.models.Model(inputs=[h_0], outputs=[x_hat], name='encoder')
 
-
-    @lazy_scope
     def reconstruction_e(self):
-        """Reconstructs the input from the encodings."""
-        if not self.mnist:
-            with tf.compat.v1.variable_scope("decoder", reuse=tf.compat.v1.AUTO_REUSE):
-                h_3 = tf.keras.layers.Dense(128, activation="relu")(self.z_e)
-                h_4 = tf.keras.layers.Dense(256, activation="relu")(h_3)
-                x_hat = tf.keras.layers.Dense(self.input_channels, activation="sigmoid")(h_4)
-        else:
-            with tf.compat.v1.variable_scope("decoder", reuse=tf.compat.v1.AUTO_REUSE):
-                flat_size = 7*7*256
-                h_flat_dec = tf.keras.layers.Dense(flat_size)(self.z_e)
-                h_reshaped = tf.reshape(h_flat_dec, [-1, 7, 7, 256])
-                h_unpool1 = tf.keras.layers.UpSampling2D((2,2))(h_reshaped)
-                h_deconv1 = tf.nn.relu(conv2d(h_unpool1, [4,4,256,256], "deconv1"))
-                h_unpool2 = tf.keras.layers.UpSampling2D((2,2))(h_deconv1)
-                h_deconv2 = tf.nn.sigmoid(conv2d(h_unpool2, [4,4,256,1], "deconv2"))
-                x_hat = h_deconv2
-        return x_hat
-
+        return self.decoder(self.z_e)
+    
+    def reconstruction_q(self):
+        return self.decoder(self.z_q)
 
     @lazy_scope
     def loss_reconstruction(self):
@@ -360,7 +332,6 @@ class SOMVAE:
         loss_rec_mse = loss_rec_mse_zq + loss_rec_mse_ze
         tf.compat.v1.summary.scalar("loss_reconstruction", loss_rec_mse)
         return loss_rec_mse
-
 
     @lazy_scope
     def loss_commit(self):

@@ -32,15 +32,15 @@ from sacred.stflow import LogFileWriter
 from somvae_model import SOMVAE
 from utils import *
 
-ex = sacred.Experiment("hyperopt")
-ex.observers.append(sacred.observers.FileStorageObserver.create("../sacred_runs"))
-ex.captured_out_filter = sacred.utils.apply_backspaces_and_linefeeds
+#ex = sacred.Experiment("hyperopt")
+#ex.observers.append(sacred.observers.FileStorageObserver.create("../sacred_runs"))
+#ex.captured_out_filter = sacred.utils.apply_backspaces_and_linefeeds
 
 # ex.observers.append(sacred.observers.MongoObserver.create(db_name="somvae_hyperopt"))
 
 # assistant = LabAssistant(ex, "somvae_hyperopt", optimizer=SMAC, url="localhost:{}".format(db_port))
 tf.compat.v1.disable_eager_execution()
-@ex.config
+#@ex.config
 def ex_config():
     """Sacred configuration for the experiment.
     
@@ -114,7 +114,7 @@ labels_val = labels_train[45000:]
 data_train = data_train[:45000]
 labels_train = data_train[:45000]
 
-@ex.capture
+#@ex.capture
 def get_data_generator(time_series):
     """Creates a data generator for the training.
     
@@ -162,7 +162,7 @@ def get_data_generator(time_series):
     return batch_generator
 
 
-@ex.capture
+#@ex.capture
 def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
         modelpath, learning_rate, interactive, generator):
     """Trains the SOM-VAE model.
@@ -228,9 +228,17 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
                 #    train_loss, summary = sess.run([model.loss, summaries], feed_dict={x: batch_data})
                 #    train_writer.add_summary(summary, tf.compat.v1.train.global_step(sess, model.global_step))
                 
+                
+                #with tf.GradientTape() as tape:
+                    # change self.input
+                #    error = losses.Reconstruction_loss(true=images,predict=reconst_images)
+                #    print('Error {}:'.format(batch_size),error)
+                #    global_error = tf.nn.compute_average_loss(error, global_batch_size=global_batch_size) # recheck
+                #    print('Global {}:'.format(global_batch_size),global_error)
 
-                loss = model.forward_pass(input=batch_data)
-                print(loss)
+                # Backward pass for AE
+                #grads = tape.gradient(global_error, self.encoder.train_encoder.trainable_variables)
+                #optimizer.apply_gradients(zip(grads, self.encoder.train_encoder.trainable_variables))
 
                 #train_step_SOMVAE.run(feed_dict={x: batch_data, lr_val:learning_rate})
                 #train_step_prob.run(feed_dict={x: batch_data, lr_val:learning_rate*100})
@@ -247,7 +255,7 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
 
 
 
-@ex.capture
+#@ex.capture
 def evaluate_model(model, x, modelpath, batch_size):
     """Evaluates the performance of the trained model in terms of normalized
     mutual information, purity and mean squared error.
@@ -293,7 +301,7 @@ def evaluate_model(model, x, modelpath, batch_size):
     return results
  
 
-@ex.automain
+#@ex.automain
 def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, tau, modelpath, save_model, mnist):
     """Main method to build a model, train it and evaluate it.
     
@@ -320,11 +328,11 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     # get data 
     data_generator = get_data_generator(True)
 
-    x = tf.compat.v1.placeholder(tf.float32, shape=[None, 28, 28, 1])
-    lr_val = tf.compat.v1.placeholder_with_default(learning_rate, [])
+    #x = tf.Variable(tf.float32, shape=[None, 28, 28, 1])
+    #lr_val = tf.compat.v1.placeholder_with_default(learning_rate, [])
 
     # build model
-    model = SOMVAE(inputs=x, latent_dim=latent_dim, som_dim=som_dim, learning_rate=lr_val, decay_factor=decay_factor,
+    model = SOMVAE(latent_dim=latent_dim, som_dim=som_dim, learning_rate=learning_rate, decay_factor=decay_factor,
                 input_length=input_length, input_channels=input_channels, alpha=alpha, beta=beta, gamma=gamma,
                 tau=tau, mnist=mnist)
     
