@@ -148,8 +148,8 @@ class SOMVAE:
         self.mnist = mnist
         
         # Static
-        self.encoder
-        self.decoder
+        self.encoder_ = self.encoder()
+        self.decoder()
 
         #Dynamic
         self.embeddings 
@@ -237,8 +237,8 @@ class SOMVAE:
         return tf.keras.models.Model(inputs=[h_0], outputs=[z_e], name='encoder')
 
     def z_e(self):
-        print('hey',self.encoder(self.inputs))
-        return self.encoder(self.inputs)
+        print('hey',self.encoder_(self.inputs))
+        return self.encoder_(self.inputs)
 
     #@lazy_scope
     #def z_e_old(self):
