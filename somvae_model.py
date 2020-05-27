@@ -11,16 +11,16 @@ import numpy as np
 import tensorflow as tf
 
 
-def weight_variable(shape, name):
-    """Creates a TensorFlow Variable with a given shape and name and truncated normal initialization."""
-    initial = tf.random.truncated_normal(shape, stddev=0.1)
-    return tf.Variable(initial,name=name)
+#def weight_variable(shape, name):
+#    """Creates a TensorFlow Variable with a given shape and name and truncated normal initialization."""
+#    initial = tf.random.truncated_normal(shape, stddev=0.1)
+#    return tf.Variable(initial,name=name)
 
 
-def bias_variable(shape, name):
-    """Creates a TensorFlow Variable with a given shape and name and constant initialization."""
-    initial = tf.constant(0.1, shape=shape)
-    return tf.Variable(initial, name=name)
+#def bias_variable(shape, name):
+#    """Creates a TensorFlow Variable with a given shape and name and constant initialization."""
+#    initial = tf.constant(0.1, shape=shape)
+#    return tf.Variable(initial, name=name)
 
 
 def conv2d(x, shape, name, strides=(1,1)):
@@ -41,21 +41,22 @@ def conv2d(x, shape, name, strides=(1,1)):
         use_bias=True,kernel_initializer=tf.keras.initializers.TruncatedNormal(mean=0.0,stddev=0.1),bias_initializer=tf.constant_initializer(value=0.1))(x)
 
 
-def conv2d_transposed(x, shape, outshape, name, strides=(1,1)):
-    """Creates a transposed convolutional layer simimar to conv2d.
+#def conv2d_transposed(x, shape, outshape, name, strides=(1,1)):
+#    """Creates a transposed convolutional layer simimar to conv2d.
     
-    Args:
-        x (tf.Tensor): Input tensor.
-        shape (list): Shape of the weight matrix.
-        name (str): Name of the layer.
-        strides (list): Strides for the convolution (default: [1,1,1,1]).
-    Returns:
-        tf.Tensor: The transposed convolution defined by the weight matrix and the biases with the given strides.
-    """
-    weight = weight_variable(shape, "{}_W".format(name))
-    bias = bias_variable([shape[-2]], "{}_b".format(name))
-    return tf.nn.conv2d_transpose(x, weight, output_shape=outshape, strides=strides, padding='SAME', name=name) + bias
-    #return tf.keras.layers.Conv2D( strides=strides, padding="same",name=name)(x)
+#    Args:
+#        x (tf.Tensor): Input tensor.
+#        shape (list): Shape of the weight matrix.
+#        name (str): Name of the layer.
+#        strides (list): Strides for the convolution (default: [1,1,1,1]).
+#    Returns:
+#        tf.Tensor: The transposed convolution defined by the weight matrix and the biases with the given strides.
+#    """
+#    weight = weight_variable(shape, "{}_W".format(name))
+#    bias = bias_variable([shape[-2]], "{}_b".format(name))
+#    return tf.nn.conv2d_transpose(x, weight, output_shape=outshape, strides=strides, padding='SAME', name=name) + bias
+#    return tf.keras.layers.Conv2DTranspose(filters=shape[-1], kernel_size=(shape[0],shape[0]),strides=strides, padding="same",name=name,
+#        use_bias=True,kernel_initializer=tf.keras.initializers.TruncatedNormal(mean=0.0,stddev=0.1),bias_initializer=tf.constant_initializer(value=0.1))(x)
 
 
 def max_pool_2x2(x):
@@ -63,25 +64,25 @@ def max_pool_2x2(x):
     return tf.nn.max_pool2d(input=x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
 
 
-def conv1d(x, shape, name, stride=1):
-    """Creates a 1D convolutional layer with weight and bias variables.
+#def conv1d(x, shape, name, stride=1):
+#    """Creates a 1D convolutional layer with weight and bias variables.
     
-    Args:
-        x (tf.Tensor): Input tensor.
-        shape (list): Shape of the weight matrix.
-        name (str): Name of the layer.
-        stride (int): Stride for the convolution (default: 1).
-    Returns:
-        tf.Tensor: The convolution defined by the weight matrix and the biases with the given stride.
-    """
-    weight = weight_variable(shape, "{}_W".format(name))
-    bias = bias_variable([shape[-1]], "{}_b".format(name))
-    return tf.nn.conv1d(input=x, filters=weight, stride=stride, padding='SAME', name=name) + bias
+#    Args:
+#        x (tf.Tensor): Input tensor.
+#        shape (list): Shape of the weight matrix.
+#        name (str): Name of the layer.
+#        stride (int): Stride for the convolution (default: 1).
+#    Returns:
+#        tf.Tensor: The convolution defined by the weight matrix and the biases with the given stride.
+#    """
+#    weight = weight_variable(shape, "{}_W".format(name))
+#    bias = bias_variable([shape[-1]], "{}_b".format(name))
+#    return tf.nn.conv1d(input=x, filters=weight, stride=stride, padding='SAME', name=name) + bias
 
 
-def max_pool_2x1(x):
-    """Creates a 2x1 max-pooling layer."""
-    return tf.compat.v1.layers.max_pooling1d(x, pool_size=2, strides=2, padding='SAME')
+#def max_pool_2x1(x):
+#    """Creates a 2x1 max-pooling layer."""
+#    return tf.compat.v1.layers.max_pooling1d(x, pool_size=2, strides=2, padding='SAME')
 
 
 def lazy_scope(function):
@@ -148,8 +149,9 @@ class SOMVAE:
         
         # Does not depend on inputs
         self.encoder = self.get_encoder
-        self.decoder = self.get_decoder()
+        self.decoder = self.get_decoder
         self.embeddings
+        print(embeddings)
         self.transition_probabilities = self.get_transition_probabilities
 
         #self.batch_size
