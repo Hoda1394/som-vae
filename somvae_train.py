@@ -328,11 +328,11 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     # get data 
     data_generator = get_data_generator(True)
 
-    #x = tf.Variable(tf.float32, shape=[None, 28, 28, 1])
-    #lr_val = tf.compat.v1.placeholder_with_default(learning_rate, [])
+    x = tf.Variable(tf.float32, shape=[None, 28, 28, 1])
+    lr_val = tf.compat.v1.placeholder_with_default(learning_rate, [])
 
     # build model
-    model = SOMVAE(latent_dim=latent_dim, som_dim=som_dim, learning_rate=learning_rate, decay_factor=decay_factor,
+    model = SOMVAE(inputs=x,latent_dim=latent_dim, som_dim=som_dim, learning_rate=lr_val, decay_factor=decay_factor,
                 input_length=input_length, input_channels=input_channels, alpha=alpha, beta=beta, gamma=gamma,
                 tau=tau, mnist=mnist)
     
