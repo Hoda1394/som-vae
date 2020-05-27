@@ -174,7 +174,7 @@ class SOMVAE:
         #self.loss
         #self.optimize
 
-    @lazy_scope
+    #@lazy_scope
     def embeddings(self):
         """Creates variable for the SOM embeddings."""
         #embeddings = tf.compat.v1.get_variable("embeddings", self.som_dim+[self.latent_dim],initializer=tf.compat.v1.truncated_normal_initializer(stddev=0.05))
