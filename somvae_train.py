@@ -162,7 +162,7 @@ def get_data_generator(time_series):
     return batch_generator
 
 
-#@ex.capture
+@ex.capture
 def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
         modelpath, learning_rate, interactive, generator):
     """Trains the SOM-VAE model.
