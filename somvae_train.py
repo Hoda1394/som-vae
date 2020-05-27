@@ -207,6 +207,7 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
         for epoch in range(num_epochs):
             batch_val = next(val_gen)
             test_loss = 1
+            train_loss = 1
             #test_loss, summary = sess.run([model.loss, summaries], feed_dict={x: batch_val})
             #test_losses.append(test_loss)
             #test_writer.add_summary(summary, tf.compat.v1.train.global_step(sess, model.global_step))
