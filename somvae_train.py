@@ -32,9 +32,9 @@ from sacred.stflow import LogFileWriter
 from somvae_model import SOMVAE
 from utils import *
 
-#ex = sacred.Experiment("hyperopt")
-#ex.observers.append(sacred.observers.FileStorageObserver.create("../sacred_runs"))
-#ex.captured_out_filter = sacred.utils.apply_backspaces_and_linefeeds
+ex = sacred.Experiment("hyperopt")
+ex.observers.append(sacred.observers.FileStorageObserver.create("../sacred_runs"))
+ex.captured_out_filter = sacred.utils.apply_backspaces_and_linefeeds
 
 # ex.observers.append(sacred.observers.MongoObserver.create(db_name="somvae_hyperopt"))
 
@@ -301,7 +301,7 @@ def evaluate_model(model, x, modelpath, batch_size):
     return results
  
 
-#@ex.automain
+@ex.automain
 def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, tau, modelpath, save_model, mnist):
     """Main method to build a model, train it and evaluate it.
     
