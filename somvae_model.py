@@ -133,7 +133,7 @@ class SOMVAE:
             tau (float): The weight for the smoothness loss (default: 1.).
             mnist (bool): Flag that tells the model if we are training in MNIST-like data (default: True).
         """
-        self.inputs = tf.Variable(tf.zeros(shape=(None,input_length,input_channels,1)), name="b")
+        self.inputs = inputs
         self.latent_dim = latent_dim
         self.som_dim = som_dim
         self.learning_rate = learning_rate
