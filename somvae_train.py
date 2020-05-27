@@ -222,6 +222,8 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
             for i in range(num_batches):
                 batch_data = next(train_gen)
                 print(batch_data)
+                print(batch_data.shape)
+                break
 
                 #if i%100 == 0:
                 #    train_loss, summary = sess.run([model.loss, summaries], feed_dict={x: batch_data})
