@@ -192,19 +192,15 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
     #with tf.compat.v1.Session() as sess:
 
     #sess.run(tf.compat.v1.global_variables_initializer())
-    @tf.function
-    def initialize():
-        tf.compat.v1.global_variables_initializer()                       # in TFv.2 no global variables anymore 
-        return 
     
-    initialize()
     patience_count = 0
     test_losses = []
     #with LogFileWriter(ex):                                                          #Sacred
     #    train_writer = tf.compat.v1.summary.FileWriter(logdir+"/train", sess.graph)  #could be upgraded to TFv.2
     #    test_writer = tf.compat.v1.summary.FileWriter(logdir+"/test", sess.graph)    #could be upgraded to TFv.2
     print("Training...")
-    train_step_SOMVAE, train_step_prob = model.optimize
+    #train_step_SOMVAE, train_step_prob = model.optimize
+
     try:
         if interactive:
             pbar = tqdm(total=num_epochs*(num_batches)) 
@@ -223,6 +219,7 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
             #    break
             for i in range(num_batches):
                 batch_data = next(train_gen)
+                print(batch_data)
 
                 #if i%100 == 0:
                 #    train_loss, summary = sess.run([model.loss, summaries], feed_dict={x: batch_data})
@@ -336,10 +333,7 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
                 input_length=input_length, input_channels=input_channels, alpha=alpha, beta=beta, gamma=gamma,
                 tau=tau, mnist=mnist)
     
-    #x = tf.compat.v1.placeholder(tf.float32, shape=[None, 28, 28, 1])
-    #lr_val = tf.compat.v1.placeholder_with_default(learning_rate, [])
-
-    #train_model(model, x, lr_val, generator=data_generator)
+    train_model(model, x, lr_val, generator=data_generator)
 
     #result = evaluate_model(model, x)
 
