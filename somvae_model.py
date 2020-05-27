@@ -327,6 +327,7 @@ class SOMVAE:
     @lazy_scope
     def loss_reconstruction(self):
         """Computes the combined reconstruction loss for both reconstructions."""
+        print(self.inputs.shape,self.reconstruction_q.shape)
         loss_rec_mse_zq = tf.compat.v1.losses.mean_squared_error(self.inputs, self.reconstruction_q)
         loss_rec_mse_ze = tf.compat.v1.losses.mean_squared_error(self.inputs, self.reconstruction_e)
         loss_rec_mse = loss_rec_mse_zq + loss_rec_mse_ze
