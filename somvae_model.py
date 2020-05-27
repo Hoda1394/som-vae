@@ -148,10 +148,10 @@ class SOMVAE:
         self.mnist = mnist
         
         # Does not depend on inputs
-        self.encoder = self.get_encoder
-        self.decoder = self.get_decoder
+        self.encoder
+        self.decoder
         self.embeddings 
-        print(self.embeddings)
+        print(self.encoder,self.embeddings)
         self.transition_probabilities = self.get_transition_probabilities
 
         #self.batch_size
@@ -205,7 +205,7 @@ class SOMVAE:
         return batch_size
 
     @lazy_scope
-    def get_encoder(self):
+    def encoder(self):
         """Computes the latent encodings of the inputs."""
         if not self.mnist:
             #with tf.compat.v1.variable_scope("encoder"):
@@ -229,7 +229,7 @@ class SOMVAE:
             z_e = tf.keras.layers.Dense(self.latent_dim)(h_flat)
         return tf.keras.models.Model(inputs=[h_0], outputs=[z_e], name='encoder')
     
-    def get_decoder(self):
+    def decoder(self):
         """Reconstructs the input from the latent space"""
         if not self.mnist:
             #with tf.compat.v1.variable_scope("decoder", reuse=tf.compat.v1.AUTO_REUSE):
