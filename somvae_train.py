@@ -40,7 +40,7 @@ ex.captured_out_filter = sacred.utils.apply_backspaces_and_linefeeds
 
 # assistant = LabAssistant(ex, "somvae_hyperopt", optimizer=SMAC, url="localhost:{}".format(db_port))
 tf.compat.v1.disable_eager_execution()
-#@ex.config
+@ex.config
 def ex_config():
     """Sacred configuration for the experiment.
     
@@ -347,3 +347,5 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     #    shutil.rmtree(os.path.dirname(modelpath))
 
     return 1
+
+
