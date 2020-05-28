@@ -133,6 +133,7 @@ class SOMVAE:
             tau (float): The weight for the smoothness loss (default: 1.).
             mnist (bool): Flag that tells the model if we are training in MNIST-like data (default: True).
         """
+
         self.latent_dim = latent_dim
         self.som_dim = som_dim
         self.learning_rate = learning_rate
@@ -145,7 +146,6 @@ class SOMVAE:
         self.gamma = gamma
         self.tau = tau
         self.mnist = mnist
-        self.batch_size = self.get_batch_size()
         
         # Static
         self.encoder_ = self.get_encoder()
@@ -401,6 +401,7 @@ class SOMVAE:
     def forward_pass(self,inputs):
 
         self.inputs=inputs
+        self.batch_size = self.get_batch_size()
         self.z_e = self.get_z_e()
         self.z_dist_flat = self.get_z_dist_flat()
         self.k = self.get_k()
