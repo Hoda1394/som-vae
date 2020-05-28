@@ -133,7 +133,6 @@ class SOMVAE:
             tau (float): The weight for the smoothness loss (default: 1.).
             mnist (bool): Flag that tells the model if we are training in MNIST-like data (default: True).
         """
-        self.inputs = inputs
         self.latent_dim = latent_dim
         self.som_dim = som_dim
         self.learning_rate = learning_rate
@@ -146,22 +145,16 @@ class SOMVAE:
         self.gamma = gamma
         self.tau = tau
         self.mnist = mnist
+        self.batch_size = self.get_batch_size()
         
         # Static
-        self.encoder_ = self.encoder()
-        self.decoder()
+        self.encoder_ = self.get_encoder()
+        self.decoder_ = self.get_decoder()
 
         #Dynamic
-        self.embeddings 
-        self.transition_probabilities
-        self.test = self.z_e()
-        print(test )
-        self.z_dist_flat
-        self.k
-        self.z_q
-        self.z_q_neighbors
-        self.reconstruction_e
-        self.reconstruction_q
+        self.embeddings = self.get_embeddings() 
+        self.transition_probabilities = self.get_transition_probabilities()
+        self.global_step = self.get_global_step()
 
         #self.batch_size
         #self.embeddings
@@ -184,7 +177,7 @@ class SOMVAE:
         #self.optimize
 
     #@lazy_scope
-    def embeddings(self):
+    def get_embeddings(self):
         """Creates variable for the SOM embeddings."""
         #embeddings = tf.compat.v1.get_variable("embeddings", self.som_dim+[self.latent_dim],initializer=tf.compat.v1.truncated_normal_initializer(stddev=0.05))
         embeddings=tf.Variable(tf.initializers.TruncatedNormal(mean=0., stddev=0.05)(shape=self.som_dim+[self.latent_dim], dtype=tf.float32))
@@ -192,7 +185,7 @@ class SOMVAE:
         return embeddings
 
     #@lazy_scope
-    def transition_probabilities(self):
+    def get_transition_probabilities(self):
         """Creates tensor for the transition probabilities."""
         with tf.compat.v1.variable_scope("probabilities"):
             probabilities_raw = tf.Variable(tf.zeros(self.som_dim+self.som_dim), name="probabilities_raw")
@@ -202,18 +195,18 @@ class SOMVAE:
             return probabilities_normalized
 
     #@lazy_scope
-    def global_step(self):
+    def get_global_step(self):
         """Creates global_step variable for the optimization."""
         global_step = tf.Variable(0, trainable=False, name="global_step")
         return global_step
 
     #@lazy_scope
-    def batch_size(self):
+    def get_batch_size(self):
         """Reads the batch size from the input tensor."""
         batch_size = tf.shape(input=self.inputs)[0]
         return batch_size
 
-    def encoder(self):
+    def get_encoder(self):
         if not self.mnist:
             #with tf.compat.v1.variable_scope("encoder"):
                 # Input layer
@@ -236,7 +229,7 @@ class SOMVAE:
             z_e = tf.keras.layers.Dense(self.latent_dim)(h_flat)
         return tf.keras.models.Model(inputs=[h_0], outputs=[z_e], name='encoder')
 
-    def z_e(self):
+    def get_z_e(self):
         print('hey',self.encoder_(self.inputs))
         return self.encoder_(self.inputs)
 
@@ -247,7 +240,7 @@ class SOMVAE:
     #    return z_e_old
 
     #@lazy_scope
-    def z_dist_flat(self):
+    def get_z_dist_flat(self):
         """Computes the distances between the encodings and the embeddings."""
         z_dist = tf.math.squared_difference(tf.expand_dims(tf.expand_dims(self.z_e, 1), 1), tf.expand_dims(self.embeddings, 0))
         z_dist_red = tf.reduce_sum(input_tensor=z_dist, axis=-1)
@@ -255,14 +248,14 @@ class SOMVAE:
         return z_dist_flat
 
     #@lazy_scope
-    def k(self):
+    def get_k(self):
         """Picks the index of the closest embedding for every encoding."""
         k = tf.argmin(input=self.z_dist_flat, axis=-1)
         tf.compat.v1.summary.histogram("clusters", k)
         return k
 
     #@lazy_scope
-    def z_q(self):
+    def get_z_q(self):
         """Aggregates the respective closest embedding for every encoding."""
         k_1 = self.k // self.som_dim[1]
         k_2 = self.k % self.som_dim[1]
@@ -271,7 +264,7 @@ class SOMVAE:
         return z_q
 
     #@lazy_scope
-    def z_q_neighbors(self):
+    def get_z_q_neighbors(self):
         """Aggregates the respective neighbors in the SOM for every embedding in z_q."""
         k_1 = self.k // self.som_dim[1]
         k_2 = self.k % self.som_dim[1]
@@ -299,7 +292,7 @@ class SOMVAE:
         z_q_neighbors = tf.stack([self.z_q, z_q_up, z_q_down, z_q_right, z_q_left], axis=1)
         return z_q_neighbors
 
-    def decoder(self):
+    def get_decoder(self):
         """Reconstructs the input from the latent space"""
         if not self.mnist:
             #with tf.compat.v1.variable_scope("decoder", reuse=tf.compat.v1.AUTO_REUSE):
@@ -320,10 +313,10 @@ class SOMVAE:
             x_hat = h_deconv2
         return tf.keras.models.Model(inputs=[h_0], outputs=[x_hat], name='encoder')
 
-    def reconstruction_e(self):
+    def get_reconstruction_e(self):
         return self.decoder(self.z_e)
     
-    def reconstruction_q(self):
+    def get_reconstruction_q(self):
         return self.decoder(self.z_q)
 
     @lazy_scope
@@ -383,9 +376,9 @@ class SOMVAE:
     @lazy_scope
     def loss(self):
         """Aggregates the loss terms into the total loss."""
-        loss = (self.loss_reconstruction + self.alpha*self.loss_commit + self.beta*self.loss_som
-                + self.gamma*self.loss_probabilities + self.tau*self.loss_z_prob)
-        tf.compat.v1.summary.scalar("loss", loss)
+        loss = (self.loss_reconstruction() + self.alpha*self.loss_commit() + self.beta*self.loss_som()
+                + self.gamma*self.loss_probabilities() + self.tau*self.loss_z_prob())
+        #tf.compat.v1.summary.scalar("loss", loss)
         return loss
 
 
@@ -403,3 +396,19 @@ class SOMVAE:
         #train_step_prob = optimizer.minimize(self.loss_probabilities)
 
         return train_step, train_step_prob
+
+    @lazy_scope
+    def forward_pass(self,inputs):
+
+        self.inputs=inputs
+        self.z_e = self.get_z_e()
+        self.z_dist_flat = self.get_z_dist_flat()
+        self.k = self.get_k()
+        self.z_q = self.get_z_q()
+        self.z_q_neighbors = self.get_z_q_neighbors()
+        self.reconstruction_e = self.get_reconstruction_e()
+        self.reconstruction_q = self.get_reconstruction_q()
+
+        
+    
+
