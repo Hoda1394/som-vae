@@ -334,7 +334,7 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     # get data 
     data_generator = get_data_generator(True)
 
-    x = tf.Variable(tf.zeros(shape=[28, 28, 1],dtype=tf.dtypes.int32),shape=[28, 28, 1])
+    x = tf.Variable(tf.zeros(shape=[None,28, 28, 1],dtype=tf.dtypes.int32),shape=[None,28, 28, 1])
     lr_val = tf.compat.v1.placeholder_with_default(learning_rate, [])
 
     # build model
