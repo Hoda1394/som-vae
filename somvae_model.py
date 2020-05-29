@@ -133,6 +133,7 @@ class SOMVAE:
             tau (float): The weight for the smoothness loss (default: 1.).
             mnist (bool): Flag that tells the model if we are training in MNIST-like data (default: True).
         """
+        self.inputs = tf.Variable(x = tf.Variable(tf.zeros(shape=[32,28, 28, 1],dtype=tf.dtypes.int32),shape=[32,28, 28, 1]))
         self.latent_dim = latent_dim
         self.som_dim = som_dim
         self.learning_rate = learning_rate
@@ -209,9 +210,9 @@ class SOMVAE:
         if not self.mnist:
             #with tf.compat.v1.variable_scope("encoder"):
                 # Input layer
-            h_0 = tf.keras.layers.Input(shape=[self.input_length, self.input_channels, 1], name='input')
-            h_1 = tf.keras.layers.Dense(256, activation="relu")(self.inputs)
-            h_2 = tf.keras.layers.Dense(128, activation="relu")(h_1)
+            h_0 = tf.keras.layers.Input(shape=[None,self.input_length, self.input_channels, 1], name='input')
+            h_1 = tf.keras.layers.Dense(256, activation="dense")(h_0)
+            h_2 = tf.keras.layers.Dense(128, activation="dense")(h_1)
             z_e = tf.keras.layers.Dense(self.latent_dim, activation="relu")(h_2)
 
         else:
