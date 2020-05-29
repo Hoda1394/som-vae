@@ -397,7 +397,7 @@ class SOMVAE:
 
         return train_step, train_step_prob
 
-    @lazy_scope
+    #@lazy_scope
     def forward_pass(self,inputs):
 
         self.inputs=inputs
