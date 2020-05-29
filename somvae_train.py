@@ -343,7 +343,7 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     #            input_length=input_length, input_channels=input_channels, alpha=alpha, beta=beta, gamma=gamma,
     #            tau=tau, mnist=mnist)
 
-    train_gen = generator("train", batch_size)
+    train_gen = data_generator("train", batch_size)
     batch_data = next(train_gen)
     print(batch_data)
     print(batch_data.shape)
