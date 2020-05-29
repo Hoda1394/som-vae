@@ -314,10 +314,10 @@ class SOMVAE:
         return tf.keras.models.Model(inputs=[h_0], outputs=[x_hat], name='encoder')
 
     def get_reconstruction_e(self):
-        return self.decoder(self.z_e)
+        return self.decoder_(self.z_e)
     
     def get_reconstruction_q(self):
-        return self.decoder(self.z_q)
+        return self.decoder_(self.z_q)
 
     @lazy_scope
     def loss_reconstruction(self):
