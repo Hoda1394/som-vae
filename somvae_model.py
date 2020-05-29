@@ -217,7 +217,7 @@ class SOMVAE:
 
         else:
             #with tf.compat.v1.variable_scope("encoder"):
-            h_0 = tf.keras.layers.Input(shape=[None,self.input_length, self.input_channels,1], name='input')
+            h_0 = tf.keras.layers.Input(shape=[self.input_length, self.input_channels,1], name='input')
             h_conv1 = tf.nn.relu(conv2d(h_0, [4,4,1,256], "conv1"))
             h_pool1 = max_pool_2x2(h_conv1)
             h_conv2 = tf.nn.relu(conv2d(h_pool1, [4,4,256,256], "conv2"))
