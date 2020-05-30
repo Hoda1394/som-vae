@@ -230,7 +230,7 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
                 print("loss",loss)
 
                 break
-            break
+            
 
                 #if i%100 == 0:
                 #    train_loss, summary = sess.run([model.loss, summaries], feed_dict={x: batch_data})
@@ -253,6 +253,7 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
                 if interactive:
                     pbar.set_postfix(epoch=epoch, train_loss=train_loss, test_loss=test_loss, refresh=False)
                     pbar.update(1)
+            break
 
     except KeyboardInterrupt:
         pass
