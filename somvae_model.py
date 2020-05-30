@@ -10,7 +10,7 @@ import functools
 import numpy as np
 import tensorflow as tf
 
-loss_mse = tf.keras.losses.MeanSquaredError(reduction=tf.keras.losses.Reduction.MEAN)
+loss_mse = tf.keras.losses.MeanSquaredError(reduction=tf.keras.losses.Reduction.SUM_OVER_BATCH_SIZE)
 
 
 #def weight_variable(shape, name):
