@@ -189,12 +189,12 @@ class SOMVAE:
     #@lazy_scope
     def get_transition_probabilities(self):
         """Creates tensor for the transition probabilities."""
-        with tf.compat.v1.variable_scope("probabilities"):
-            probabilities_raw = tf.Variable(tf.zeros(self.som_dim+self.som_dim), name="probabilities_raw")
-            probabilities_positive = tf.exp(probabilities_raw)
-            probabilities_summed = tf.reduce_sum(input_tensor=probabilities_positive, axis=[-1,-2], keepdims=True)
-            probabilities_normalized = probabilities_positive / probabilities_summed
-            return probabilities_normalized
+
+        probabilities_raw = tf.Variable(tf.zeros(self.som_dim+self.som_dim), name="probabilities_raw")
+        probabilities_positive = tf.exp(probabilities_raw)
+        probabilities_summed = tf.reduce_sum(input_tensor=probabilities_positive, axis=[-1,-2], keepdims=True)
+        probabilities_normalized = probabilities_positive / probabilities_summed
+        return probabilities_normalized
 
     #@lazy_scope
     def get_global_step(self):
@@ -210,21 +210,18 @@ class SOMVAE:
 
     def get_encoder(self):
         if not self.mnist:
-            #with tf.compat.v1.variable_scope("encoder"):
-                # Input layer
             h_0 = tf.keras.layers.Input(shape=[None,self.input_length, self.input_channels, 1], name='input')
             h_1 = tf.keras.layers.Dense(256, activation="dense")(h_0)
             h_2 = tf.keras.layers.Dense(128, activation="dense")(h_1)
             z_e = tf.keras.layers.Dense(self.latent_dim, activation="relu")(h_2)
 
         else:
-            #with tf.compat.v1.variable_scope("encoder"):
             h_0 = tf.keras.layers.Input(shape=[self.input_length, self.input_channels,1], name='input')
             h_conv1 = tf.nn.relu(conv2d(h_0, [4,4,1,256], "conv1"))
             h_pool1 = max_pool_2x2(h_conv1)
             h_conv2 = tf.nn.relu(conv2d(h_pool1, [4,4,256,256], "conv2"))
             h_pool2 = max_pool_2x2(h_conv2)
-            flat_size = 7*7*256
+            #flat_size = 7*7*256
             #h_flat = tf.reshape(h_pool2, [-1, flat_size])
             h_flat = tf.keras.layers.Flatten()(h_pool2)
             print(self.latent_dim,h_flat,h_pool2)
@@ -380,6 +377,7 @@ class SOMVAE:
     @lazy_scope
     def loss(self):
         """Aggregates the loss terms into the total loss."""
+        tf.executing_eagerly()
         self.loss_reconstruction()
         print(self.tmp)
         print(self.loss_commit().shape)
