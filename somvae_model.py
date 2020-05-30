@@ -322,8 +322,9 @@ class SOMVAE:
     def loss_reconstruction(self):
         """Computes the combined reconstruction loss for both reconstructions."""
         print(self.inputs.shape,self.reconstruction_q)
-        loss_rec_mse_zq = tf.compat.v1.losses.mean_squared_error(self.inputs, self.reconstruction_q)
-        loss_rec_mse_ze = tf.compat.v1.losses.mean_squared_error(self.inputs, self.reconstruction_e)
+        loss_rec_mse_zq = tf.keras.losses.MeanSquaredError(reduction=tf.keras.losses.Reduction.NONE)(self.inputs, self.reconstruction_q)
+        loss_rec_mse_ze = tf.keras.losses.MeanSquaredError(reduction=tf.keras.losses.Reduction.NONE)(self.inputs, self.reconstruction_e)
+        print(loss_rec_mse_ze)
         loss_rec_mse = loss_rec_mse_zq + loss_rec_mse_ze
         tf.compat.v1.summary.scalar("loss_reconstruction", loss_rec_mse)
         return loss_rec_mse
