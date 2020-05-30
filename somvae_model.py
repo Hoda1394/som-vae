@@ -323,7 +323,7 @@ class SOMVAE:
         print(self.inputs.shape,self.reconstruction_q.shape)
         loss_rec_mse_zq = loss_mse(self.inputs, self.reconstruction_q)
         loss_mse_zq = tf.math.reduce_sum(loss_rec_mse_zq,axis=[1,2])
-        loss_mse_zq = tf.mean(loss_mse_zq,axis=[0])
+        loss_mse_zq = tf.math.reduce_mean(loss_mse_zq,axis=[0])
         print('test',loss_mse_zq)
         loss_rec_mse_ze = loss_mse(self.inputs, self.reconstruction_e)
         loss_rec_mse = loss_rec_mse_zq + loss_rec_mse_ze
