@@ -40,6 +40,7 @@ ex.captured_out_filter = sacred.utils.apply_backspaces_and_linefeeds
 
 # assistant = LabAssistant(ex, "somvae_hyperopt", optimizer=SMAC, url="localhost:{}".format(db_port))
 #tf.compat.v1.disable_eager_execution()
+
 @ex.config
 def ex_config():
     """Sacred configuration for the experiment.
@@ -226,7 +227,7 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
 
                 model.forward_pass(inputs=batch_data)
                 loss = model.loss()
-                print(loss)
+                print("loss",loss)
 
                 break
 
