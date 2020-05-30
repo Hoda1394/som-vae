@@ -379,10 +379,10 @@ class SOMVAE:
     @lazy_scope
     def loss(self):
         """Aggregates the loss terms into the total loss."""
-        print(self.loss_reconstruction().shape)
-        print(self.loss_commit().shape)
-        print(self.loss_probabilities().shape)
-        print(self.loss_som().shape)
+        #print(self.loss_reconstruction())
+        #print(self.loss_commit().shape)
+        #print(self.loss_probabilities().shape)
+        #print(self.loss_som().shape)
         loss = (self.loss_reconstruction() + self.alpha*self.loss_commit() + self.beta*self.loss_som()
                 + self.gamma*self.loss_probabilities() + self.tau*self.loss_z_prob())
         #tf.compat.v1.summary.scalar("loss", loss)
