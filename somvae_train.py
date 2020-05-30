@@ -225,8 +225,8 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
                 print(batch_data.shape)
 
                 model.forward_pass(inputs=batch_data)
-                loss = model.loss()
-                print(loss)
+                #loss = model.loss()
+                #print(loss)
 
                 break
 
@@ -345,7 +345,7 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
 
     train_gen = data_generator("train", 32)
     batch_data = next(train_gen)
-    print(batch_data)
+    #print(batch_data)
     print(batch_data.shape)
     
     train_model(model, x, lr_val, generator=data_generator)

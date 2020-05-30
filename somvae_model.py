@@ -406,6 +406,7 @@ class SOMVAE:
 
         self.inputs=inputs
         self.batch_size = self.get_batch_size()
+        print('hello')
         print(self.batch_size)
         self.z_e = self.get_z_e()
         print(self.z_e)
