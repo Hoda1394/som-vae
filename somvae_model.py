@@ -329,6 +329,7 @@ class SOMVAE:
         print('new loss impl',loss_rec_mse_ze.shape)
         loss_rec_mse = loss_rec_mse_zq + loss_rec_mse_ze
         #tf.compat.v1.summary.scalar("loss_reconstruction", loss_rec_mse)
+        print(loss_rec_mse)
         return loss_rec_mse
 
     @lazy_scope
