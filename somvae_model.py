@@ -407,17 +407,17 @@ class SOMVAE:
         self.z_e = self.get_z_e()
         print('z_e',self.z_e.shape)
         self.z_dist_flat = self.get_z_dist_flat()
-        print('z_dis_flat',self.z_e.shape)
+        print('z_dis_flat',self.z_dist_flat.shape)
         self.k = self.get_k()
-        print('k',self.z_e.shape)
+        print('k',self.k.shape)
         self.z_q = self.get_z_q()
-        print('z_q',self.z_e.shape)
+        print('z_q',self.z_q.shape)
         self.z_q_neighbors = self.get_z_q_neighbors()
-        print('z_q_neig',self.z_e.shape)
+        print('z_q_neig',self.z_q_neighbors.shape)
         self.reconstruction_e = self.get_reconstruction_e()
-        print('z_e_rec',self.z_e.shape)
+        print('z_e_rec',self.reconstruction_e.shape)
         self.reconstruction_q = self.get_reconstruction_q()
-        print('z_q_rec',self.z_e.shape)
+        print('z_q_rec',self.reconstruction_q.shape)
 
         
     
