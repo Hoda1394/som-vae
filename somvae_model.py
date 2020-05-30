@@ -317,7 +317,7 @@ class SOMVAE:
     def get_reconstruction_q(self):
         return self.decoder_(self.z_q)
 
-    @lazy_scope
+    #@lazy_scope
     def loss_reconstruction(self):
         """Computes the combined reconstruction loss for both reconstructions."""
         print(self.inputs.shape,self.reconstruction_q.shape)
@@ -330,7 +330,7 @@ class SOMVAE:
         self.tmp = loss_rec_mse
         return 1
 
-    @lazy_scope
+    #@lazy_scope
     def loss_commit(self):
         """Computes the commitment loss."""
         loss_commit = tf.reduce_mean(input_tensor=tf.math.squared_difference(self.z_e, self.z_q))
@@ -338,7 +338,7 @@ class SOMVAE:
         return loss_commit
 
 
-    @lazy_scope
+    #@lazy_scope
     def loss_som(self):
         """Computes the SOM loss."""
         loss_som = tf.reduce_mean(input_tensor=tf.math.squared_difference(tf.expand_dims(tf.stop_gradient(self.z_e), axis=1), self.z_q_neighbors))
@@ -346,7 +346,7 @@ class SOMVAE:
         return loss_som
 
 
-    @lazy_scope
+    #@lazy_scope
     def loss_probabilities(self):
         """Computes the negative log likelihood loss for the transition probabilities."""
         k_1 = self.k // self.som_dim[1]
@@ -359,7 +359,7 @@ class SOMVAE:
         return loss_probabilities
 
 
-    @lazy_scope
+    #@lazy_scope
     def loss_z_prob(self):
         """Computes the smoothness loss for the transitions given their probabilities."""
         k_1 = self.k // self.som_dim[1]
@@ -374,7 +374,7 @@ class SOMVAE:
         return loss_z_prob
 
 
-    @lazy_scope
+    #@lazy_scope
     def loss(self):
         """Aggregates the loss terms into the total loss."""
         tf.executing_eagerly()
