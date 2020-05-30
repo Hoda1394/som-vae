@@ -323,11 +323,9 @@ class SOMVAE:
         print(self.inputs.shape,self.reconstruction_q.shape)
         loss_rec_mse_zq = loss_mse(self.inputs, self.reconstruction_q)
         loss_rec_mse_ze = loss_mse(self.inputs, self.reconstruction_e)
-        print('new loss impl',loss_rec_mse_ze.shape)
         loss_rec_mse = loss_rec_mse_zq + loss_rec_mse_ze
         #tf.compat.v1.summary.scalar("loss_reconstruction", loss_rec_mse)
-        print(loss_rec_mse)
-        self.tmp = loss_rec_mse
+        print(loss_rec_mse.shape)
         return 1
 
     #@lazy_scope
@@ -335,6 +333,7 @@ class SOMVAE:
         """Computes the commitment loss."""
         loss_commit = tf.reduce_mean(input_tensor=tf.math.squared_difference(self.z_e, self.z_q))
         #tf.compat.v1.summary.scalar("loss_commit", loss_commit)
+        print(loss_commit.shape)
         return loss_commit
 
 
@@ -343,6 +342,7 @@ class SOMVAE:
         """Computes the SOM loss."""
         loss_som = tf.reduce_mean(input_tensor=tf.math.squared_difference(tf.expand_dims(tf.stop_gradient(self.z_e), axis=1), self.z_q_neighbors))
         #tf.compat.v1.summary.scalar("loss_som", loss_som)
+        print(loss_som.shape)
         return loss_som
 
 
@@ -356,6 +356,7 @@ class SOMVAE:
         k_stacked = tf.stack([k_1_old, k_2_old, k_1, k_2], axis=1)
         transitions_all = tf.gather_nd(self.transition_probabilities, k_stacked)
         loss_probabilities = -self.gamma * tf.reduce_mean(input_tensor=tf.math.log(transitions_all))
+        print(loss_probabilities.shape)
         return loss_probabilities
 
 
@@ -371,22 +372,15 @@ class SOMVAE:
         out_probabilities_flat = tf.reshape(out_probabilities_old, [self.batch_size, -1])
         weighted_z_dist_prob = tf.multiply(self.z_dist_flat, out_probabilities_flat)
         loss_z_prob = tf.reduce_mean(input_tensor=weighted_z_dist_prob)
+        print(loss_z_prob.shape)
         return loss_z_prob
 
 
     #@lazy_scope
     def loss(self):
-        """Aggregates the loss terms into the total loss."""
-        tf.executing_eagerly()
-        self.loss_reconstruction()
-        print(self.tmp)
-        print(self.loss_commit().shape)
-        #print(self.loss_probabilities().shape)
-        #print(self.loss_som().shape)
-        #tmp = self.loss_reconstruction()
+        """Aggregates the loss terms into the total loss.""" 
         loss = (self.loss_reconstruction() + self.alpha*self.loss_commit() + self.beta*self.loss_som()
                 + self.gamma*self.loss_probabilities() + self.tau*self.loss_z_prob())
-        #tf.compat.v1.summary.scalar("loss", loss)
         return loss
 
 
