@@ -225,8 +225,8 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
                 print(batch_data.shape)
 
                 model.forward_pass(inputs=batch_data)
-                #loss = model.loss()
-                #print(loss)
+                loss = model.loss()
+                print(loss)
 
                 break
 
