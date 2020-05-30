@@ -330,6 +330,7 @@ class SOMVAE:
         loss_rec_mse = loss_rec_mse_zq + loss_rec_mse_ze
         #tf.compat.v1.summary.scalar("loss_reconstruction", loss_rec_mse)
         print(loss_rec_mse)
+        self.tmp = loss_z_prob
         return loss_rec_mse
 
     @lazy_scope
@@ -379,7 +380,8 @@ class SOMVAE:
     @lazy_scope
     def loss(self):
         """Aggregates the loss terms into the total loss."""
-        #print(self.loss_reconstruction())
+        self.loss_reconstruction()
+        print(self.tmp)
         print(self.loss_commit().shape)
         #print(self.loss_probabilities().shape)
         #print(self.loss_som().shape)
