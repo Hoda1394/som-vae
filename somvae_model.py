@@ -331,7 +331,7 @@ class SOMVAE:
         #tf.compat.v1.summary.scalar("loss_reconstruction", loss_rec_mse)
         print(loss_rec_mse)
         self.tmp = loss_rec_mse
-        return loss_rec_mse
+        return 1
 
     @lazy_scope
     def loss_commit(self):
