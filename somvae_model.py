@@ -10,6 +10,8 @@ import functools
 import numpy as np
 import tensorflow as tf
 
+loss_mse = tf.keras.losses.MeanSquaredError(reduction=tf.keras.losses.Reduction.NONE)
+
 
 #def weight_variable(shape, name):
 #    """Creates a TensorFlow Variable with a given shape and name and truncated normal initialization."""
@@ -322,18 +324,18 @@ class SOMVAE:
     def loss_reconstruction(self):
         """Computes the combined reconstruction loss for both reconstructions."""
         print(self.inputs.shape,self.reconstruction_q)
-        loss_rec_mse_zq = tf.keras.losses.MeanSquaredError(reduction=tf.keras.losses.Reduction.NONE)(self.inputs, self.reconstruction_q)
-        loss_rec_mse_ze = tf.keras.losses.MeanSquaredError(reduction=tf.keras.losses.Reduction.NONE)(self.inputs, self.reconstruction_e)
+        loss_rec_mse_zq = loss_mse(self.inputs, self.reconstruction_q)
+        loss_rec_mse_ze = loss_mse(self.inputs, self.reconstruction_e)
         print(loss_rec_mse_ze)
         loss_rec_mse = loss_rec_mse_zq + loss_rec_mse_ze
-        tf.compat.v1.summary.scalar("loss_reconstruction", loss_rec_mse)
+        #tf.compat.v1.summary.scalar("loss_reconstruction", loss_rec_mse)
         return loss_rec_mse
 
     @lazy_scope
     def loss_commit(self):
         """Computes the commitment loss."""
         loss_commit = tf.reduce_mean(input_tensor=tf.math.squared_difference(self.z_e, self.z_q))
-        tf.compat.v1.summary.scalar("loss_commit", loss_commit)
+        #tf.compat.v1.summary.scalar("loss_commit", loss_commit)
         return loss_commit
 
 
@@ -341,7 +343,7 @@ class SOMVAE:
     def loss_som(self):
         """Computes the SOM loss."""
         loss_som = tf.reduce_mean(input_tensor=tf.math.squared_difference(tf.expand_dims(tf.stop_gradient(self.z_e), axis=1), self.z_q_neighbors))
-        tf.compat.v1.summary.scalar("loss_som", loss_som)
+        #tf.compat.v1.summary.scalar("loss_som", loss_som)
         return loss_som
 
 
