@@ -383,6 +383,7 @@ class SOMVAE:
         #print(self.loss_commit().shape)
         #print(self.loss_probabilities().shape)
         #print(self.loss_som().shape)
+        tmp = self.loss_reconstruction()
         loss = (self.loss_reconstruction() + self.alpha*self.loss_commit() + self.beta*self.loss_som()
                 + self.gamma*self.loss_probabilities() + self.tau*self.loss_z_prob())
         #tf.compat.v1.summary.scalar("loss", loss)
