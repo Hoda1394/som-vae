@@ -39,7 +39,7 @@ ex.captured_out_filter = sacred.utils.apply_backspaces_and_linefeeds
 # ex.observers.append(sacred.observers.MongoObserver.create(db_name="somvae_hyperopt"))
 
 # assistant = LabAssistant(ex, "somvae_hyperopt", optimizer=SMAC, url="localhost:{}".format(db_port))
-tf.compat.v1.disable_eager_execution()
+#tf.compat.v1.disable_eager_execution()
 @ex.config
 def ex_config():
     """Sacred configuration for the experiment.
@@ -221,7 +221,7 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
             #    break
             for i in range(num_batches):
                 batch_data = next(train_gen)
-                print(batch_data)
+                #print(batch_data)
                 print(batch_data.shape)
 
                 model.forward_pass(inputs=batch_data)
