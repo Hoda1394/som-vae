@@ -233,10 +233,8 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
                 # le faire pour toutes les variables - model, les entres deux 
                 var = [model.encoder_.trainable_variables,model.decoder_.trainable_variables,model.transition_probabilities,model.embeddings]
                 grads = tape.gradient(loss,var)
-                
-                #grads1 = tape.gradient(loss, model.decoder_.trainable_variables)
-                #grads2 = tape.gradient(loss, model.decoder_.trainable_variables)
-                
+                print('number',len(var),len(grads))
+                #lr_decay = tf.compat.v1.train.exponential_decay(self.learning_rate, self.global_step, self.decay_steps, self.decay_factor, staircase=True)
                 optimizer.apply_gradients(zip(grads, var))
 
                 break
@@ -245,18 +243,6 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
                 #if i%100 == 0:
                 #    train_loss, summary = sess.run([model.loss, summaries], feed_dict={x: batch_data})
                 #    train_writer.add_summary(summary, tf.compat.v1.train.global_step(sess, model.global_step))
-                
-                
-                #with tf.GradientTape() as tape:
-                    # change self.input
-                #    error = losses.Reconstruction_loss(true=images,predict=reconst_images)
-                #    print('Error {}:'.format(batch_size),error)
-                #    global_error = tf.nn.compute_average_loss(error, global_batch_size=global_batch_size) # recheck
-                #    print('Global {}:'.format(global_batch_size),global_error)
-
-                # Backward pass for AE
-                #grads = tape.gradient(global_error, self.encoder.train_encoder.trainable_variables)
-                #optimizer.apply_gradients(zip(grads, self.encoder.train_encoder.trainable_variables))
 
                 #train_step_SOMVAE.run(feed_dict={x: batch_data, lr_val:learning_rate})
                 #train_step_prob.run(feed_dict={x: batch_data, lr_val:learning_rate*100})
