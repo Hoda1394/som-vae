@@ -209,7 +209,7 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
             batch_val = next(val_gen)
             test_loss = 1
             train_loss = 1
-            optimizer = tf.keras.optimizers.Adam(learning_rate=self.learning_rate, beta_1=0.0, beta_2=0.99, epsilon=1e-8)
+            optimizer = tf.keras.optimizers.Adam(learning_rate=0.001, beta_1=0.0, beta_2=0.99, epsilon=1e-8)
             #test_loss, summary = sess.run([model.loss, summaries], feed_dict={x: batch_val})
             #test_losses.append(test_loss)
             #test_writer.add_summary(summary, tf.compat.v1.train.global_step(sess, model.global_step))
