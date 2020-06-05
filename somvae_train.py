@@ -232,8 +232,7 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
 
                 # le faire pour toutes les variables - model, les entres deux 
                 var = [model.encoder_.trainable_variables,model.decoder_.trainable_variables,model.transition_probabilities,model.embeddings]
-                var2 = []
-                var2.append(model.encoder_.trainable_variables)
+                var2 = model.encoder_.trainable_variables
                 print(len(var2))
                 var2.append(model.decoder_.trainable_variables)
                 var2.append(model.transition_probabilities)
