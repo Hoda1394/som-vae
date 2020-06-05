@@ -238,7 +238,7 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
                 var2.append(model.transition_probabilities)
                 print(len(model.encoder_.trainable_variables))
                 grads = tape.gradient(loss,var2)
-                print('number',len(var),len(grads),len(var2),model.encoder_.trainable_variables.shape)
+                print('number',len(var),len(grads),len(var2),len(model.encoder_.trainable_variables))
                 #lr_decay = tf.compat.v1.train.exponential_decay(self.learning_rate, self.global_step, self.decay_steps, self.decay_factor, staircase=True)
                 optimizer.apply_gradients(zip(grads, var2))
 
