@@ -235,7 +235,7 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
                 #grads1 = tape.gradient(loss, model.decoder_.trainable_variables)
                 #grads2 = tape.gradient(loss, model.decoder_.trainable_variables)
                 
-                optimizer.apply_gradients(zip(grads, self.encoder.train_encoder.trainable_variables))
+                #optimizer.apply_gradients(zip(grads, self.encoder.train_encoder.trainable_variables))
 
                 break
             
