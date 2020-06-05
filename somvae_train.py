@@ -231,12 +231,12 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
 
                 # le faire pour toutes les variables - model, les entres deux 
                 var = [model.encoder_.trainable_variables,model.decoder_.trainable_variables,model.transition_probabilities,model.embeddings]
-                grads0 = tape.gradient(loss,var)
+                grads = tape.gradient(loss,var)
                 print(grads0)
                 #grads1 = tape.gradient(loss, model.decoder_.trainable_variables)
                 #grads2 = tape.gradient(loss, model.decoder_.trainable_variables)
                 
-                #optimizer.apply_gradients(zip(grads, self.encoder.train_encoder.trainable_variables))
+                optimizer.apply_gradients(zip(grads, var))
 
                 break
             
