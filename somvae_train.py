@@ -232,6 +232,7 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
 
                 # le faire pour toutes les variables - model, les entres deux 
                 var = [model.encoder_.trainable_variables,model.decoder_.trainable_variables,model.transition_probabilities,model.embeddings]
+                print(model.encoder_.trainable_variables)
                 grads = tape.gradient(loss,var)
                 print('number',len(var),len(grads))
                 #lr_decay = tf.compat.v1.train.exponential_decay(self.learning_rate, self.global_step, self.decay_steps, self.decay_factor, staircase=True)
