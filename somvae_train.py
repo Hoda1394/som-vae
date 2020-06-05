@@ -230,7 +230,8 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
                     print("Epoch {}, batch {}, loss {}".format(epoch,i,loss))
 
                 # le faire pour toutes les variables - model, les entres deux 
-                grads0 = tape.gradient(loss)
+                var = [model.encoder_.trainable_variables,model.decoder_.trainable_variables,model.transition_probabilities,model.embeddings]
+                grads0 = tape.gradient(loss,var)
                 print(grads0)
                 #grads1 = tape.gradient(loss, model.decoder_.trainable_variables)
                 #grads2 = tape.gradient(loss, model.decoder_.trainable_variables)
