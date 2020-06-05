@@ -235,8 +235,8 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
                 var2 = model.encoder_.trainable_variables
                 print(len(var2))
                 var2.append(model.decoder_.trainable_variables)
-                var2.append(model.transition_probabilities)
-                var2.append(model.embeddings)
+                #var2.append(model.transition_probabilities)
+                #var2.append(model.embeddings)
                 print(len(model.encoder_.trainable_variables))
                 grads = tape.gradient(loss,var2)
                 print('number',len(grads),len(var2),var2[0])
