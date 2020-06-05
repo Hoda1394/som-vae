@@ -112,7 +112,7 @@ def lazy_scope(function):
     return decorator
 
 
-class SOMVAE:
+class SOMVAE(tf.keras.Model):
     """Class for the SOM-VAE model as described in https://arxiv.org/abs/1806.02199"""
 
     def __init__(self, inputs,latent_dim=64, som_dim=[8,8], learning_rate=1e-4, decay_factor=0.95, decay_steps=1000,
@@ -135,6 +135,7 @@ class SOMVAE:
             tau (float): The weight for the smoothness loss (default: 1.).
             mnist (bool): Flag that tells the model if we are training in MNIST-like data (default: True).
         """
+        super(SOMVAE, self).__init__()
         self.inputs = tf.Variable(tf.zeros(shape=[32,28, 28, 1],dtype=tf.dtypes.int32),shape=[32,28, 28, 1])
         self.latent_dim = latent_dim
         self.som_dim = som_dim
