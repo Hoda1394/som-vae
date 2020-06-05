@@ -224,10 +224,18 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
                 batch_data = next(train_gen)
                 #print(batch_data)
                 print(batch_data.shape)
+                with tf.GradientTape() as tape:
+                    model.forward_pass(inputs=batch_data)
+                    loss = model.loss()
+                    print("Epoch {}, batch {}, loss {}".format(epoch,i,loss))
 
-                model.forward_pass(inputs=batch_data)
-                loss = model.loss()
-                print("Epoch {}, batch {}, loss {}".format(epoch,i,loss))
+                # le faire pour toutes les variables - model, les entres deux 
+                grads0 = tape.gradient(loss)
+                print(grads0)
+                #grads1 = tape.gradient(loss, model.decoder_.trainable_variables)
+                #grads2 = tape.gradient(loss, model.decoder_.trainable_variables)
+                
+                optimizer.apply_gradients(zip(grads, self.encoder.train_encoder.trainable_variables))
 
                 break
             

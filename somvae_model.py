@@ -158,26 +158,6 @@ class SOMVAE:
         self.transition_probabilities = self.get_transition_probabilities()
         self.global_step = self.get_global_step()
 
-        #self.batch_size
-        #self.embeddings
-        #self.transition_probabilities
-        #self.global_step
-        #self.z_e
-        #self.z_e_old
-        #self.z_dist_flat
-        #self.k
-        #self.z_q
-        #self.z_q_neighbors
-        #self.reconstruction_q
-        #self.reconstruction_e
-        #self.loss_reconstruction
-        #self.loss_commit
-        #self.loss_som
-        #self.loss_probabilities
-        #self.loss_z_prob
-        #self.loss
-        #self.optimize
-
     #@lazy_scope
     def get_embeddings(self):
         """Creates variable for the SOM embeddings."""
