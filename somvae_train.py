@@ -231,13 +231,13 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
                     print("Epoch {}, batch {}, loss {}".format(epoch,i,loss))
 
                 # le faire pour toutes les variables - model, les entres deux 
-                print(model.trainable_variables)
-                print(len(model.trainable_variables),len(model.encoder_.trainable_variables),len(model.decoder_.trainable_variables))
+                #print(model.trainable_variables)
+                #print(len(model.trainable_variables),len(model.encoder_.trainable_variables),len(model.decoder_.trainable_variables))
                 grads = tape.gradient(loss,model.trainable_variables)
-                
+                print(len(grads),grads)
                 #lr_decay = tf.compat.v1.train.exponential_decay(self.learning_rate, self.global_step, self.decay_steps, self.decay_factor, staircase=True)
                 optimizer.apply_gradients(zip(grads, model.trainable_variables))
-
+ca
                 break
             
 
