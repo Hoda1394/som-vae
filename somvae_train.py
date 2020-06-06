@@ -237,7 +237,6 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
                 print(len(grads),grads)
                 #lr_decay = tf.compat.v1.train.exponential_decay(self.learning_rate, self.global_step, self.decay_steps, self.decay_factor, staircase=True)
                 optimizer.apply_gradients(zip(grads, model.trainable_variables))
-ca
                 break
             
 
