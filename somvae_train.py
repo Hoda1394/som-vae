@@ -214,27 +214,36 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
                     tf.summary.scalar("test loss", test_losses[-1], step=step)
                     writer.flush() 
 
-            if test_losses[-1] == min(test_losses):
-                checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=model)
-                checkpoint.save(modelpath)
-                patience_count = 0
-            else:
-                patience_count += 1
-            if patience_count >= patience:
-                break
+            #if test_losses[-1] == min(test_losses):
+            #    checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=model)
+            #    checkpoint.save(modelpath)
+            #    patience_count = 0
+            #else:
+            #    patience_count += 1
+            #if patience_count >= patience:
+            #    break
+
+            def train_step(inputs,batch):
+                    with tf.GradientTape() as tape:
+                        model.call(inputs=inputs)
+                        train_loss = model.loss()
+                        print("Epoch {}, batch {}, loss {}".format(epoch,batch,train_loss))
+
+                    grads = tape.gradient(train_loss,model.trainable_variables)
+                    #lr_decay = tf.compat.v1.train.exponential_decay(self.learning_rate, self.global_step, self.decay_steps, self.decay_factor, staircase=True)
+                    optimizer.apply_gradients(zip(grads, model.trainable_variables))
+                    return train_loss
+                
+            @tf.function
+            def call_train_step(inputs,batch):
+                train_loss = train_step(inputs,batch)
+                return train_loss
 
             for i in range(num_batches):
                 step += 1
                 batch_train = next(train_gen)
 
-                with tf.GradientTape() as tape:
-                    model.call(inputs=batch_train)
-                    train_loss = model.loss()
-                    print("Epoch {}, batch {}, loss {}".format(epoch,i,train_loss))
-
-                grads = tape.gradient(train_loss,model.trainable_variables)
-                #lr_decay = tf.compat.v1.train.exponential_decay(self.learning_rate, self.global_step, self.decay_steps, self.decay_factor, staircase=True)
-                optimizer.apply_gradients(zip(grads, model.trainable_variables))
+                train_loss = call_train_step(batch_train,i)
 
                 if i%100 == 0:
                     with writer.as_default():
@@ -245,7 +254,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
                 #train_step_prob.run(feed_dict={x: batch_data, lr_val:cd ``})
 
                 if interactive:
-                    pbar.set_postfix(epoch=epoch, train_loss=train_loss, test_loss=test_losses[-1], refresh=False)
+                    pbar.set_postfix(epoch=epoch, train_loss=train_loss.numpy(), test_loss=test_losses[-1], refresh=False)
                     pbar.update(1)
             break
 
