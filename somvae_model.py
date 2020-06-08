@@ -308,7 +308,7 @@ class SOMVAE(tf.keras.Model):
         loss_rec_mse_ze = loss_mse(self.inputs, self.reconstruction_e)
         loss_mse_ze = tf.math.reduce_sum(loss_rec_mse_ze,axis=[1,2])
         loss_mse_ze = tf.math.reduce_mean(loss_mse_ze,axis=[0])
-        loss_rec_mse = loss_rec_mse_zq + loss_rec_mse_ze
+        loss_rec_mse = loss_mse_zq + loss_mse_ze
         #tf.compat.v1.summary.scalar("loss_reconstruction", loss_rec_mse)
         print('Reconst',loss_rec_mse)
         return loss_rec_mse
