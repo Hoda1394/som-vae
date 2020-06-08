@@ -291,6 +291,7 @@ def evaluate_model(model,x, modelpath, batch_size):
     print("Evaluation...")
     for i in range(num_batches):
         batch_data = data_val[i*batch_size:(i+1)*batch_size]
+        print(batch_data)
         model.call(inputs=batch_data)
         test_k_all.extend(model.k)
         test_rec = model.reconstruction_q
