@@ -194,7 +194,7 @@ class SOMVAE(tf.keras.Model):
             z_e = tf.keras.layers.Dense(self.latent_dim, activation="relu")(h_2)
 
         else:
-            h_0 = tf.keras.layers.Input(shape=[self.input_length, self.input_channels,1], name='input')
+            h_0 = tf.keras.layers.Input(shape=[self.input_length, self.input_channels,1], name='input',dtype=tf.float32)
             h_conv1 = tf.nn.relu(conv2d(h_0, [4,4,1,256], "conv1"))
             h_pool1 = max_pool_2x2(h_conv1)
             h_conv2 = tf.nn.relu(conv2d(h_pool1, [4,4,256,256], "conv2"))
@@ -275,7 +275,7 @@ class SOMVAE(tf.keras.Model):
             h_4 = tf.keras.layers.Dense(256, activation="relu")(h_3)
             x_hat = tf.keras.layers.Dense(self.input_channels, activation="sigmoid")(h_4)
         else:
-            h_0 = tf.keras.layers.Input(shape=self.latent_dim, name='latent_code')
+            h_0 = tf.keras.layers.Input(shape=self.latent_dim, name='latent_code',dtype=tf.float32)
             flat_size = 7*7*256
             h_flat_dec = tf.keras.layers.Dense(flat_size)(h_0)
             h_reshaped = tf.reshape(h_flat_dec, [-1, 7, 7, 256])
