@@ -296,7 +296,7 @@ def evaluate_model(model,x, modelpath, batch_size):
         test_rec = model.reconstruction_q
         test_rec_all.extend(test_rec)
         #print(test_rec,test_k_all)
-        test_mse_all.append(mean_squared_error(test_rec.flatten(), batch_data.flatten()))
+        test_mse_all.append(mean_squared_error(tf.reshape(test_rec,[-1]),tf.reshape(batch_data,[-1]) ))
 
     test_nmi = compute_NMI(test_k_all, labels_val[:len(test_k_all)])
     test_purity = compute_purity(test_k_all, labels_val[:len(test_k_all)])
