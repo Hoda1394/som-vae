@@ -200,7 +200,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
     patience_count = 0
     step = 0
     test_losses = []
-    writer = tf.summary.create_file_writer(savefolder)
+    writer = tf.summary.create_file_writer("../models/test")
 
     print("Training...")
     try:
