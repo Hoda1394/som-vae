@@ -115,8 +115,8 @@ def lazy_scope(function):
 class SOMVAE(tf.keras.Model):
     """Class for the SOM-VAE model as described in https://arxiv.org/abs/1806.02199"""
 
-    def __init__(self, inputs,latent_dim=64, som_dim=[8,8], learning_rate=1e-4, decay_factor=0.95, decay_steps=1000,
-            input_length=28, input_channels=28, alpha=1., beta=1., gamma=1., tau=1., mnist=True):
+    def __init__(self, latent_dim=64, som_dim=[8,8], learning_rate=1e-4, decay_factor=0.95, decay_steps=1000,
+            input_length=28, input_channels=28, batch_size=32, alpha=1., beta=1., gamma=1., tau=1., mnist=True):
         """Initialization method for the SOM-VAE model object.
         
         Args:
@@ -136,7 +136,7 @@ class SOMVAE(tf.keras.Model):
             mnist (bool): Flag that tells the model if we are training in MNIST-like data (default: True).
         """
         super(SOMVAE, self).__init__()
-        self.inputs = tf.Variable(tf.zeros(shape=[32,28, 28, 1],dtype=tf.dtypes.int32),shape=[32,28, 28, 1])
+        self.inputs = tf.Variable(tf.zeros(shape=[batch_size, input_length, input_channels, 1],dtype=tf.dtypes.int32),shape=[32,28, 28, 1])
         self.latent_dim = latent_dim
         self.som_dim = som_dim
         self.learning_rate = learning_rate
@@ -149,7 +149,6 @@ class SOMVAE(tf.keras.Model):
         self.gamma = gamma
         self.tau = tau
         self.mnist = mnist
-        print(self.mnist)
         
         # Static
         self.encoder_ = self.get_encoder()
@@ -171,7 +170,6 @@ class SOMVAE(tf.keras.Model):
     #@lazy_scope
     def get_transition_probabilities(self):
         """Creates tensor for the transition probabilities."""
-
         probabilities_raw = tf.Variable(tf.zeros(self.som_dim+self.som_dim), name="probabilities_raw")
         probabilities_positive = tf.exp(probabilities_raw)
         probabilities_summed = tf.reduce_sum(input_tensor=probabilities_positive, axis=[-1,-2], keepdims=True)
@@ -366,7 +364,6 @@ class SOMVAE(tf.keras.Model):
         """Aggregates the loss terms into the total loss.""" 
         loss = (self.loss_reconstruction() + self.alpha*self.loss_commit() + self.beta*self.loss_som()
                 + self.gamma*self.loss_probabilities() + self.tau*self.loss_z_prob())
-        #loss = self.loss_reconstruction()
         return loss
 
 
@@ -386,10 +383,9 @@ class SOMVAE(tf.keras.Model):
         return train_step, train_step_prob
 
     #@lazy_scope
-    def forward_pass(self,inputs):
+    def call(self,inputs):
 
         self.inputs=inputs
-        self.batch_size = self.get_batch_size()
         self.z_e = self.get_z_e()
         print('z_e',self.z_e.shape)
         self.z_dist_flat = self.get_z_dist_flat()

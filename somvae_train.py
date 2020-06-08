@@ -18,6 +18,7 @@ from datetime import date
 import numpy as np
 import tensorflow as tf
 import pandas as pd
+from pathlib import Path
 from sklearn.metrics import mean_squared_error
 from tqdm import tqdm, trange
 import sacred
@@ -37,9 +38,7 @@ ex.observers.append(sacred.observers.FileStorageObserver.create("../sacred_runs"
 ex.captured_out_filter = sacred.utils.apply_backspaces_and_linefeeds
 
 # ex.observers.append(sacred.observers.MongoObserver.create(db_name="somvae_hyperopt"))
-
 # assistant = LabAssistant(ex, "somvae_hyperopt", optimizer=SMAC, url="localhost:{}".format(db_port))
-#tf.compat.v1.disable_eager_execution()
 
 @ex.config
 def ex_config():
@@ -105,7 +104,6 @@ def ex_config():
 #     decay_factor = hyper.UniformFloat(lower=0.8, upper=1.)
 #     interactive = False
 
-#mnist = input_data.read_data_sets(f"../data/{ex_config()['data_set']}")
 (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
 
 data_train = np.reshape(x_train, [-1,28,28,1])
@@ -164,7 +162,7 @@ def get_data_generator(time_series):
 
 
 @ex.capture
-def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
+def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
         modelpath, learning_rate, interactive, generator):
     """Trains the SOM-VAE model.
     
@@ -191,59 +189,62 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
     #summaries = tf.compat.v1.summary.merge_all()                          #could be upgraded
 
     #with tf.compat.v1.Session() as sess:
-
     #sess.run(tf.compat.v1.global_variables_initializer())
     
-    patience_count = 0
-    test_losses = []
     #with LogFileWriter(ex):                                                          #Sacred
     #    train_writer = tf.compat.v1.summary.FileWriter(logdir+"/train", sess.graph)  #could be upgraded to TFv.2
     #    test_writer = tf.compat.v1.summary.FileWriter(logdir+"/test", sess.graph)    #could be upgraded to TFv.2
-    print("Training...")
-    #train_step_SOMVAE, train_step_prob = model.optimize
+    optimizer = tf.keras.optimizers.Adam(learning_rate=0.001, beta_1=0.0, beta_2=0.99, epsilon=1e-8)
+    
+    # Initialize
+    patience_count = 0
+    step = 0
+    test_losses = []
+    writer = tf.summary.create_file_writer(savefolder)
 
+    print("Training...")
     try:
         if interactive:
             pbar = tqdm(total=num_epochs*(num_batches)) 
         for epoch in range(num_epochs):
             batch_val = next(val_gen)
-            test_loss = 1
-            train_loss = 1
-            optimizer = tf.keras.optimizers.Adam(learning_rate=0.001, beta_1=0.0, beta_2=0.99, epsilon=1e-8)
-            #test_loss, summary = sess.run([model.loss, summaries], feed_dict={x: batch_val})
-            #test_losses.append(test_loss)
-            #test_writer.add_summary(summary, tf.compat.v1.train.global_step(sess, model.global_step))
-            #if test_losses[-1] == min(test_losses):
+            model.call(inputs=batch_val)
+            test_losses.append(model.loss())
 
-            #    saver.save(sess, modelpath, global_step=epoch)
-            #    patience_count = 0
-            #else:
-            #    patience_count += 1
-            #if patience_count >= patience:
-            #    break
+            with writer.as_default():
+                    tf.summary.scalar("test loss", test_losses[-1], step=step)
+                    writer.flush() 
+
+            if test_losses[-1] == min(test_losses):
+                checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=model)
+                checkpoint.save(modelpath)
+                patience_count = 0
+            else:
+                patience_count += 1
+            if patience_count >= patience:
+                break
+
             for i in range(num_batches):
-                batch_data = next(train_gen)
+                step += 1
+                batch_train = next(train_gen)
 
                 with tf.GradientTape() as tape:
-                    model.forward_pass(inputs=batch_data)
-                    loss = model.loss()
+                    model.call(inputs=batch_train)
+                    train_loss = model.loss()
                     print("Epoch {}, batch {}, loss {}".format(epoch,i,loss))
 
-                # le faire pour toutes les variables - model, les entres deux 
-                #print(model.trainable_variables)
-                #print(len(model.trainable_variables),len(model.encoder_.trainable_variables),len(model.decoder_.trainable_variables))
-                grads = tape.gradient(loss,model.trainable_variables)
+                grads = tape.gradient(train_loss,model.trainable_variables)
                 #lr_decay = tf.compat.v1.train.exponential_decay(self.learning_rate, self.global_step, self.decay_steps, self.decay_factor, staircase=True)
                 optimizer.apply_gradients(zip(grads, model.trainable_variables))
-                break
-            
 
-                #if i%100 == 0:
-                #    train_loss, summary = sess.run([model.loss, summaries], feed_dict={x: batch_data})
-                #    train_writer.add_summary(summary, tf.compat.v1.train.global_step(sess, model.global_step))
+                if i%100 == 0:
+                    with writer.as_default():
+                        tf.summary.scalar("train loss", train_loss, step=step)
+                        writer.flush()
 
                 #train_step_SOMVAE.run(feed_dict={x: batch_data, lr_val:learning_rate})
-                #train_step_prob.run(feed_dict={x: batch_data, lr_val:learning_rate*100})
+                #train_step_prob.run(feed_dict={x: batch_data, lr_val:cd ``})
+
                 if interactive:
                     pbar.set_postfix(epoch=epoch, train_loss=train_loss, test_loss=test_loss, refresh=False)
                     pbar.update(1)
@@ -252,11 +253,10 @@ def train_model(model, x, lr_val, num_epochs, patience, batch_size, logdir,
     except KeyboardInterrupt:
         pass
     finally:
-        #saver.save(sess, modelpath)
+        model.save(savefolder.joinpath('model.h5'))
+        tmp = tf.keras.models.load_model(savefolder.joinpath('model.h5'))
         if interactive:
             pbar.close()
-
-
 
 #@ex.capture
 def evaluate_model(model, x, modelpath, batch_size):
@@ -272,34 +272,31 @@ def evaluate_model(model, x, modelpath, batch_size):
     Returns:
         dict: Dictionary of evaluation results (NMI, Purity, MSE).
     """
-    saver = tf.compat.v1.train.Saver(keep_checkpoint_every_n_hours=2.)
+    #saver = tf.compat.v1.train.Saver(keep_checkpoint_every_n_hours=2.)
 
     num_batches = len(data_val)//batch_size
 
-    with tf.compat.v1.Session() as sess:
-        sess.run(tf.compat.v1.global_variables_initializer())
-        saver.restore(sess, modelpath)
+    test_k_all = []
+    test_rec_all = []
+    test_mse_all = []
+    print("Evaluation...")
+    for i in range(num_batches):
+        batch_data = data_val[i*batch_size:(i+1)*batch_size]
+        model.call(inputs=batch_data)
+        test_k_all.extend(model.k)
+        test_rec = model.reconstruction_q
+        test_rec_all.extend(test_rec)
+        print(test_rec,test_k_all)
+        test_mse_all.append(mean_squared_error(test_rec.flatten(), batch_data.flatten()))
 
-        test_k_all = []
-        test_rec_all = []
-        test_mse_all = []
-        print("Evaluation...")
-        for i in range(num_batches):
-            batch_data = data_val[i*batch_size:(i+1)*batch_size]
-            test_k_all.extend(sess.run(model.k, feed_dict={x: batch_data}))
-            test_rec = sess.run(model.reconstruction_q, feed_dict={x: batch_data})
-            test_rec_all.extend(test_rec)
-            test_mse_all.append(mean_squared_error(test_rec.flatten(), batch_data.flatten()))
-
-        test_nmi = compute_NMI(test_k_all, labels_val[:len(test_k_all)])
-        test_purity = compute_purity(test_k_all, labels_val[:len(test_k_all)])
-        test_mse = np.mean(test_mse_all)
+    test_nmi = compute_NMI(test_k_all, labels_val[:len(test_k_all)])
+    test_purity = compute_purity(test_k_all, labels_val[:len(test_k_all)])
+    test_mse = np.mean(test_mse_all)
 
     results = {}
     results["NMI"] = test_nmi
     results["Purity"] = test_purity
     results["MSE"] = test_mse
-#    results["optimization_target"] = 1 - test_nmi
 
     return results
  
@@ -326,32 +323,26 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     # Dimensions for MNIST-like data
     input_length = 28              #update for brains
     input_channels = 28            #update for brains
-    input_duration = 100 
+    input_duration = 32
 
     # get data 
     data_generator = get_data_generator(True)
 
-    x = tf.Variable(tf.zeros(shape=[28, 28, 1],dtype=tf.dtypes.int32),shape=[28, 28, 1])
-    
     lr_val = tf.compat.v1.placeholder_with_default(learning_rate, [])
 
     # build model
-    model = SOMVAE(inputs=x,latent_dim=latent_dim, som_dim=som_dim, learning_rate=lr_val, decay_factor=decay_factor,
-                input_length=input_length, input_channels=input_channels, alpha=alpha, beta=beta, gamma=gamma,
+    model = SOMVAE(latent_dim=latent_dim, som_dim=som_dim, learning_rate=lr_val, decay_factor=decay_factor,
+                input_length=input_length, input_channels=input_channels, batch_size=input_duration,alpha=alpha, beta=beta, gamma=gamma,
                 tau=tau, mnist=mnist)
 
-    train_gen = data_generator("train", 32)
-    batch_data = next(train_gen)
-    #print(batch_data)
-    print(batch_data.shape)
-    
-    train_model(model, x, lr_val, generator=data_generator)
+    train_model(model, lr_val, generator=data_generator)
 
-    #result = evaluate_model(model, x)
+    result = evaluate_model(model)
 
     #if not save_model:
     #    shutil.rmtree(os.path.dirname(modelpath))
+    print(result)
 
-    return 1
+    return result
 
 
