@@ -138,11 +138,11 @@ def get_data_generator(time_series):
 
         assert mode in ["train", "val"], "The mode should be in {train, val}."
         if mode=="train":
-            images = data_train.copy()
-            labels = labels_train.copy()
+            images = data_train.copy().astype(float)
+            labels = labels_train.copy().astype(float)
         elif mode=="val":
-            images = data_val.copy()
-            labels = labels_val.copy()
+            images = data_val.copy().astype(float)
+            labels = labels_val.copy().astype(float)
        
         while True:
             indices = np.random.permutation(np.arange(len(images)))
