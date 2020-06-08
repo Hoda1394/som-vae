@@ -162,9 +162,7 @@ class SOMVAE(tf.keras.Model):
     #@lazy_scope
     def get_embeddings(self):
         """Creates variable for the SOM embeddings."""
-        #embeddings = tf.compat.v1.get_variable("embeddings", self.som_dim+[self.latent_dim],initializer=tf.compat.v1.truncated_normal_initializer(stddev=0.05))
         embeddings=tf.Variable(tf.initializers.TruncatedNormal(mean=0., stddev=0.05)(shape=self.som_dim+[self.latent_dim], dtype=tf.float32))
-        #tf.compat.v1.summary.tensor_summary("embeddings", embeddings)
         return embeddings
 
     #@lazy_scope
@@ -204,7 +202,6 @@ class SOMVAE(tf.keras.Model):
             #flat_size = 7*7*256
             #h_flat = tf.reshape(h_pool2, [-1, flat_size])
             h_flat = tf.keras.layers.Flatten()(h_pool2)
-            print(self.latent_dim,h_flat,h_pool2)
             z_e = tf.keras.layers.Dense(self.latent_dim)(h_flat)
         return tf.keras.models.Model(inputs=[h_0], outputs=[z_e], name='encoder')
 
@@ -273,13 +270,11 @@ class SOMVAE(tf.keras.Model):
     def get_decoder(self):
         """Reconstructs the input from the latent space"""
         if not self.mnist:
-            #with tf.compat.v1.variable_scope("decoder", reuse=tf.compat.v1.AUTO_REUSE):
             h_0 = tf.keras.layers.Input(shape=self.latent_dim, name='latent_code')
             h_3 = tf.keras.layers.Dense(128, activation="relu")(h_0)
             h_4 = tf.keras.layers.Dense(256, activation="relu")(h_3)
             x_hat = tf.keras.layers.Dense(self.input_channels, activation="sigmoid")(h_4)
         else:
-            #with tf.compat.v1.variable_scope("decoder", reuse=tf.compat.v1.AUTO_REUSE):
             h_0 = tf.keras.layers.Input(shape=self.latent_dim, name='latent_code')
             flat_size = 7*7*256
             h_flat_dec = tf.keras.layers.Dense(flat_size)(h_0)
@@ -300,25 +295,22 @@ class SOMVAE(tf.keras.Model):
     #@lazy_scope
     def loss_reconstruction(self):
         """Computes the combined reconstruction loss for both reconstructions."""
-        print(self.inputs.shape,self.reconstruction_q.shape)
+
         loss_rec_mse_zq = loss_mse(self.inputs, self.reconstruction_q)
         loss_mse_zq = tf.math.reduce_sum(loss_rec_mse_zq,axis=[1,2])
         loss_mse_zq = tf.math.reduce_mean(loss_mse_zq,axis=[0])
-        print('test',loss_mse_zq)
+
         loss_rec_mse_ze = loss_mse(self.inputs, self.reconstruction_e)
         loss_mse_ze = tf.math.reduce_sum(loss_rec_mse_ze,axis=[1,2])
         loss_mse_ze = tf.math.reduce_mean(loss_mse_ze,axis=[0])
         loss_rec_mse = loss_mse_zq + loss_mse_ze
-        #tf.compat.v1.summary.scalar("loss_reconstruction", loss_rec_mse)
-        print('Reconst',loss_rec_mse)
+
         return loss_rec_mse
 
     #@lazy_scope
     def loss_commit(self):
         """Computes the commitment loss."""
         loss_commit = tf.reduce_mean(input_tensor=tf.math.squared_difference(self.z_e, self.z_q))
-        #tf.compat.v1.summary.scalar("loss_commit", loss_commit)
-        print("Commit",loss_commit)
         return loss_commit
 
 
@@ -326,8 +318,6 @@ class SOMVAE(tf.keras.Model):
     def loss_som(self):
         """Computes the SOM loss."""
         loss_som = tf.reduce_mean(input_tensor=tf.math.squared_difference(tf.expand_dims(tf.stop_gradient(self.z_e), axis=1), self.z_q_neighbors))
-        #tf.compat.v1.summary.scalar("loss_som", loss_som)
-        print("som",loss_som)
         return loss_som
 
 
@@ -341,7 +331,7 @@ class SOMVAE(tf.keras.Model):
         k_stacked = tf.stack([k_1_old, k_2_old, k_1, k_2], axis=1)
         transitions_all = tf.gather_nd(self.transition_probabilities, k_stacked)
         loss_probabilities = -self.gamma * tf.reduce_mean(input_tensor=tf.math.log(transitions_all))
-        print("proba",loss_probabilities)
+
         return loss_probabilities
 
 
@@ -357,7 +347,6 @@ class SOMVAE(tf.keras.Model):
         out_probabilities_flat = tf.reshape(out_probabilities_old, [self.batch_size, -1])
         weighted_z_dist_prob = tf.multiply(self.z_dist_flat, out_probabilities_flat)
         loss_z_prob = tf.reduce_mean(input_tensor=weighted_z_dist_prob)
-        print("z prob",loss_z_prob)
         return loss_z_prob
 
 
@@ -368,7 +357,6 @@ class SOMVAE(tf.keras.Model):
                 + self.gamma*self.loss_probabilities() + self.tau*self.loss_z_prob())
         return loss
 
-
     @lazy_scope
     def optimize(self):
         """Optimizes the model's loss using Adam with exponential learning rate decay."""
@@ -376,12 +364,10 @@ class SOMVAE(tf.keras.Model):
         optimizer = tf.compat.v1.train.AdamOptimizer(lr_decay)
         train_step = optimizer.minimize(self.loss, global_step=self.global_step)
         train_step_prob = optimizer.minimize(self.loss_probabilities, global_step=self.global_step)
-        #return train_step, train_step_prob
 
         #optimizer = tf.keras.optimizers.Adam(learning_rate=lr_decay)
         #train_step = optimizer.minimize(self.loss)
         #train_step_prob = optimizer.minimize(self.loss_probabilities)
-
         return train_step, train_step_prob
 
     #@lazy_scope
@@ -390,20 +376,12 @@ class SOMVAE(tf.keras.Model):
         self.inputs=inputs
         self.batch_size=self.get_batch_size()
         self.z_e = self.get_z_e()
-        print('z_e',self.z_e.shape)
         self.z_dist_flat = self.get_z_dist_flat()
-        print('z_dis_flat',self.z_dist_flat.shape)
         self.k = self.get_k()
-        print('k',self.k.shape)
         self.z_q = self.get_z_q()
-        print('z_q',self.z_q.shape)
         self.z_q_neighbors = self.get_z_q_neighbors()
-        print('z_q_neig',self.z_q_neighbors.shape)
         self.reconstruction_e = self.get_reconstruction_e()
-        print('z_e_rec',self.reconstruction_e.shape)
         self.reconstruction_q = self.get_reconstruction_q()
-        print('z_q_rec',self.reconstruction_q.shape)
-
         
     
 

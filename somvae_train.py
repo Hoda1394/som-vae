@@ -183,8 +183,6 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
     train_gen = generator("train", batch_size)
     val_gen = generator("val", batch_size)
 
-    num_batches = len(data_train)//batch_size
-
     #saver = tf.compat.v1.train.Saver(keep_checkpoint_every_n_hours=2.)    #could be upgraded
     #summaries = tf.compat.v1.summary.merge_all()                          #could be upgraded
 
@@ -197,6 +195,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
     optimizer = tf.keras.optimizers.Adam(learning_rate=0.001, beta_1=0.0, beta_2=0.99, epsilon=1e-8)
     
     # Initialize
+    num_batches = len(data_train)//batch_size
     patience_count = 0
     step = 0
     test_losses = []
@@ -272,8 +271,6 @@ def evaluate_model(model, x, modelpath, batch_size):
     Returns:
         dict: Dictionary of evaluation results (NMI, Purity, MSE).
     """
-    #saver = tf.compat.v1.train.Saver(keep_checkpoint_every_n_hours=2.)
-
     num_batches = len(data_val)//batch_size
 
     test_k_all = []
@@ -286,7 +283,7 @@ def evaluate_model(model, x, modelpath, batch_size):
         test_k_all.extend(model.k)
         test_rec = model.reconstruction_q
         test_rec_all.extend(test_rec)
-        print(test_rec,test_k_all)
+        #print(test_rec,test_k_all)
         test_mse_all.append(mean_squared_error(test_rec.flatten(), batch_data.flatten()))
 
     test_nmi = compute_NMI(test_k_all, labels_val[:len(test_k_all)])
@@ -342,7 +339,6 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     #if not save_model:
     #    shutil.rmtree(os.path.dirname(modelpath))
     print(result)
-
     return result
 
 
