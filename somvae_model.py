@@ -311,7 +311,7 @@ class SOMVAE(tf.keras.Model):
         loss_rec_mse = loss_rec_mse_zq + loss_rec_mse_ze
         #tf.compat.v1.summary.scalar("loss_reconstruction", loss_rec_mse)
         print('Reconst',loss_rec_mse)
-        return 1
+        return loss_rec_mse
 
     #@lazy_scope
     def loss_commit(self):
