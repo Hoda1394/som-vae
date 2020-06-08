@@ -386,7 +386,7 @@ class SOMVAE(tf.keras.Model):
     def call(self,inputs):
 
         self.inputs=inputs
-        self.batch=self.get_batch_size()
+        self.batch_size=self.get_batch_size()
         self.z_e = self.get_z_e()
         print('z_e',self.z_e.shape)
         self.z_dist_flat = self.get_z_dist_flat()
