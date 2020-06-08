@@ -269,8 +269,8 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
         if interactive:
             pbar.close()
 
-#@ex.capture
-def evaluate_model(model, x, modelpath, batch_size):
+@ex.capture
+def evaluate_model(model,x, modelpath, batch_size):
     """Evaluates the performance of the trained model in terms of normalized
     mutual information, purity and mean squared error.
     
@@ -337,6 +337,7 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     # get data 
     data_generator = get_data_generator(True)
 
+    x=1
     lr_val = tf.compat.v1.placeholder_with_default(learning_rate, [])
 
     # build model
@@ -344,9 +345,9 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
                 input_length=input_length, input_channels=input_channels, batch_size=input_duration,alpha=alpha, beta=beta, gamma=gamma,
                 tau=tau, mnist=mnist)
 
-    train_model(model, lr_val, generator=data_generator)
+    train_model(model,lr_val, generator=data_generator)
 
-    result = evaluate_model(model)
+    result = evaluate_model(model,x=x)
 
     #if not save_model:
     #    shutil.rmtree(os.path.dirname(modelpath))
