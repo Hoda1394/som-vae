@@ -201,28 +201,31 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
     step = 0
     test_losses = []
     writer = tf.summary.create_file_writer("../models/test")
-
-    def train_step(inputs,epoch,batch):
-        with tf.GradientTape() as tape:
-            model.call(inputs=inputs)
-            train_loss = model.loss()
-            #print("Epoch {}, batch {}, loss {}".format(epoch,batch,train_loss))
-
-        grads = tape.gradient(train_loss,model.trainable_variables)
-        #lr_decay = tf.compat.v1.train.exponential_decay(self.learning_rate, self.global_step, self.decay_steps, self.decay_factor, staircase=True)
-        optimizer.apply_gradients(zip(grads, model.trainable_variables))
-        return train_loss
         
     #@tf.function
-    def call_train_step(inputs,epoch,batch):
+    def call_train_step():
         print('hey')
-        train_loss = train_step(inputs,epoch,batch)
-        return train_loss
+
+        @tf.function
+        def train_step(inputs,epoch,batch):
+            with tf.GradientTape() as tape:
+                model.call(inputs=inputs)
+                train_loss = model.loss()
+                #print("Epoch {}, batch {}, loss {}".format(epoch,batch,train_loss))
+
+            grads = tape.gradient(train_loss,model.trainable_variables)
+            #lr_decay = tf.compat.v1.train.exponential_decay(self.learning_rate, self.global_step, self.decay_steps, self.decay_factor, staircase=True)
+            optimizer.apply_gradients(zip(grads, model.trainable_variables))
+            return train_loss
+
+        return train_step
 
     print("Training...")
     try:
         if interactive:
             pbar = tqdm(total=num_epochs*(num_batches)) 
+
+        mu_train_step = call_train_step()
 
         for epoch in range(num_epochs):
             batch_val = next(val_gen)
@@ -247,7 +250,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
                 step += 1
                 batch_train = next(train_gen)
                 batch_number = tf.convert_to_tensor(i, dtype=tf.int64)
-                train_loss = call_train_step(batch_train,epoch,batch_number)
+                train_loss = my_train_step(batch_train,epoch,batch_number)
                 #break
 
                 if i%100 == 0:
