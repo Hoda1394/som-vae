@@ -218,7 +218,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
 
     @tf.function
     def call_train_step(inputs,epoch,batch):
-        loss = train_step(model,inputs,epoch,batch)
+        loss = train_step(inputs,epoch,batch)
         return loss
 
     print("Training...")
