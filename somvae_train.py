@@ -216,12 +216,13 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
         grads = tape.gradient(train_loss,model.trainable_variables)
         #lr_decay = tf.compat.v1.train.exponential_decay(self.learning_rate, self.global_step, self.decay_steps, self.decay_factor, staircase=True)
         optimizer.apply_gradients(zip(grads, model.trainable_variables))
-        return train_loss, tx-ty, ty-tz
+        ta = time.time()
+        return train_loss, ty-tx, tz-ty, ta-tz
 
     @tf.function
     def call_train_step(model,inputs,epoch,batch):
         loss, time0, time1 = train_step(model,inputs,epoch,batch)
-        return loss, time0, time1
+        return loss, time0, time1, time2
 
     print("Training...")
     try:
@@ -251,10 +252,10 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
                 step += 1
                 batch_train = next(train_gen)
                 batch_number = tf.convert_to_tensor(i, dtype=tf.int64)
-                train_loss,time0,time1 = call_train_step(model,batch_train,epoch,batch_number)
+                train_loss,time0,time1,time2 = call_train_step(model,batch_train,epoch,batch_number)
                 #break
 
-                print('internal times ',time0, time1)
+                print('internal times ',time0, time1,time2)
 
                 if i%100 == 0:
                     with writer.as_default():
