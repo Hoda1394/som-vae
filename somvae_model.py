@@ -162,7 +162,7 @@ class SOMVAE(tf.keras.Model):
     #@lazy_scope
     def get_embeddings(self):
         """Creates variable for the SOM embeddings."""
-        embeddings=tf.Variable(tf.initializers.TruncatedNormal(mean=0., stddev=0.05)(shape=self.som_dim+[self.latent_dim], dtype=tf.float64))
+        embeddings=tf.Variable(tf.initializers.TruncatedNormal(mean=0., stddev=0.05)(shape=self.som_dim+[self.latent_dim]))
         return embeddings
 
     #@lazy_scope
