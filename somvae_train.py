@@ -352,6 +352,10 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
                 input_length=input_length, input_channels=input_channels, batch_size=input_duration,alpha=alpha, beta=beta, gamma=gamma,
                 tau=tau, mnist=mnist)
 
+    for var in model.trainable_variables:
+        print(var)
+        print(var.name)
+
     train_model(model,lr_val, generator=data_generator)
 
     result = evaluate_model(model,x=x)

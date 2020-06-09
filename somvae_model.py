@@ -162,13 +162,13 @@ class SOMVAE(tf.keras.Model):
     #@lazy_scope
     def get_embeddings(self):
         """Creates variable for the SOM embeddings."""
-        embeddings=tf.Variable(tf.initializers.TruncatedNormal(mean=0., stddev=0.05)(shape=self.som_dim+[self.latent_dim]))
+        embeddings=tf.Variable(tf.initializers.TruncatedNormal(mean=0., stddev=0.05)(shape=self.som_dim+[self.latent_dim]),trainable=True,name='embeddings')
         return embeddings
 
     #@lazy_scope
     def get_transition_probabilities(self):
         """Creates tensor for the transition probabilities."""
-        probabilities_raw = tf.Variable(tf.zeros(self.som_dim+self.som_dim), name="probabilities_raw")
+        probabilities_raw = tf.Variable(tf.zeros(self.som_dim+self.som_dim), trainable=True, name="probabilities_raw")
         probabilities_positive = tf.exp(probabilities_raw)
         probabilities_summed = tf.reduce_sum(input_tensor=probabilities_positive, axis=[-1,-2], keepdims=True)
         probabilities_normalized = probabilities_positive / probabilities_summed
