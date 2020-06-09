@@ -172,7 +172,7 @@ class SOMVAE(tf.keras.Model):
         probabilities_positive = tf.exp(probabilities_raw)
         probabilities_summed = tf.reduce_sum(input_tensor=probabilities_positive, axis=[-1,-2], keepdims=True)
         probabilities_normalized = probabilities_positive / probabilities_summed
-        return probabilities_normalized
+        return probabilities_raw
 
     #@lazy_scope
     def get_global_step(self):
