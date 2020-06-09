@@ -221,12 +221,13 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
     @tf.function
     def call_train_step(inputs):
         loss = train_step(inputs)
+        loss_prob = train_step_prob(inputs)
         return loss
     
-    @tf.function
-    def call_train_step_prob(inputs):
-        loss_prob = train_step_prob(inputs)
-        return loss_prob
+    #@tf.function
+    #def call_train_step_prob(inputs):
+    #    loss_prob = train_step_prob(inputs)
+    #    return loss_prob
 
     print("Training...")
     try:
@@ -257,7 +258,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
                 batch_train = next(train_gen)
 
                 train_loss= call_train_step(batch_train)
-                train_loss_prob= call_train_step_prob(batch_train)
+                #train_loss_prob= call_train_step_prob(batch_train)
 
                 if i%100 == 0:
                     with writer.as_default():
