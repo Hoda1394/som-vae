@@ -202,41 +202,31 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
     test_losses = []
     writer = tf.summary.create_file_writer("../models/test")
         
-    #@tf.function
-    def call_train_step():
-        print('hey')
 
-        @tf.function
-        def train_step(model,inputs,epoch,batch):
-            with tf.GradientTape() as tape:
-                #model.call(inputs=inputs)
+    def train_step(model,inputs,epoch,batch):
+        with tf.GradientTape() as tape:
 
-                model.inputs=inputs
-                model.batch_size=model.get_batch_size()
-                model.z_e = model.get_z_e()
-                model.z_dist_flat = model.get_z_dist_flat()
-                model.k = model.get_k()
-                model.z_q = model.get_z_q()
-                model.z_q_neighbors = model.get_z_q_neighbors()
-                model.reconstruction_e = model.get_reconstruction_e()
-                model.reconstruction_q = model.get_reconstruction_q()
+            tx = time.time()
+            model.call(inputs=inputs)
+            ty = time.time()
+            train_loss = model.loss()
+            tz = time.time()
+            #print("Epoch {}, batch {}, loss {}".format(epoch,batch,train_loss))
 
-                train_loss = model.loss()
-                #print("Epoch {}, batch {}, loss {}".format(epoch,batch,train_loss))
+        grads = tape.gradient(train_loss,model.trainable_variables)
+        #lr_decay = tf.compat.v1.train.exponential_decay(self.learning_rate, self.global_step, self.decay_steps, self.decay_factor, staircase=True)
+        optimizer.apply_gradients(zip(grads, model.trainable_variables))
+        return train_loss, tx-ty, ty-tz
 
-            grads = tape.gradient(train_loss,model.trainable_variables)
-            #lr_decay = tf.compat.v1.train.exponential_decay(self.learning_rate, self.global_step, self.decay_steps, self.decay_factor, staircase=True)
-            optimizer.apply_gradients(zip(grads, model.trainable_variables))
-            return train_loss
-
-        return train_step
+    @tf.function
+    def call_train_step(model,inputs,epoch,batch):
+        loss, time0, time1 = train_step(model,inputs,epoch,batch)
+        return loss, time0, time1
 
     print("Training...")
     try:
         if interactive:
             pbar = tqdm(total=num_epochs*(num_batches)) 
-
-        my_train_step = call_train_step()
 
         for epoch in range(num_epochs):
             batch_val = next(val_gen)
@@ -261,8 +251,10 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
                 step += 1
                 batch_train = next(train_gen)
                 batch_number = tf.convert_to_tensor(i, dtype=tf.int64)
-                train_loss = my_train_step(model,batch_train,epoch,batch_number)
+                train_loss,time0,time1 = call_train_step(model,batch_train,epoch,batch_number)
                 #break
+
+                print('internal times ',time0, time1)
 
                 if i%100 == 0:
                     with writer.as_default():
