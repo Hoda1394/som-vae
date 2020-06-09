@@ -215,7 +215,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
             train_loss_prob = model.loss_probabilities()
         grads = tape.gradient(train_loss_prob,model.trainable_variables)
         print(grads,model.transition_probabilities)
-        optimizer.apply_gradients(zip(grads, model.transition_probabilities))
+        optimizer.apply_gradients(zip(grads, model.trainable_variables))
         return train_loss_prob
 
     @tf.function
@@ -255,7 +255,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
 
                 step += 1
                 batch_train = next(train_gen)
-                batch_number = tf.convert_to_tensor(i, dtype=tf.int64)
+
                 train_loss= call_train_step(batch_train)
                 train_loss_prob= call_train_step_prob(batch_train)
 
