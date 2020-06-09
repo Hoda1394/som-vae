@@ -193,7 +193,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
     #with LogFileWriter(ex):                                                          #Sacred
     #    train_writer = tf.compat.v1.summary.FileWriter(logdir+"/train", sess.graph)  #could be upgraded to TFv.2
     #    test_writer = tf.compat.v1.summary.FileWriter(logdir+"/test", sess.graph)    #could be upgraded to TFv.2
-    optimizer = tf.keras.optimizers.Adam(learning_rate=0.001, beta_1=0.0, beta_2=0.99, epsilon=1e-8)
+    optimizer = tf.keras.optimizers.Adam(learning_rate=0.0001, beta_1=0.0, beta_2=0.99, epsilon=1e-8)
     
     # Initialize
     num_batches = len(data_train)//batch_size
@@ -202,27 +202,24 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
     test_losses = []
     writer = tf.summary.create_file_writer("../models/test")
         
-
-    def train_step(model,inputs,epoch,batch):
+    def train_step(inputs,epoch,batch):
         with tf.GradientTape() as tape:
-
-            tx = time.time()
             model.call(inputs=inputs)
-            ty = time.time()
             train_loss = model.loss()
-            tz = time.time()
-            #print("Epoch {}, batch {}, loss {}".format(epoch,batch,train_loss))
+            train_loss_prob = model.loss_probabilities()
 
         grads = tape.gradient(train_loss,model.trainable_variables)
+        grads_prob = tape.gradient(train_loss_prob,model.trainable_variables) # model.transition_probabilies
         #lr_decay = tf.compat.v1.train.exponential_decay(self.learning_rate, self.global_step, self.decay_steps, self.decay_factor, staircase=True)
         optimizer.apply_gradients(zip(grads, model.trainable_variables))
-        ta = time.time()
-        return train_loss, ty-tx, tz-ty, ta-tz
+        optimizer.apply_gradients(zip(grads_prob, model.trainable_variables))
+
+        return train_loss
 
     @tf.function
-    def call_train_step(model,inputs,epoch,batch):
-        loss, time0, time1, time2 = train_step(model,inputs,epoch,batch)
-        return loss, time0, time1, time2
+    def call_train_step(inputs,epoch,batch):
+        loss = train_step(model,inputs,epoch,batch)
+        return loss
 
     print("Training...")
     try:
@@ -238,35 +235,26 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
                     tf.summary.scalar("test loss", test_losses[-1], step=step)
                     writer.flush() 
 
-            #if test_losses[-1] == min(test_losses):
-            #    checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=model)
-            #    checkpoint.save(modelpath)
-            #    patience_count = 0
-            #else:
-            #    patience_count += 1
-            #if patience_count >= patience:
-            #    break
+            if test_losses[-1] == min(test_losses):
+                checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=model)
+                checkpoint.save(modelpath)
+                patience_count = 0
+            else:
+                patience_count += 1
+            if patience_count >= patience:
+                break
         
             for i in range(num_batches):
-                t1 = time.time()
+
                 step += 1
                 batch_train = next(train_gen)
                 batch_number = tf.convert_to_tensor(i, dtype=tf.int64)
-                t0_5 = time.time()
-                train_loss,time0,time1,time2 = call_train_step(model,batch_train,epoch,batch_number)
-                #break
-
-                print('internal times ',time0.numpy(), time1.numpy(),time2.numpy())
+                train_loss= call_train_step(batch_train,epoch,batch_number)
 
                 if i%100 == 0:
                     with writer.as_default():
                         tf.summary.scalar("train loss", train_loss, step=step)
                         writer.flush()
-
-                #train_step_SOMVAE.run(feed_dict={x: batch_data, lr_val:learning_rate})
-                #train_step_prob.run(feed_dict={x: batch_data, lr_val:cd ``})
-                t2=time.time()
-                print('time taken for a batch yes :', t2-t0_5, t0_5-t1)
 
                 if interactive:
                     pbar.set_postfix(epoch=epoch, train_loss=train_loss.numpy(), test_loss=test_losses[-1].numpy(), refresh=False)

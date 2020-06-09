@@ -139,7 +139,7 @@ class SOMVAE(tf.keras.Model):
         self.inputs = tf.Variable(tf.zeros(shape=[batch_size, input_length, input_channels, 1],dtype=tf.float32),shape=[32,28, 28, 1])
         self.latent_dim = latent_dim
         self.som_dim = som_dim
-        self.learning_rate = learning_rate
+        self.learning_rate = learning_rate*100
         self.decay_factor = decay_factor
         self.decay_steps = decay_steps
         self.input_length = input_length
