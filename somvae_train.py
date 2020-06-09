@@ -266,7 +266,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
                 #train_step_SOMVAE.run(feed_dict={x: batch_data, lr_val:learning_rate})
                 #train_step_prob.run(feed_dict={x: batch_data, lr_val:cd ``})
                 t2=time.time()
-                print('time taken for a batch:', t2-t0_5, t0_5-t1)
+                print('time taken for a batch yes :', t2-t0_5, t0_5-t1)
 
                 if interactive:
                     pbar.set_postfix(epoch=epoch, train_loss=train_loss.numpy(), test_loss=test_losses[-1].numpy(), refresh=False)
