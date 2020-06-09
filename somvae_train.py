@@ -213,7 +213,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
         optimizer.apply_gradients(zip(grads, model.trainable_variables))
         return train_loss
         
-    @tf.function
+    #@tf.function
     def call_train_step(inputs,epoch,batch):
         print('hey')
         train_loss = train_step(inputs,epoch,batch)
