@@ -136,7 +136,7 @@ class SOMVAE(tf.keras.Model):
             mnist (bool): Flag that tells the model if we are training in MNIST-like data (default: True).
         """
         super(SOMVAE, self).__init__()
-        self.inputs = tf.Variable(tf.zeros(shape=[batch_size, input_length, input_channels, 1],dtype=tf.float32),shape=[32,28, 28, 1])
+        self.inputs = tf.Variable(tf.zeros(shape=[batch_size, input_length, input_channels, 1],dtype=tf.float32),shape=[32,28, 28, 1],trainable=False)
         self.latent_dim = latent_dim
         self.som_dim = som_dim
         self.learning_rate = learning_rate*100
