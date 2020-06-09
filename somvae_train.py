@@ -255,7 +255,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
                 train_loss,time0,time1,time2 = call_train_step(model,batch_train,epoch,batch_number)
                 #break
 
-                print('internal times ',time0, time1,time2)
+                print('internal times ',time0.numpy(), time1.numpy(),time2.numpy())
 
                 if i%100 == 0:
                     with writer.as_default():
