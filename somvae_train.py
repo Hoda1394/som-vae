@@ -244,7 +244,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
             for i in range(num_batches):
                 step += 1
                 batch_train = next(train_gen)
-                batch_numer = tf.convert_to_tensor(i, dtype=tf.int64)
+                batch_number = tf.convert_to_tensor(i, dtype=tf.int64)
                 train_loss = call_train_step(batch_train,epoch,batch_number)
                 #break
 
