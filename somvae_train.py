@@ -202,25 +202,30 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
     test_losses = []
     writer = tf.summary.create_file_writer("../models/test")
         
-    def train_step(inputs,epoch,batch):
+    def train_step(inputs):
         with tf.GradientTape() as tape:
             model.call(inputs=inputs)
             train_loss = model.loss()
         grads = tape.gradient(train_loss,model.trainable_variables)
-
-        with tf.GradientTape() as tape2:
-            train_loss_prob = model.loss_probabilities()
-        grads2 = tape2.gradient(train_loss_prob,model.trainable_variables)
-
         optimizer.apply_gradients(zip(grads, model.trainable_variables))
-        optimizer.apply_gradients(zip(grads2, model.transition_probabilities))
-
         return train_loss
+    
+    def train_step_prob(inputs):
+        with tf.GradientTape() as tape:
+            train_loss_prob = model.loss_probabilities()
+        grads = tape.gradient(train_loss_prob,model.transition_probabilities)
+        optimizer.apply_gradients(zip(grads, model.transition_probabilities))
+        return train_loss_prob
 
     @tf.function
-    def call_train_step(inputs,epoch,batch):
-        loss = train_step(inputs,epoch,batch)
+    def call_train_step(inputs):
+        loss = train_step(inputs)
         return loss
+    
+    @tf.function
+    def call_train_step_prob():
+        loss_prob = train_step_prob(inputs)
+        return loss_prob
 
     print("Training...")
     try:
@@ -250,7 +255,8 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
                 step += 1
                 batch_train = next(train_gen)
                 batch_number = tf.convert_to_tensor(i, dtype=tf.int64)
-                train_loss= call_train_step(batch_train,epoch,batch_number)
+                train_loss= call_train_step(batch_train)
+                train_loss_prob= call_train_step_prob(batch_train)
 
                 if i%100 == 0:
                     with writer.as_default():
