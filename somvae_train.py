@@ -207,9 +207,20 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
         print('hey')
 
         @tf.function
-        def train_step(inputs,epoch,batch):
+        def train_step(model,inputs,epoch,batch):
             with tf.GradientTape() as tape:
-                model.call(inputs=inputs)
+                #model.call(inputs=inputs)
+
+                model.inputs=inputs
+                model.batch_size=model.get_batch_size()
+                model.z_e = model.get_z_e()
+                model.z_dist_flat = model.get_z_dist_flat()
+                model.k = model.get_k()
+                model.z_q = model.get_z_q()
+                model.z_q_neighbors = model.get_z_q_neighbors()
+                model.reconstruction_e = model.get_reconstruction_e()
+                model.reconstruction_q = model.get_reconstruction_q()
+
                 train_loss = model.loss()
                 #print("Epoch {}, batch {}, loss {}".format(epoch,batch,train_loss))
 
@@ -250,7 +261,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
                 step += 1
                 batch_train = next(train_gen)
                 batch_number = tf.convert_to_tensor(i, dtype=tf.int64)
-                train_loss = my_train_step(batch_train,epoch,batch_number)
+                train_loss = my_train_step(model,batch_train,epoch,batch_number)
                 #break
 
                 if i%100 == 0:
