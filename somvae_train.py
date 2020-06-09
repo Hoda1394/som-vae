@@ -108,9 +108,9 @@ def ex_config():
 
 data_train = np.reshape(x_train, [-1,28,28,1])
 labels_train = y_train
-data_val = data_train[45000:]
+data_val = data_train[45000:].astype(float)
 labels_val = labels_train[45000:]
-data_train = data_train[:45000]
+data_train = data_train[:45000].astype(float)
 labels_train = data_train[:45000]
 
 #@ex.capture
@@ -138,11 +138,11 @@ def get_data_generator(time_series):
 
         assert mode in ["train", "val"], "The mode should be in {train, val}."
         if mode=="train":
-            images = data_train.copy().astype(float)
-            labels = labels_train.copy().astype(float)
+            images = data_train.copy()
+            labels = labels_train.copy()
         elif mode=="val":
-            images = data_val.copy().astype(float)
-            labels = labels_val.copy().astype(float)
+            images = data_val.copy()
+            labels = labels_val.copy()
        
         while True:
             indices = np.random.permutation(np.arange(len(images)))
