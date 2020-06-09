@@ -214,6 +214,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
         with tf.GradientTape() as tape:
             train_loss_prob = model.loss_probabilities()
         grads = tape.gradient(train_loss_prob,model.transition_probabilities)
+        print(grads,model.transition_probabilities)
         optimizer.apply_gradients(zip(grads, model.transition_probabilities))
         return train_loss_prob
 
