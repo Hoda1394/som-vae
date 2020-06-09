@@ -213,7 +213,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
         grads2 = tape2.gradient(train_loss_prob,model.trainable_variables)
 
         optimizer.apply_gradients(zip(grads, model.trainable_variables))
-        optimizer.apply_gradients(zip(grads_prob, model.trainable_variables))
+        optimizer.apply_gradients(zip(grads2, model.trainable_variables))
 
         return train_loss
 
