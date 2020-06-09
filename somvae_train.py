@@ -108,10 +108,9 @@ def ex_config():
 
 data_train = np.reshape(x_train, [-1,28,28,1])
 labels_train = y_train
-data_val = data_train[45000:].astype(np.float32)
-print(data_val)
+data_val = data_train[45000:].astype(np.float64)
 labels_val = labels_train[45000:]
-data_train = data_train[:45000].astype(np.float32)
+data_train = data_train[:45000].astype(np.float64)
 labels_train = data_train[:45000]
 
 #@ex.capture
