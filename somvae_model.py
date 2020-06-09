@@ -371,6 +371,7 @@ class SOMVAE(tf.keras.Model):
         return train_step, train_step_prob
 
     #@lazy_scope
+    @tf.function
     def call(self,inputs):
 
         self.inputs=inputs
