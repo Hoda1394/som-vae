@@ -268,7 +268,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
                 if interactive:
                     pbar.set_postfix(epoch=epoch, train_loss=train_loss.numpy(), test_loss=test_losses[-1].numpy(), refresh=False)
                     pbar.update(1)
-            break
+  
 
     except KeyboardInterrupt:
         pass
