@@ -12,8 +12,9 @@ and comment in the commented out lines.
 import os
 import uuid
 import shutil
+import time
 from glob import glob
-from datetime import date, time
+from datetime import date
 
 import numpy as np
 import tensorflow as tf
