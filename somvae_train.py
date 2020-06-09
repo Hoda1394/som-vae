@@ -225,7 +225,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
         if interactive:
             pbar = tqdm(total=num_epochs*(num_batches)) 
 
-        mu_train_step = call_train_step()
+        my_train_step = call_train_step()
 
         for epoch in range(num_epochs):
             batch_val = next(val_gen)
