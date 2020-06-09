@@ -13,7 +13,7 @@ import os
 import uuid
 import shutil
 from glob import glob
-from datetime import date
+from datetime import date, time
 
 import numpy as np
 import tensorflow as tf
@@ -240,8 +240,9 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
             #    patience_count += 1
             #if patience_count >= patience:
             #    break
-
+        
             for i in range(num_batches):
+                t1 = time.time()
                 step += 1
                 batch_train = next(train_gen)
                 batch_number = tf.convert_to_tensor(i, dtype=tf.int64)
@@ -255,6 +256,8 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
 
                 #train_step_SOMVAE.run(feed_dict={x: batch_data, lr_val:learning_rate})
                 #train_step_prob.run(feed_dict={x: batch_data, lr_val:cd ``})
+                t2=time.time()
+                print('time taken for a batch:' t2-t1)
 
                 if interactive:
                     pbar.set_postfix(epoch=epoch, train_loss=train_loss.numpy(), test_loss=test_losses[-1].numpy(), refresh=False)
