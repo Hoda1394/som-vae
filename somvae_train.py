@@ -259,10 +259,9 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
 
                 step += 1
                 batch_train = next(train_gen)
-                print(batch_train[1,:,:])
-                print(batch_train.max(),batch_train.min(),np.where())
+                print(batch_train.max(),batch_train.min())
 
-                #train_loss= call_train_step(batch_train)
+                train_loss= call_train_step(batch_train)
                 #train_loss_prob= call_train_step_prob(batch_train)
 
                 if i%100 == 0:
@@ -357,10 +356,6 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     model = SOMVAE(latent_dim=latent_dim, som_dim=som_dim, learning_rate=lr_val, decay_factor=decay_factor,
                 input_length=input_length, input_channels=input_channels, batch_size=input_duration,alpha=alpha, beta=beta, gamma=gamma,
                 tau=tau, mnist=mnist)
-
-    for var in model.trainable_variables:
-        #print(var)
-        print(var.name)
 
     train_model(model,lr_val, generator=data_generator)
 
