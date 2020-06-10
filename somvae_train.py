@@ -210,6 +210,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
             model.call(inputs=inputs)
             train_loss = model.loss()
         grads = tape.gradient(train_loss,model.trainable_variables)
+        print(grads)
         optimizer.apply_gradients(zip(grads, model.trainable_variables))
         return train_loss
     
@@ -221,7 +222,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
         optimizer.apply_gradients(zip(grads, model.trainable_variables))
         return train_loss_prob
 
-    @tf.function
+    #@tf.function
     def call_train_step(inputs):
         loss = train_step(inputs)
         #loss_prob = train_step_prob(inputs)
