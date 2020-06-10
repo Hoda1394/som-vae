@@ -207,11 +207,9 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
         
     def train_step(inputs):
         with tf.GradientTape() as tape:
-            tape.watch(model.trainable_variables[-1])
             model.call(inputs=inputs)
             train_loss = model.loss()
         grads = tape.gradient(train_loss,model.trainable_variables)
-        print(grads[-2])
         optimizer.apply_gradients(zip(grads, model.trainable_variables))
         return train_loss
     
@@ -219,7 +217,6 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
         with tf.GradientTape() as tape:
             train_loss_prob = model.loss_probabilities()
         grads = tape.gradient(train_loss_prob,model.trainable_variables)
-        print(grads,model.transition_probabilities)
         optimizer.apply_gradients(zip(grads, model.trainable_variables))
         return train_loss_prob
 
@@ -361,8 +358,8 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
                 input_length=input_length, input_channels=input_channels, batch_size=input_duration,alpha=alpha, beta=beta, gamma=gamma,
                 tau=tau, mnist=mnist)
 
-    for var in model.trainable_variables:
-        print(var.name)
+    #for var in model.trainable_variables:
+    #    print(var.name)
 
     train_model(model,lr_val, generator=data_generator)
 
