@@ -144,7 +144,6 @@ class SOMVAE(tf.keras.Model):
         self.decay_steps = decay_steps
         self.input_length = input_length
         self.input_channels = input_channels
-        print(alpha,beta,gamma,tau)
         self.alpha = alpha
         self.beta = beta
         self.gamma = gamma

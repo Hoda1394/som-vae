@@ -259,7 +259,6 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
 
                 step += 1
                 batch_train = next(train_gen)
-                print(batch_train.max(),batch_train.min())
 
                 train_loss= call_train_step(batch_train)
                 #train_loss_prob= call_train_step_prob(batch_train)
