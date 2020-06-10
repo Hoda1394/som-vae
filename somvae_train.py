@@ -193,7 +193,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
     #with LogFileWriter(ex):                                                          #Sacred
     #    train_writer = tf.compat.v1.summary.FileWriter(logdir+"/train", sess.graph)  #could be upgraded to TFv.2
     #    test_writer = tf.compat.v1.summary.FileWriter(logdir+"/test", sess.graph)    #could be upgraded to TFv.2
-    learning_decay = tf.keras.optimizers.schedules.ExponentialDecay(learning_rate, decay_rate=decay_factor, decay_steps=1000,staircase=True, name='Exp_decay')
+    learning_decay = tf.keras.optimizers.schedules.ExponentialDecay(learning_rate, decay_rate=0.9, decay_steps=1000,staircase=True, name='Exp_decay')
     optimizer = tf.keras.optimizers.Adam(learning_rate=learning_decay)
     # Initialize
     num_batches = len(data_train)//batch_size
