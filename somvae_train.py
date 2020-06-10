@@ -114,7 +114,7 @@ labels_val = labels_train[45000:]
 data_train = data_train[:45000].astype(np.float64)
 labels_train = data_train[:45000]
 
-#@ex.capture
+@ex.capture
 def get_data_generator(time_series):
     """Creates a data generator for the training.
     
@@ -193,8 +193,9 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
     #with LogFileWriter(ex):                                                          #Sacred
     #    train_writer = tf.compat.v1.summary.FileWriter(logdir+"/train", sess.graph)  #could be upgraded to TFv.2
     #    test_writer = tf.compat.v1.summary.FileWriter(logdir+"/test", sess.graph)    #could be upgraded to TFv.2
-    optimizer = tf.keras.optimizers.Adam(learning_rate=0.0001, beta_1=0.0, beta_2=0.99, epsilon=1e-8)
-    
+
+    optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate, beta_1=0.0, beta_2=0.99, epsilon=1e-8)
+    print(learning_rate)
     # Initialize
     num_batches = len(data_train)//batch_size
     patience_count = 0
