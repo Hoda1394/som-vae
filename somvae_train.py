@@ -221,7 +221,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
     @tf.function
     def call_train_step(inputs):
         loss = train_step(inputs)
-        loss_prob = train_step_prob(inputs)
+        #loss_prob = train_step_prob(inputs)
         return loss
     
     #@tf.function
