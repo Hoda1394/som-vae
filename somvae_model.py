@@ -284,8 +284,7 @@ class SOMVAE(tf.keras.Model):
             h_deconv1 = tf.nn.relu(conv2d(h_unpool1, [4,4,256,256], "deconv1"))
             h_unpool2 = tf.keras.layers.UpSampling2D((2,2))(h_deconv1)
             h_deconv2 = tf.nn.sigmoid(conv2d(h_unpool2, [4,4,256,1], "deconv2"))
-            x_hat = h_deconv2
-        return tf.keras.models.Model(inputs=[h_0], outputs=[x_hat], name='encoder')
+        return tf.keras.models.Model(inputs=[h_0], outputs=[h_deconv2], name='encoder')
 
     def get_reconstruction_e(self):
         return self.decoder_(self.z_e)
@@ -302,6 +301,7 @@ class SOMVAE(tf.keras.Model):
         #loss_mse_zq = tf.math.reduce_mean(loss_rec_mse_zq)
 
         loss_mse_ze = loss_mse(self.inputs, self.reconstruction_e)
+        print(loss_mse_ze)
         #loss_mse_ze = tf.math.reduce_sum(loss_rec_mse_ze,axis=[1,2])
         #loss_mse_ze = tf.math.reduce_mean(loss_rec_mse_ze)
         
