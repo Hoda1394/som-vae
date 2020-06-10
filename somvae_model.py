@@ -372,8 +372,8 @@ class SOMVAE(tf.keras.Model):
         self.z_q_neighbors = self.get_z_q_neighbors()
         self.reconstruction_e = self.get_reconstruction_e()
         self.reconstruction_q = self.get_reconstruction_q()
-        print(self.transition_probabilities.numpy())
-        print(self.raw_probabilities.max())
+        print(self.transition_probabilities.numpy().max())
+        print(self.raw_probabilities.numpy().max())
         
     
 
