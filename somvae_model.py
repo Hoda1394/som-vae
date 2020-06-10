@@ -348,8 +348,8 @@ class SOMVAE(tf.keras.Model):
     #@lazy_scope
     def loss(self):
         """Aggregates the loss terms into the total loss.""" 
-        loss = (self.loss_reconstruction() + self.alpha*self.loss_commit() + self.beta*self.loss_som())
-                #+ self.gamma*self.loss_probabilities() + self.tau*self.loss_z_prob())
+        loss = (self.loss_reconstruction() + self.alpha*self.loss_commit() + self.beta*self.loss_som()
+                + self.gamma*self.loss_probabilities() + self.tau*self.loss_z_prob())
         return loss
 
     @lazy_scope
@@ -377,6 +377,7 @@ class SOMVAE(tf.keras.Model):
         self.z_q_neighbors = self.get_z_q_neighbors()
         self.reconstruction_e = self.get_reconstruction_e()
         self.reconstruction_q = self.get_reconstruction_q()
+        print(self.transition_probabilities)
         
     
 
