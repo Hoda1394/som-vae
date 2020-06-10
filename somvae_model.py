@@ -284,7 +284,8 @@ class SOMVAE(tf.keras.Model):
             h_deconv1 = tf.nn.relu(conv2d(h_unpool1, [4,4,256,256], "deconv1"))
             h_unpool2 = tf.keras.layers.UpSampling2D((2,2))(h_deconv1)
             h_deconv2 = tf.nn.sigmoid(conv2d(h_unpool2, [4,4,256,1], "deconv2"))
-        return tf.keras.models.Model(inputs=[h_0], outputs=[h_deconv2], name='encoder')
+            x_hat = h_deconv2
+        return tf.keras.models.Model(inputs=[h_0], outputs=[x_hat], name='encoder')
 
     def get_reconstruction_e(self):
         return self.decoder_(self.z_e)
@@ -297,14 +298,7 @@ class SOMVAE(tf.keras.Model):
         """Computes the combined reconstruction loss for both reconstructions."""
 
         loss_mse_zq = loss_mse(self.inputs, self.reconstruction_q)
-        # loss_mse_zq = tf.math.reduce_sum(loss_rec_mse_zq,axis=[1,2])
-        #loss_mse_zq = tf.math.reduce_mean(loss_rec_mse_zq)
-
-        loss_mse_ze = loss_mse(self.inputs, self.reconstruction_e)
-        print(loss_mse_ze)
-        #loss_mse_ze = tf.math.reduce_sum(loss_rec_mse_ze,axis=[1,2])
-        #loss_mse_ze = tf.math.reduce_mean(loss_rec_mse_ze)
-        
+        loss_mse_ze = loss_mse(self.inputs, self.reconstruction_e)å
         loss_rec_mse = loss_mse_zq + loss_mse_ze
 
         return loss_rec_mse
@@ -355,8 +349,8 @@ class SOMVAE(tf.keras.Model):
     #@lazy_scope
     def loss(self):
         """Aggregates the loss terms into the total loss.""" 
-        loss = (self.loss_reconstruction()) #+ self.alpha*self.loss_commit() + self.beta*self.loss_som())
-        #        + self.gamma*self.loss_probabilities() + self.tau*self.loss_z_prob())
+        loss = (self.loss_reconstruction() + self.alpha*self.loss_commit() + self.beta*self.loss_som()
+                + self.gamma*self.loss_probabilities() + self.tau*self.loss_z_prob())
         return loss
 
     @lazy_scope
@@ -383,7 +377,6 @@ class SOMVAE(tf.keras.Model):
         self.z_q = self.get_z_q()
         self.z_q_neighbors = self.get_z_q_neighbors()
         self.reconstruction_e = self.get_reconstruction_e()
-        print(self.reconstruction_e)
         self.reconstruction_q = self.get_reconstruction_q()
         
     
