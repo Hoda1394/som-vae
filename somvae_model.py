@@ -156,8 +156,8 @@ class SOMVAE(tf.keras.Model):
 
         #Dynamic
         self.embeddings = self.get_embeddings() 
+        self.raw_probabilities = self.get_raw_probabilities()
         self.transition_probabilities = self.get_transition_probabilities()
-        self.global_step = self.get_global_step()
 
     #@lazy_scope
     def get_embeddings(self):
@@ -166,19 +166,16 @@ class SOMVAE(tf.keras.Model):
         return embeddings
 
     #@lazy_scope
-    def get_transition_probabilities(self):
+    def get_raw_probabilities(self):
         """Creates tensor for the transition probabilities."""
         probabilities_raw = tf.Variable(tf.zeros(self.som_dim+self.som_dim), trainable=True, name="probabilities_raw")
-        probabilities_positive = tf.Variable(tf.exp(probabilities_raw),trainable=True,name="probabilies_exp")
-        probabilities_summed = tf.Variable(tf.reduce_sum(input_tensor=probabilities_positive, axis=[-1,-2], keepdims=True),trainable=True,name="probabilies_sum")
-        probabilities_normalized = tf.Variable(probabilities_positive / probabilities_summed,trainable=True,name="probabilies_norm")
+        return probabilities_raw
+    
+    def get_transition_probabilities(self):
+        probabilities_positive = tf.exp(self.probabilities_raw)
+        probabilities_summed = tf.reduce_sum(input_tensor=probabilities_positive, axis=[-1,-2], keepdims=True)
+        probabilities_normalized = tf.Variable(probabilities_positive / probabilities_summed,trainable=False,name="probabilies_norm")
         return probabilities_normalized
-
-    #@lazy_scope
-    def get_global_step(self):
-        """Creates global_step variable for the optimization."""
-        global_step = tf.Variable(0, trainable=False, name="global_step")
-        return global_step
 
     #@lazy_scope
     def get_batch_size(self):
@@ -299,7 +296,6 @@ class SOMVAE(tf.keras.Model):
         loss_mse_zq = loss_mse(self.inputs, self.reconstruction_q)
         loss_mse_ze = loss_mse(self.inputs, self.reconstruction_e)
         loss_rec_mse = loss_mse_zq + loss_mse_ze
-
         return loss_rec_mse
 
     #@lazy_scope
@@ -326,7 +322,6 @@ class SOMVAE(tf.keras.Model):
         k_stacked = tf.stack([k_1_old, k_2_old, k_1, k_2], axis=1)
         transitions_all = tf.gather_nd(self.transition_probabilities, k_stacked)
         loss_probabilities = -self.gamma * tf.reduce_mean(input_tensor=tf.math.log(transitions_all))
-
         return loss_probabilities
 
 
@@ -377,7 +372,7 @@ class SOMVAE(tf.keras.Model):
         self.z_q_neighbors = self.get_z_q_neighbors()
         self.reconstruction_e = self.get_reconstruction_e()
         self.reconstruction_q = self.get_reconstruction_q()
-        print(self.transition_probabilities)
+        print(self.transition_probabilities.max(),self.raw_probabilities.max())
         
     
 
