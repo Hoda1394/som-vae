@@ -261,6 +261,9 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
                 batch_train = next(train_gen)
 
                 train_loss= call_train_step(batch_train)
+
+                print('TP :',model.transition_probabilities.numpy().max())
+                print('RP :',model.raw_probabilities.numpy().max())
                 #train_loss_prob= call_train_step_prob(batch_train)
 
                 if i%100 == 0:
