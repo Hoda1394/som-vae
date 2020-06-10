@@ -298,7 +298,7 @@ class SOMVAE(tf.keras.Model):
         """Computes the combined reconstruction loss for both reconstructions."""
 
         loss_mse_zq = loss_mse(self.inputs, self.reconstruction_q)
-        loss_mse_ze = loss_mse(self.inputs, self.reconstruction_e)å
+        loss_mse_ze = loss_mse(self.inputs, self.reconstruction_e)
         loss_rec_mse = loss_mse_zq + loss_mse_ze
 
         return loss_rec_mse
