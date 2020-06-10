@@ -157,7 +157,7 @@ class SOMVAE(tf.keras.Model):
         #Dynamic
         self.embeddings = self.get_embeddings() 
         self.raw_probabilities = self.get_raw_probabilities()
-        self.transition_probabilities = self.get_transition_probabilities()
+        #self.transition_probabilities = self.get_transition_probabilities()
 
     #@lazy_scope
     def get_embeddings(self):
@@ -175,7 +175,7 @@ class SOMVAE(tf.keras.Model):
         probabilities_positive = tf.exp(self.raw_probabilities)
         probabilities_summed = tf.reduce_sum(input_tensor=probabilities_positive, axis=[-1,-2], keepdims=True)
         probabilities_normalized = probabilities_positive / probabilities_summed
-        return tf.Variable(probabilities_normalized,trainable=True,name='test')
+        return probabilities_normalized
 
     #@lazy_scope
     def get_batch_size(self):
@@ -372,6 +372,7 @@ class SOMVAE(tf.keras.Model):
         self.z_q_neighbors = self.get_z_q_neighbors()
         self.reconstruction_e = self.get_reconstruction_e()
         self.reconstruction_q = self.get_reconstruction_q()
+        self.transition_probabilities = self.get_transition_probabilities()
         
     
 
