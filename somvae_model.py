@@ -383,6 +383,7 @@ class SOMVAE(tf.keras.Model):
         self.z_q = self.get_z_q()
         self.z_q_neighbors = self.get_z_q_neighbors()
         self.reconstruction_e = self.get_reconstruction_e()
+        print(self.reconstruction_e)
         self.reconstruction_q = self.get_reconstruction_q()
         
     
