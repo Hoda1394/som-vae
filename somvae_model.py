@@ -175,7 +175,7 @@ class SOMVAE(tf.keras.Model):
         probabilities_positive = tf.exp(self.raw_probabilities)
         probabilities_summed = tf.reduce_sum(input_tensor=probabilities_positive, axis=[-1,-2], keepdims=True)
         probabilities_normalized = probabilities_positive / probabilities_summed
-        return probabilities_normalized
+        return tf.Variable(probabilities_normalized,trainable=True,name='test')
 
     #@lazy_scope
     def get_batch_size(self):
