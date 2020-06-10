@@ -207,6 +207,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
         
     def train_step(inputs):
         with tf.GradientTape() as tape:
+            tape.watch(model.trainable_variables[-1])
             model.call(inputs=inputs)
             train_loss = model.loss()
         grads = tape.gradient(train_loss,model.trainable_variables)
