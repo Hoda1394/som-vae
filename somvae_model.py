@@ -172,7 +172,7 @@ class SOMVAE(tf.keras.Model):
         return probabilities_raw
     
     def get_transition_probabilities(self):
-        probabilities_positive = tf.exp(self.probabilities_raw)
+        probabilities_positive = tf.exp(self.raw_probabilities)
         probabilities_summed = tf.reduce_sum(input_tensor=probabilities_positive, axis=[-1,-2], keepdims=True)
         probabilities_normalized = tf.Variable(probabilities_positive / probabilities_summed,trainable=False,name="probabilies_norm")
         return probabilities_normalized
