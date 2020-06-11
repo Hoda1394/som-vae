@@ -229,7 +229,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
     @tf.function
     def call_train_step(inputs):
         loss = train_step(inputs)
-        #loss_prob = train_step_prob(inputs)
+        loss_prob = train_step_prob(inputs)
         return loss
     
     @tf.function
@@ -268,7 +268,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
                 train_loss= call_train_step(batch_train)
 
                 print('RP :',model.raw_probabilities.numpy().max())
-                train_loss_prob= call_train_step_prob(batch_train)
+                #train_loss_prob= call_train_step_prob(batch_train)
                 print('RP :',model.raw_probabilities.numpy().max())
 
                 if i%100 == 0:
