@@ -359,7 +359,7 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     #for var in model.trainable_variables:
     #    print(var.name)
 
-    train_model(model,lr_val, generator=data_generator)
+    #train_model(model,lr_val, generator=data_generator)
 
     result = evaluate_model(model,x=x)
 
