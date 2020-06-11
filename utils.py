@@ -61,7 +61,7 @@ def compute_NMI(cluster_assignments, class_assignments):
     assert num_classes > 1, "There should be more than one class."
         
     cluster_class_counts = {cluster_: {class_: 0 for class_ in classes} for cluster_ in clusters}
-    print(cluster_class_counts.keys())
+    print(cluster_class_counts.keys()[0])
     print(cluster_class_counts[1])
     for cluster_, class_ in zip(cluster_assignments, class_assignments):
         cluster_class_counts[cluster_][class_] += 1
