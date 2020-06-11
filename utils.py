@@ -68,7 +68,7 @@ def compute_NMI(cluster_assignments, class_assignments):
     print(list(zip(cluster_assignments,class_assignments)))
     for cluster_, class_ in zip(cluster_assignments, class_assignments):
         print(cluster_,class_)
-        cluster_class_counts[cluster_.numpy()][class_.numpy()] += 1
+        cluster_class_counts[cluster_.numpy()][class_] += 1
     
     cluster_sizes = {cluster_: sum(list(class_dict.values())) for cluster_, class_dict in cluster_class_counts.items()}
     class_sizes = {class_: sum([cluster_class_counts[clus][class_] for clus in clusters]) for class_ in classes}
