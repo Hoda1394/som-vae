@@ -198,6 +198,10 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
     #    test_writer = tf.compat.v1.summary.FileWriter(logdir+"/test", sess.graph)    #could be upgraded to TFv.2
     learning_decay = tf.keras.optimizers.schedules.ExponentialDecay(learning_rate, decay_rate=0.9, decay_steps=1000,staircase=True, name='Exp_decay')
     optimizer = tf.keras.optimizers.Adam(learning_rate=learning_decay)
+
+    learning_decay = tf.keras.optimizers.schedules.ExponentialDecay(learning_rate*100, decay_rate=0.9, decay_steps=1000,staircase=True, name='Exp_decay')
+    optimizer2 = tf.keras.optimizers.Adam(learning_rate=learning_decay)
+
     # Initialize
     num_batches = len(data_train)//batch_size
     patience_count = 0
@@ -219,7 +223,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
             train_loss_prob = model.loss_probabilities()
         grads = tape.gradient(train_loss_prob,model.raw_probabilities)
         print(grads,model.raw_probabilities.shape)
-        optimizer.apply_gradients(zip([grads], [model.raw_probabilities]))
+        optimize2r.apply_gradients(zip([grads], [model.raw_probabilities]))
         return train_loss_prob
 
     @tf.function
