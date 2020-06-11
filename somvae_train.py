@@ -344,7 +344,7 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
 
     # build model
     model = SOMVAE(latent_dim=latent_dim, som_dim=som_dim, decay_factor=decay_factor,input_length=input_length,
-                åinput_channels=input_channels, batch_size=input_duration,alpha=alpha, beta=beta, gamma=gamma,
+                input_channels=input_channels, batch_size=input_duration,alpha=alpha, beta=beta, gamma=gamma,
                 tau=tau, mnist=mnist)
 
     train_model(model,0,generator=data_generator)
