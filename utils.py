@@ -52,7 +52,7 @@ def compute_NMI(cluster_assignments, class_assignments):
     clusters = np.unique(cluster_assignments)
     classes = np.unique(class_assignments)
 
-    print(clusters,classes)
+    #print(clusters,classes)
     
     num_samples = len(cluster_assignments)
     num_clusters = len(clusters)
