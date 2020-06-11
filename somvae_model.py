@@ -157,7 +157,7 @@ class SOMVAE(tf.keras.Model):
         #Dynamic
         self.embeddings = self.get_embeddings() 
         self.raw_probabilities = self.get_raw_probabilities()
-        #self.transition_probabilities = self.get_transition_probabilities()
+        self.transition_probabilities = self.get_transition_probabilities()
 
     #@lazy_scope
     def get_embeddings(self):
