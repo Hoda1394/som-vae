@@ -271,7 +271,10 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
     except KeyboardInterrupt:
         pass
     finally:
-        model.save('./models/model',save_format='tf')
+        #model.encoder_.save('./models/model_encoder.h5')
+        #model.decoder_.save('./models/model_decoder.h5')
+        #model.embeddings.
+
         #tmp = tf.keras.models.load_model('../models/model.h5')
         if interactive:
             pbar.close()
