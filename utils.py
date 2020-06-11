@@ -51,6 +51,8 @@ def compute_NMI(cluster_assignments, class_assignments):
     
     clusters = np.unique(cluster_assignments)
     classes = np.unique(class_assignments)
+
+    print(clusters,classes)
     
     num_samples = len(cluster_assignments)
     num_clusters = len(clusters)
@@ -59,7 +61,7 @@ def compute_NMI(cluster_assignments, class_assignments):
     assert num_classes > 1, "There should be more than one class."
         
     cluster_class_counts = {cluster_: {class_: 0 for class_ in classes} for cluster_ in clusters}
-    
+    print(cluster_class_counts)
     for cluster_, class_ in zip(cluster_assignments, class_assignments):
         cluster_class_counts[cluster_][class_] += 1
     
