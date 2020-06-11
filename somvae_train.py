@@ -343,7 +343,7 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     data_generator = get_data_generator(True)
 
     # build model
-    model = SOMVAE(latent_dim=latent_dim, som_dim=som_dim, decay_factor=decay_factor,input_length=input_length,
+    model = SOMVAE(latent_dim=latent_dim, som_dim=som_dim,input_length=input_length,
                 input_channels=input_channels, batch_size=input_duration,alpha=alpha, beta=beta, gamma=gamma,
                 tau=tau, mnist=mnist)
 
