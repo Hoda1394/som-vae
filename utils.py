@@ -111,7 +111,7 @@ def compute_purity(cluster_assignments, class_assignments):
                             for cluster_ in np.unique(cluster_assignments)}
     
     for cluster_, class_ in zip(cluster_assignments, class_assignments):
-        cluster_class_counts[cluster_][class_] += 1
+        cluster_class_counts[cluster_.numpy()][class_] += 1
         
     total_intersection = sum([max(list(class_dict.values())) for cluster_, class_dict in cluster_class_counts.items()])
     
