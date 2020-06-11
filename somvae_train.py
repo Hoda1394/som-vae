@@ -236,7 +236,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
         if interactive:
             pbar = tqdm(total=num_epochs*(num_batches)) 
 
-        for epoch in range(1):
+        for epoch in range(num_epochs):
             batch_val = next(val_gen)
             model.call(inputs=batch_val)
             test_losses.append(model.loss())
