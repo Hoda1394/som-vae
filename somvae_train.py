@@ -82,7 +82,7 @@ def ex_config():
     name = ex.get_experiment_info()["name"]
     ex_name = "{}_{}_{}-{}_{}_{}".format(name, latent_dim, som_dim[0], som_dim[1], str(date.today()), uuid.uuid4().hex[:5])
     logdir = "../logs/{}".format(ex_name)
-    modelpath = "../models/{}/{}.ckpt".format(ex_name, ex_name)
+    modelpath = "./models/{}/{}.ckpt".format(ex_name, ex_name)
     interactive = True
     data_set = "MNIST_data"
     save_model = False
@@ -207,7 +207,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
     patience_count = 0
     step = 0
     test_losses = []
-    writer = tf.summary.create_file_writer("../models/test")
+    writer = tf.summary.create_file_writer("./models/test")
         
     def train_step(inputs):
         with tf.GradientTape() as tape:
@@ -236,14 +236,14 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
         if interactive:
             pbar = tqdm(total=num_epochs*(num_batches)) 
 
-        for epoch in range(num_epochs):
+        for epoch in range(1):
             batch_val = next(val_gen)
             model.call(inputs=batch_val)
             test_losses.append(model.loss())
 
             with writer.as_default():
-                    tf.summary.scalar("test loss", test_losses[-1], step=step)
-                    writer.flush() 
+                tf.summary.scalar("test loss", test_losses[-1], step=step)
+                writer.flush() 
 
             if test_losses[-1] == min(test_losses):
                 checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=model)
@@ -255,13 +255,9 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
                 break
         
             for i in range(num_batches):
-
                 step += 1
                 batch_train = next(train_gen)
-
                 train_loss= call_train_step(batch_train)
-
-                #print('P :',model.raw_probabilities.numpy().max(),model.transition_probabilities.numpy().max())
 
                 if i%100 == 0:
                     with writer.as_default():
@@ -272,11 +268,10 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
                     pbar.set_postfix(epoch=epoch, train_loss=train_loss.numpy(), test_loss=test_losses[-1].numpy(), refresh=False)
                     pbar.update(1)
   
-
     except KeyboardInterrupt:
         pass
     finally:
-        #model.save('../models/model.h5')
+        model.save('./models/model.h5')
         #tmp = tf.keras.models.load_model('../models/model.h5')
         if interactive:
             pbar.close()
@@ -317,7 +312,6 @@ def evaluate_model(model,x, modelpath, batch_size):
     results["NMI"] = test_nmi
     results["Purity"] = test_purity
     results["MSE"] = test_mse
-
     return results
  
 
@@ -348,20 +342,14 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     # get data 
     data_generator = get_data_generator(True)
 
-    x=1
-    lr_val = tf.compat.v1.placeholder_with_default(learning_rate, [])
-
     # build model
-    model = SOMVAE(latent_dim=latent_dim, som_dim=som_dim, learning_rate=lr_val, decay_factor=decay_factor,
-                input_length=input_length, input_channels=input_channels, batch_size=input_duration,alpha=alpha, beta=beta, gamma=gamma,
+    model = SOMVAE(latent_dim=latent_dim, som_dim=som_dim, decay_factor=decay_factor,input_length=input_length,
+                åinput_channels=input_channels, batch_size=input_duration,alpha=alpha, beta=beta, gamma=gamma,
                 tau=tau, mnist=mnist)
 
-    #for var in model.trainable_variables:
-    #    print(var.name)
+    train_model(model,0,generator=data_generator)
 
-    #train_model(model,lr_val, generator=data_generator)
-
-    result = evaluate_model(model,x=x)
+    result = evaluate_model(model,x=1)
 
     #if not save_model:
     #    shutil.rmtree(os.path.dirname(modelpath))

@@ -13,18 +13,6 @@ import tensorflow as tf
 loss_mse = tf.keras.losses.MeanSquaredError()
 
 
-#def weight_variable(shape, name):
-#    """Creates a TensorFlow Variable with a given shape and name and truncated normal initialization."""
-#    initial = tf.random.truncated_normal(shape, stddev=0.1)
-#    return tf.Variable(initial,name=name)
-
-
-#def bias_variable(shape, name):
-#    """Creates a TensorFlow Variable with a given shape and name and constant initialization."""
-#    initial = tf.constant(0.1, shape=shape)
-#    return tf.Variable(initial, name=name)
-
-
 def conv2d(x, shape, name, strides=(1,1)):
     """Creates a 2D convolutional layer with weight and bias variables.
     
@@ -42,50 +30,9 @@ def conv2d(x, shape, name, strides=(1,1)):
     return tf.keras.layers.Conv2D(filters=shape[-1], kernel_size=(shape[0],shape[0]),strides=strides, padding="same",name=name,
         use_bias=True,kernel_initializer=tf.keras.initializers.TruncatedNormal(mean=0.0,stddev=0.1),bias_initializer=tf.constant_initializer(value=0.1))(x)
 
-
-#def conv2d_transposed(x, shape, outshape, name, strides=(1,1)):
-#    """Creates a transposed convolutional layer simimar to conv2d.
-    
-#    Args:
-#        x (tf.Tensor): Input tensor.
-#        shape (list): Shape of the weight matrix.
-#        name (str): Name of the layer.
-#        strides (list): Strides for the convolution (default: [1,1,1,1]).
-#    Returns:
-#        tf.Tensor: The transposed convolution defined by the weight matrix and the biases with the given strides.
-#    """
-#    weight = weight_variable(shape, "{}_W".format(name))
-#    bias = bias_variable([shape[-2]], "{}_b".format(name))
-#    return tf.nn.conv2d_transpose(x, weight, output_shape=outshape, strides=strides, padding='SAME', name=name) + bias
-#    return tf.keras.layers.Conv2DTranspose(filters=shape[-1], kernel_size=(shape[0],shape[0]),strides=strides, padding="same",name=name,
-#        use_bias=True,kernel_initializer=tf.keras.initializers.TruncatedNormal(mean=0.0,stddev=0.1),bias_initializer=tf.constant_initializer(value=0.1))(x)
-
-
 def max_pool_2x2(x):
     """Creates a 2x2 max-pooling layer."""
     return tf.nn.max_pool2d(input=x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
-
-
-#def conv1d(x, shape, name, stride=1):
-#    """Creates a 1D convolutional layer with weight and bias variables.
-    
-#    Args:
-#        x (tf.Tensor): Input tensor.
-#        shape (list): Shape of the weight matrix.
-#        name (str): Name of the layer.
-#        stride (int): Stride for the convolution (default: 1).
-#    Returns:
-#        tf.Tensor: The convolution defined by the weight matrix and the biases with the given stride.
-#    """
-#    weight = weight_variable(shape, "{}_W".format(name))
-#    bias = bias_variable([shape[-1]], "{}_b".format(name))
-#    return tf.nn.conv1d(input=x, filters=weight, stride=stride, padding='SAME', name=name) + bias
-
-
-#def max_pool_2x1(x):
-#    """Creates a 2x1 max-pooling layer."""
-#    return tf.compat.v1.layers.max_pooling1d(x, pool_size=2, strides=2, padding='SAME')
-
 
 def lazy_scope(function):
     """Creates a decorator for methods that makes their return values load lazily.
@@ -115,8 +62,8 @@ def lazy_scope(function):
 class SOMVAE(tf.keras.Model):
     """Class for the SOM-VAE model as described in https://arxiv.org/abs/1806.02199"""
 
-    def __init__(self, latent_dim=64, som_dim=[8,8], learning_rate=1e-4, decay_factor=0.95, decay_steps=1000,
-            input_length=28, input_channels=28, batch_size=32, alpha=1., beta=1., gamma=1., tau=1., mnist=True):
+    def __init__(self, latent_dim=64, som_dim=[8,8],input_length=28, input_channels=28, 
+            batch_size=32, alpha=1., beta=1., gamma=1., tau=1., mnist=True):
         """Initialization method for the SOM-VAE model object.
         
         Args:
@@ -139,9 +86,6 @@ class SOMVAE(tf.keras.Model):
         self.inputs = tf.Variable(tf.zeros(shape=[batch_size, input_length, input_channels, 1],dtype=tf.float32),shape=[32,28, 28, 1],trainable=False)
         self.latent_dim = latent_dim
         self.som_dim = som_dim
-        self.learning_rate = learning_rate*100
-        self.decay_factor = decay_factor
-        self.decay_steps = decay_steps
         self.input_length = input_length
         self.input_channels = input_channels
         self.alpha = alpha
@@ -204,12 +148,6 @@ class SOMVAE(tf.keras.Model):
 
     def get_z_e(self):
         return self.encoder_(self.inputs)
-
-    #@lazy_scope
-    #def z_e_old(self):
-    #    """Aggregates the encodings of the respective previous time steps."""
-    #    z_e_old = tf.concat([self.z_e[0:1], self.z_e[:-1]], axis=0)
-    #    return z_e_old
 
     #@lazy_scope
     def get_z_dist_flat(self):
@@ -346,19 +284,6 @@ class SOMVAE(tf.keras.Model):
         loss = (self.loss_reconstruction() + self.alpha*self.loss_commit() + self.beta*self.loss_som()
                 + self.gamma*self.loss_probabilities() + self.tau*self.loss_z_prob())
         return loss
-
-    @lazy_scope
-    def optimize(self):
-        """Optimizes the model's loss using Adam with exponential learning rate decay."""
-        lr_decay = tf.compat.v1.train.exponential_decay(self.learning_rate, self.global_step, self.decay_steps, self.decay_factor, staircase=True)
-        optimizer = tf.compat.v1.train.AdamOptimizer(lr_decay)
-        train_step = optimizer.minimize(self.loss, global_step=self.global_step)
-        train_step_prob = optimizer.minimize(self.loss_probabilities, global_step=self.global_step)
-
-        #optimizer = tf.keras.optimizers.Adam(learning_rate=lr_decay)
-        #train_step = optimizer.minimize(self.loss)
-        #train_step_prob = optimizer.minimize(self.loss_probabilities)
-        return train_step, train_step_prob
 
     #@lazy_scope
     def call(self,inputs):
