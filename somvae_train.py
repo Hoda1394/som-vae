@@ -222,7 +222,6 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
             model.transition_probabilities = model.get_transition_probabilities()
             train_loss_prob = model.loss_probabilities()
         grads = tape.gradient(train_loss_prob,model.raw_probabilities)
-        print(grads,model.raw_probabilities.shape)
         optimizer2.apply_gradients(zip([grads], [model.raw_probabilities]))
         return train_loss_prob
 
@@ -262,9 +261,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
 
                 train_loss= call_train_step(batch_train)
 
-                print('RP :',model.raw_probabilities.numpy().max())
-                print('TP :',model.transition_probabilities.numpy().max())
-                #train_loss_prob= call_train_step_prob(batch_train)
+                print('P :',model.raw_probabilities.numpy().max(),model.transition_probabilities.numpy().max())
 
                 if i%100 == 0:
                     with writer.as_default():
