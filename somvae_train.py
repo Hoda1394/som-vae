@@ -225,7 +225,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
         optimizer2.apply_gradients(zip([grads], [model.raw_probabilities]))
         return train_loss_prob
 
-    #@tf.function
+    @tf.function
     def call_train_step(inputs):
         loss = train_step(inputs)
         loss_prob = train_step_prob(inputs)
