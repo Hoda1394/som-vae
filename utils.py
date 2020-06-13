@@ -203,7 +203,7 @@ def get_dataset(tfrecords_folder,batch_size,compressed=False,shuffle=True):
 
     # Did not standardize, did adjust the range to 0-1, prefetch might affect memory
     tfrecords_folder = Path(tfrecords_folder)
-    assert not tfrecords_folder.is_dir(), print('No tfrecords folder to process')
+    assert tfrecords_folder.is_dir(), print('No tfrecords folder to process')
 
     file_pattern = glob.glob(str(tfrecords_folder.joinpath("*.tfrecord")))
     dataset = tf.data.Dataset.list_files(file_pattern, shuffle=shuffle)

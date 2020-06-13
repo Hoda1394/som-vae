@@ -256,7 +256,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
         
             for i in range(num_batches):
                 step += 1
-                batch_train = next(train_gen)
+                batch_train = next(iter(train_gen))
                 train_loss= call_train_step(batch_train)
 
                 if i%100 == 0:
@@ -347,8 +347,8 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
 
     print('Preparing TF records')
     data_pattern="/om4/group/gablab/data/datalad/openneuro/ds000224/derivatives/surface_pipeline/sub-MSC*/processed_restingstate_timecourses/ses-func*/cifti/sub-MSC*_ses-func*_task-rest_bold_32k_fsLR_2.dtseries.nii"
-    tf_folder="/om2/user/abizeul/tfrecords_ds000224_rest"
-    write_cifti_tfrecords(data_pattern=data_pattern,tfrecords_folder=tf_folder,size_shard=50)
+    tf_folder="/om/user/abizeul/tfrecords_ds000224_rest"
+    #write_cifti_tfrecords(data_pattern=data_pattern,tfrecords_folder=tf_folder,size_shard=50)
 
     print("Loading data")
     dataset = get_dataset(tfrecords_folder=tf_folder,batch_size=28)
@@ -358,7 +358,7 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     #            input_channels=input_channels, batch_size=input_duration, alpha=alpha, 
     #            beta=beta, gamma=gamma, tau=tau, mnist=mnist)
 
-    #train_model(model,0,generator=data_generator)
+    #train_model(model,0,generator=dataset)
 
     #result = evaluate_model(model,x=1)
 
