@@ -188,7 +188,7 @@ def write_cifti_tfrecords(data_pattern,tfrecords_folder,size_shard=50,compressed
         tfrecords_writer.close()
 
 def adjust_range(sample):
-    sample = (sample - sample.min())/(sample.max()-sample.min())
+    sample = (sample - tf.math.min(sample))/(tf.math.max(sample)-tf.math.min(sample))
     return sample
 
 def epoch(sample,batch_size):
