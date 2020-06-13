@@ -183,7 +183,7 @@ def write_cifti_tfrecords(data_pattern,tfrecords_folder,size_shard=50,compressed
 
             sample_data_raveled = sample_data.astype(np.uint8).ravel().tostring()
             tfrecords_writer.write(serialize_example(sample_data_raveled,sample_shape))
-            progbar.update(1)
+            progbar.update(0)
         
         tfrecords_writer.close()
 
