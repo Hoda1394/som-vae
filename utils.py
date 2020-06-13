@@ -167,6 +167,7 @@ def write_cifti_tfrecords(data_pattern,tfrecords_folder,size_shard=50,compressed
 
     # Shard parameters
     num_samples=len(paths)
+    print('Number of samples found: {}'.format(num_samples))
     num_shards = math.ceil(num_samples/size_shard)
     shards = np.array_split(paths,num_shards)
 
@@ -175,12 +176,14 @@ def write_cifti_tfrecords(data_pattern,tfrecords_folder,size_shard=50,compressed
 
     for i in range(num_shards):
         cifti_paths = shards[i]
+        print('Paths ',cifti_paths)
         tfrecords_filename = str(tfrecords_folder.joinpath('tfrecords_train{}.tfrecord'.format(i)))
         if not compressed: tfrecords_writer = tf.io.TFRecordWriter(tfrecords_filename,options=None)
         elif compressed: tfrecords_writer = tf.io.TFRecordWriter(tfrecords_filename,options=tf.io.TFRecordOptions(compression_type='GZIP'))
 
         for cifti_path in cifti_paths:
             sample_data=nib.load(cifti_path).get_fdata()
+            print(sample_data.shape)
             sample_data=255*(sample_data-sample_data.min())/(sample_data.min()-sample_data.max())
             sample_shape=np.array(sample_data.shape).astype(np.int64)
 
