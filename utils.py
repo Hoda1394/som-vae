@@ -146,6 +146,7 @@ def parse_example(record):
     shape = tf.cast(shape,tf.int32)
 
     sample = data['data']
+    print(sample)
     sample = tf.io.decode_raw(sample, tf.uint8)
     sample = tf.cast(sample, tf.float32)
     sample = tf.reshape(sample,shape)
@@ -205,16 +206,16 @@ def get_dataset(tfrecords_folder,batch_size,compressed=False,shuffle=True):
 
     # Did not standardize, did adjust the range to 0-1, prefetch might affect memory
     tfrecords_folder = Path(tfrecords_folder)
-    assert tfrecords_folder.is_dir(), print('No tfrecords folder to process')
+    assert tfrecords_folder.is_dir(), 'No tfrecords folder to process'
 
     file_pattern = glob.glob(str(tfrecords_folder.joinpath("*.tfrecord")))
+    assert file_pattern, 'No files in folder'
     dataset = tf.data.Dataset.list_files(file_pattern, shuffle=shuffle)
     compression_type = "GZIP" if compressed else None
 
     dataset = dataset.interleave(map_func=lambda x: 
         tf.data.TFRecordDataset(x, compression_type=compression_type),
         cycle_length=tf.data.experimental.AUTOTUNE,
-        num_parallel_calls=tf.data.experimental.AUTOTUNE,
     )
     dataset = dataset.map(lambda x: parse_example(x))
     dataset = dataset.shuffle(buffer_size=20)
