@@ -156,7 +156,7 @@ def write_cifti_tfrecords(data_pattern,tfrecords_folder,size_shard=50,compressed
 
     # Data folder
     paths = glob.glob(data_pattern)
-    assert not paths
+    assert paths, 'No files found'
 
     # TF records folder
     tfrecords_folder = Path(tfrecords_folder)
