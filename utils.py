@@ -150,7 +150,7 @@ def parse_example(record):
     sample = tf.cast(sample, tf.float32)
     sample = tf.reshape(sample,shape)
 
-    print(sample,shape.numpy())
+    print(sample,np.array(shape))
 
     return sample
 
