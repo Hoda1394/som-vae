@@ -125,7 +125,7 @@ def compute_purity(cluster_assignments, class_assignments):
     return purity
 
 def serialize_example(data,shape):
-
+    print('serialize',shape)
     feature = {
         'data': tf.train.Feature(bytes_list=tf.train.BytesList(value=[data])),
         'shape':tf.train.Feature(int64_list=tf.train.Int64List(value=shape))
@@ -175,25 +175,24 @@ def write_cifti_tfrecords(data_pattern,tfrecords_folder,size_shard=50,compressed
     progbar = tf.keras.utils.Progbar(target=num_samples, verbose=True)
     print(len(shards))
 
-    for i in range(num_shards):
+    for i in range(1):
         cifti_paths = shards[i]
         print(len(cifti_paths))
         tfrecords_filename = str(tfrecords_folder.joinpath('tfrecords_train{}.tfrecord'.format(i)))
-        if not compressed: tfrecords_writer = tf.io.TFRecordWriter(tfrecords_filename,options=None)
-        elif compressed: tfrecords_writer = tf.io.TFRecordWriter(tfrecords_filename,options=tf.io.TFRecordOptions(compression_type='GZIP'))
+        #if not compressed: tfrecords_writer = tf.io.TFRecordWriter(tfrecords_filename,options=None)
+        #elif compressed: tfrecords_writer = tf.io.TFRecordWriter(tfrecords_filename,options=tf.io.TFRecordOptions(compression_type='GZIP'))
+        with tf.io.TFRecordWriter(tfrecords_filename,options=None) as tfrecords_writer:
+            for cifti_path in cifti_paths:
+                sample_data=nib.load(cifti_path).get_fdata()
+                print(sample_data.shape)
+                sample_data=255*(sample_data-sample_data.min())/(sample_data.min()-sample_data.max())
+                sample_shape=np.array(sample_data.shape).astype(np.int64)
 
-        for cifti_path in cifti_paths:
-            sample_data=nib.load(cifti_path).get_fdata()
-            print(sample_data.shape)
-            sample_data=255*(sample_data-sample_data.min())/(sample_data.min()-sample_data.max())
-            sample_shape=np.array(sample_data.shape).astype(np.int64)
-
-            sample_data_raveled = sample_data.astype(np.uint8).ravel().tostring()
-      
-            tfrecords_writer.write(serialize_example(sample_data_raveled,sample_shape))
-            progbar.add(1)
+                sample_data_raveled = sample_data.astype(np.uint8).ravel().tostring()
         
-        tfrecords_writer.close()
+                tfrecords_writer.write(serialize_example(sample_data_raveled,sample_shape))
+                progbar.add(1)
+        
 
 def adjust_range(sample):
     sample = (sample - tf.reduce_min(sample))/(tf.reduce_max(sample)-tf.reduce_min(sample))
