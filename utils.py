@@ -141,7 +141,7 @@ def parse_example(record):
     }
 
     data = tf.io.parse_single_example(record, image_feature_description)
-    
+    print(data)
     shape = data['shape']
     shape = tf.cast(shape,tf.int32)
 
@@ -150,7 +150,7 @@ def parse_example(record):
     sample = tf.cast(sample, tf.float32)
     sample = tf.reshape(sample,shape)
 
-    print(sample,shape)
+    print(sample,shape.numpy())
 
     return sample
 
@@ -209,9 +209,9 @@ def get_dataset(tfrecords_folder,batch_size,compressed=False,shuffle=True):
     assert tfrecords_folder.is_dir(), 'No tfrecords folder to process'
 
     file_pattern = glob.glob(str(tfrecords_folder.joinpath("*.tfrecord")))
-    print(file_pattern)
+
     assert file_pattern, 'No files in folder'
-    dataset = tf.data.Dataset.list_files(file_pattern, shuffle=shuffle)
+    dataset = tf.data.Dataset.list_files(str(tfrecords_folder.joinpath("*.tfrecord")), shuffle=shuffle)
     compression_type = "GZIP" if compressed else None
 
     dataset = dataset.interleave(map_func=lambda x: 
