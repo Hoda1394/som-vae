@@ -144,13 +144,13 @@ def parse_example(record):
     print(data)
     shape = data['shape']
     shape = tf.cast(shape,tf.int32)
-
+    print(shape)
     sample = data['data']
     sample = tf.io.decode_raw(sample, tf.uint8)
     sample = tf.cast(sample, tf.float32)
     sample = tf.reshape(sample,shape)
 
-    print(sample,np.array(shape))
+    print(sample)
 
     return sample
 
