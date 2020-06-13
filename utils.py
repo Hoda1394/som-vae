@@ -6,7 +6,12 @@ Institution: Biomedical Informatics group, ETH Zurich
 License: MIT License
 """
 
+from pathlib import Path
+import nibabel as nib
+import tensorflow as tf
 import numpy as np
+import math
+import glob
 
 
 def interpolate_arrays(arr1, arr2, num_steps=100, interpolation_length=0.3):
@@ -118,3 +123,110 @@ def compute_purity(cluster_assignments, class_assignments):
     purity = total_intersection/num_samples
     
     return purity
+
+def serialize_example(data,shape):
+
+    feature = {
+        'data': tf.train.Feature(bytes_list=tf.train.BytesList(value=[data])),
+        'shape':tf.train.Feature(int64_list=tf.train.Int64List(value=shape))
+    }
+    example_proto = tf.train.Example(features=tf.train.Features(feature=feature))
+    return example_proto.SerializeToString()
+
+def parse_example(record):
+
+    image_feature_description = {
+        'data': tf.io.FixedLenFeature([], tf.string),
+        'shape': tf.io.FixedLenFeature([2], tf.int64) 
+    }
+
+    data = tf.io.parse_single_example(record, image_feature_description)
+    
+    shape = data['shape']
+    shape = tf.cast(shape,tf.int32)
+
+    sample = data['data']
+    sample = tf.io.decode_raw(sample, tf.uint8)
+    sample = tf.cast(sample, tf.float32)
+    sample = tf.reshape(sample,shape)
+
+    return sample
+
+def write_cifti_tfrecords(data_pattern,tfrecords_folder,size_shard=50,compressed=False):
+
+    # Data folder
+    paths = glob.glob(data_pattern)
+    assert not paths , 'No files found'
+
+    # TF records folder
+    tfrecords_folder = Path(tfrecords_folder)
+    tfrecords_folder.mkdir(parents=True, exist_ok=True)
+
+    # Shard parameters
+    num_samples=len(paths)
+    num_shards = math.ceil(num_samples/size_shard)
+    shards = np.array_split(paths,num_shards)
+
+    tfrecords_filename = []
+    progbar = tf.keras.utils.Progbar(target=num_samples, verbose=True)
+
+    for i in range(num_shards):
+        cifti_paths = shards[i]
+        tfrecords_filename = str(tfrecords_folder.joinpath('tfrecords_train{}.tfrecord'.format(i)))
+        if not compressed: tfrecords_writer = tf.io.TFRecordWriter(tfrecords_filename,options=None)
+        elif compressed: tfrecords_writer = tf.io.TFRecordWriter(tfrecords_filename,options=tf.io.TFRecordOptions(compression_type='GZIP'))
+
+        for cifti_path in cifti_paths:
+            sample_data=nib.load(cifti_path).get_fdata()
+            sample_data=255*(sample_data-sample_data.min())/(sample_data.min()-sample_data.max())
+            sample_shape=np.array(sample_data.shape).astype(np.int64)
+
+            sample_data_raveled = sample_data.astype(np.uint8).ravel().tostring()
+            tfrecords_writer.write(serialize_example(sample_data_raveled,sample_shape))
+            progbar.update(1)
+        
+        tfrecords_writer.close()
+
+def adjust_range(sample):
+    sample = (sample - sample.min())/(sample.max()-sample.min())
+    return sample
+
+def epoch(sample,batch_size):
+
+    if sample.shape[0]%batch_size != 0: print('Batch size does not suit scan duration, excess data will be discarded')
+
+    #TODO
+
+    return 1
+
+def get_dataset(tfrecords_folder,batch_size,compressed=False,shuffle=True):
+
+    # Did not standardize, did adjust the range to 0-1, prefetch might affect memory
+    tfrecords_folder = Path(tfrecords_folder)
+    assert not tfrecords_folder.is_dir(), print('No tfrecords folder to process')
+
+    file_pattern = glob.glob(str(tfrecords_folder.joinpath("*.tfrecord")))
+    dataset = tf.data.Dataset.list_files(file_pattern, shuffle=shuffle)
+    compression_type = "GZIP" if compressed else None
+
+    dataset = dataset.interleave(map_func=lambda x: 
+        tf.data.TFRecordDataset(x, compression_type=compression_type),
+        cycle_length=tf.data.experimental.AUTOTUNE,
+        num_parallel_calls=tf.data.experimental.AUTOTUNE,
+    )
+    dataset = dataset.map(lambda x: parse_example(x))
+    dataset = dataset.shuffle(buffer_size=20)
+    dataset = dataset.map(lambda x: adjust_range(x))
+    dataset = dataset.map(lambda x: epoch(x,batch_size))
+    dataset = dataset.unbatch()
+    dataset = dataset.batch(batch_size,drop_remainder=True)
+    dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
+    return dataset
+
+
+
+            
+
+
+
+

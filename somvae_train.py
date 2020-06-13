@@ -343,20 +343,28 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     input_duration = 32
 
     # get data 
-    data_generator = get_data_generator(True)
+    #data_generator = get_data_generator(True)
+
+    print('Preparing TF records')
+    data_pattern="/om4/group/gablab/data/datalad/openneuro/ds000224/derivatives/surface_pipeline/sub-MSC*/processed_restingstate_timecourses/ses-func*/cifti/sub-MSC*_ses-func*_task-rest_bold_32k_fsLR_2.dtseries.nii"
+    tf_folder="/om2/user/abizeul/tfrecords_ds000224_rest"
+    write_cifti_tfrecords(data_pattern=data_pattern,tfrecords_folder=tf_folder,size_shard=50)
+
+    print("Loading data")
+    dataset = get_dataset(tfrecords_folder=tf_folder,batch_size=28)
 
     # build model
-    model = SOMVAE(latent_dim=latent_dim, som_dim=som_dim,input_length=input_length,
-                input_channels=input_channels, batch_size=input_duration,alpha=alpha, beta=beta, gamma=gamma,
-                tau=tau, mnist=mnist)
+    #model = SOMVAE(latent_dim=latent_dim, som_dim=som_dim,input_length=input_length,
+    #            input_channels=input_channels, batch_size=input_duration, alpha=alpha, 
+    #            beta=beta, gamma=gamma, tau=tau, mnist=mnist)
 
-    train_model(model,0,generator=data_generator)
+    #train_model(model,0,generator=data_generator)
 
-    result = evaluate_model(model,x=1)
+    #result = evaluate_model(model,x=1)
 
     #if not save_model:
     #    shutil.rmtree(os.path.dirname(modelpath))
-    print(result)
-    return result
-
+    #print(result)
+    #return result
+    return 1
 
