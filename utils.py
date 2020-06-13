@@ -150,6 +150,8 @@ def parse_example(record):
     sample = tf.cast(sample, tf.float32)
     sample = tf.reshape(sample,shape)
 
+    print(sample,shape)
+
     return sample
 
 def write_cifti_tfrecords(data_pattern,tfrecords_folder,size_shard=50,compressed=False):
