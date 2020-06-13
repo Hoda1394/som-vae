@@ -125,7 +125,7 @@ def compute_purity(cluster_assignments, class_assignments):
     return purity
 
 def serialize_example(data,shape):
-    print('serialize',shape)
+
     feature = {
         'data': tf.train.Feature(bytes_list=tf.train.BytesList(value=[data])),
         'shape':tf.train.Feature(int64_list=tf.train.Int64List(value=shape))
@@ -146,7 +146,6 @@ def parse_example(record):
     shape = tf.cast(shape,tf.int32)
 
     sample = data['data']
-    print(sample)
     sample = tf.io.decode_raw(sample, tf.uint8)
     sample = tf.cast(sample, tf.float32)
     sample = tf.reshape(sample,shape)
@@ -173,18 +172,15 @@ def write_cifti_tfrecords(data_pattern,tfrecords_folder,size_shard=50,compressed
 
     tfrecords_filename = []
     progbar = tf.keras.utils.Progbar(target=num_samples, verbose=True)
-    print(len(shards))
 
     for i in range(1):
         cifti_paths = shards[i]
-        print(len(cifti_paths))
         tfrecords_filename = str(tfrecords_folder.joinpath('tfrecords_train{}.tfrecord'.format(i)))
         #if not compressed: tfrecords_writer = tf.io.TFRecordWriter(tfrecords_filename,options=None)
         #elif compressed: tfrecords_writer = tf.io.TFRecordWriter(tfrecords_filename,options=tf.io.TFRecordOptions(compression_type='GZIP'))
         with tf.io.TFRecordWriter(tfrecords_filename,options=None) as tfrecords_writer:
             for cifti_path in cifti_paths:
                 sample_data=nib.load(cifti_path).get_fdata()
-                print(sample_data.shape)
                 sample_data=255*(sample_data-sample_data.min())/(sample_data.min()-sample_data.max())
                 sample_shape=np.array(sample_data.shape).astype(np.int64)
 
@@ -213,6 +209,7 @@ def get_dataset(tfrecords_folder,batch_size,compressed=False,shuffle=True):
     assert tfrecords_folder.is_dir(), 'No tfrecords folder to process'
 
     file_pattern = glob.glob(str(tfrecords_folder.joinpath("*.tfrecord")))
+    print(file_pattern)
     assert file_pattern, 'No files in folder'
     dataset = tf.data.Dataset.list_files(file_pattern, shuffle=shuffle)
     compression_type = "GZIP" if compressed else None
