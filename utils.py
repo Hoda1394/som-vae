@@ -192,7 +192,7 @@ def adjust_range(sample):
     return sample
 
 def epoch(sample,batch_size):
-    print(sample.shape)
+    print(sample)
     if sample.shape[0]%batch_size != 0: print('Batch size does not suit scan duration, excess data will be discarded')
 
     #TODO
