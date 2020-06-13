@@ -173,10 +173,11 @@ def write_cifti_tfrecords(data_pattern,tfrecords_folder,size_shard=50,compressed
 
     tfrecords_filename = []
     progbar = tf.keras.utils.Progbar(target=num_samples, verbose=True)
+    print(len(shards))
 
     for i in range(num_shards):
         cifti_paths = shards[i]
-        print('Paths ',cifti_paths)
+        print(len(cifti_paths))
         tfrecords_filename = str(tfrecords_folder.joinpath('tfrecords_train{}.tfrecord'.format(i)))
         if not compressed: tfrecords_writer = tf.io.TFRecordWriter(tfrecords_filename,options=None)
         elif compressed: tfrecords_writer = tf.io.TFRecordWriter(tfrecords_filename,options=tf.io.TFRecordOptions(compression_type='GZIP'))
@@ -188,6 +189,7 @@ def write_cifti_tfrecords(data_pattern,tfrecords_folder,size_shard=50,compressed
             sample_shape=np.array(sample_data.shape).astype(np.int64)
 
             sample_data_raveled = sample_data.astype(np.uint8).ravel().tostring()
+            print(sample_data_raveled)
             tfrecords_writer.write(serialize_example(sample_data_raveled,sample_shape))
             progbar.add(1)
         
