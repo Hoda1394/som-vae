@@ -148,6 +148,7 @@ def parse_example(record):
     sample = data['data']
     sample = tf.io.decode_raw(sample, tf.uint8)
     sample = tf.cast(sample, tf.float32)
+    print(sample)
     sample = tf.reshape(sample,shape)
 
     print(sample)
