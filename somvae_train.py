@@ -348,7 +348,7 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     print('Preparing TF records')
     data_pattern="/om4/group/gablab/data/datalad/openneuro/ds000224/derivatives/surface_pipeline/sub-MSC*/processed_restingstate_timecourses/ses-func*/cifti/sub-MSC*_ses-func*_task-rest_bold_32k_fsLR_2.dtseries.nii"
     tf_folder="/om/user/abizeul/tfrecords_ds000224_rest"
-    write_cifti_tfrecords(data_pattern=data_pattern,tfrecords_folder=tf_folder,size_shard=10)
+    #write_cifti_tfrecords(data_pattern=data_pattern,tfrecords_folder=tf_folder,size_shard=10)
 
     print("Loading data")
     dataset = get_dataset(tfrecords_folder=tf_folder,batch_size=28)
