@@ -137,14 +137,14 @@ def parse_example(record):
 
     image_feature_description = {
         'data': tf.io.FixedLenFeature([], tf.string),
-        'shape': tf.io.FixedLenFeature([2], tf.int64) 
+        'shape': tf.io.FixedLenFeature([3], tf.int64) 
     }
 
     data = tf.io.parse_single_example(record, image_feature_description)
     print(data)
     shape = data['shape']
     shape = tf.cast(shape,tf.int32)
-    print(shape)
+    print(shape.numpy())
     sample = data['data']
     sample = tf.io.decode_raw(sample, tf.uint8)
     sample = tf.cast(sample, tf.float32)
