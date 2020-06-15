@@ -353,6 +353,9 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     print("Loading data")
     dataset = get_dataset(tfrecords_folder=tf_folder,batch_size=28)
 
+    for sample in dataset:
+        print(sample)
+
     # build model
     #model = SOMVAE(latent_dim=latent_dim, som_dim=som_dim,input_length=input_length,
     #            input_channels=input_channels, batch_size=input_duration, alpha=alpha, 
