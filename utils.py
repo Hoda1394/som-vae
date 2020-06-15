@@ -213,9 +213,9 @@ def get_dataset(tfrecords_folder,batch_size):
         dataset = tf.data.Dataset.list_files(str(tfrecords_folder.joinpath("*.tfrecord")))
         dataset = dataset.interleave(lambda x: 
             tf.data.TFRecordDataset(x, compression_type=None),
-            cycle_length=tf.data.experimental.AUTOTUNE,block_length=4
+            cycle_length=1,block_length=4
         )
-        dataset = dataset.map(lambda x: parse_example(x),num_parallel_calls=tf.data.experimental.AUTOTUNE)
+        dataset = dataset.map(lambda x: parse_example(x),num_parallel_calls=1)
         dataset = dataset.shuffle(buffer_size=20)
         dataset = dataset.map(lambda x: adjust_range(x))
         dataset = dataset.map(lambda x: epoch(x,batch_size))
