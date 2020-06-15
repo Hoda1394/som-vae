@@ -346,7 +346,7 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     #data_generator = get_data_generator(True)
 
     print('Preparing TF records')
-    data_folder="/om4/group/gablab/data/datalad/openneuro/ds000224/derivatives/surface_pipeline/sub-MSC*/processed_restingstate_timecourses/ses-func*/cifti"
+    data_folder="/om4/group/gablab/data/datalad/openneuro/ds000224/derivatives/surface_pipeline"
     tf_folder="/om/user/abizeul/tfrecords_ds000224_rest"
     write_cifti_tfrecords(data_folder=data_folder,tfrecords_folder=tf_folder,size_shard=10)
 
