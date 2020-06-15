@@ -155,11 +155,10 @@ def parse_example(record):
 
     return sample
 
-def write_cifti_tfrecords(data_folder,tfrecords_folder,size_shard=50,compressed=False):
+def write_cifti_tfrecords(data_pattern,tfrecords_folder,size_shard=50,compressed=False):
 
     # Data folder
-    data_folder = Path(data_folder)
-    img_filenames = list(data_folder.glob('sub-MSC*_ses-func*_task-rest_bold_32k_fsLR_2.dtseries.nii'))
+    img_filenames = list(glob.glob(data_pattern))
     print(img_filenames)
     assert img_filenames, 'No files found'
 
