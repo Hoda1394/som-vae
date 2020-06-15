@@ -141,17 +141,12 @@ def parse_example(record):
     }
 
     data = tf.io.parse_single_example(record, image_feature_description)
-    print(data)
     shape = data['shape']
     shape = tf.cast(shape,tf.int32)
-    print(np.array(shape))
     sample = data['data']
     sample = tf.io.decode_raw(sample, tf.uint8)
     sample = tf.cast(sample, tf.float32)
-    print(sample)
     sample = tf.reshape(sample,shape)
-
-    print(sample)
 
     return sample
 
@@ -196,12 +191,13 @@ def write_cifti_tfrecords(data_pattern,tfrecords_folder,size_shard=50,compressed
         
 
 def adjust_range(sample):
+    print(tf.reduce_min(sample))
     sample = (sample - tf.reduce_min(sample))/(tf.reduce_max(sample)-tf.reduce_min(sample))
     return sample
 
 def epoch(sample,batch_size):
     print(sample)
-    if sample.shape[0]%batch_size != 0: print('Batch size does not suit scan duration, excess data will be discarded')
+    #if sample.shape[0]%batch_size != 0: print('Batch size does not suit scan duration, excess data will be discarded')
 
     #TODO
 
