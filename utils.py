@@ -182,8 +182,6 @@ def write_cifti_tfrecords(data_pattern,tfrecords_folder,size_shard=50,compressed
                 sample_shape=np.array(sample_data.shape).astype(np.int64)
                 sample_shape = np.append(sample_shape, 1)
 
-                print(sample_data.astype(np.uint8))
-
                 sample_data_raveled = sample_data.astype(np.uint8).ravel().tostring()
         
                 tfrecords_writer.write(serialize_example(sample_data_raveled,sample_shape))
@@ -191,7 +189,6 @@ def write_cifti_tfrecords(data_pattern,tfrecords_folder,size_shard=50,compressed
         
 
 def adjust_range(sample):
-    print(tf.reduce_min(sample))
     sample = (sample - tf.reduce_min(sample))/(tf.reduce_max(sample)-tf.reduce_min(sample))
     return sample
 
@@ -209,13 +206,12 @@ def get_dataset(tfrecords_folder,batch_size):
     with tf.device('cpu:0'):
         tfrecords_folder = Path(tfrecords_folder)
         assert tfrecords_folder.is_dir(), 'No tfrecords folder to process'
-        print('hey')
+
         file_pattern = glob.glob(str(tfrecords_folder.joinpath("*.tfrecord")))
         assert file_pattern, 'No files in folder'
-        print(str(tfrecords_folder.joinpath("*.tfrecord")))
-        dataset = tf.data.Dataset.list_files([str(tfrecords_folder.joinpath("*.tfrecord"))])
-        print(dataset)
-        dataset = dataset.interleave(map_func=lambda x: 
+
+        dataset = tf.data.Dataset.list_files(str(tfrecords_folder.joinpath("*.tfrecord")))
+        dataset = dataset.interleave(lambda x: 
             tf.data.TFRecordDataset(x, compression_type='None'),
             cycle_length=tf.data.experimental.AUTOTUNE,block_length=4
         )
@@ -223,7 +219,7 @@ def get_dataset(tfrecords_folder,batch_size):
         dataset = dataset.shuffle(buffer_size=20)
         dataset = dataset.map(lambda x: adjust_range(x))
         dataset = dataset.map(lambda x: epoch(x,batch_size))
-        dataset = dataset.unbatch()
+        #dataset = dataset.unbatch()
         dataset = dataset.batch(batch_size,drop_remainder=True)
         dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
         return dataset
