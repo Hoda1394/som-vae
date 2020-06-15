@@ -185,6 +185,7 @@ def write_cifti_tfrecords(data_pattern,tfrecords_folder,size_shard=50,compressed
                 sample_data=nib.load(cifti_path).get_fdata()
                 sample_data=255*(sample_data-sample_data.min())/(sample_data.min()-sample_data.max())
                 sample_shape=np.array(sample_data.shape).astype(np.int64)
+                sample_shape = np.append(sample_shape, 1)
 
                 print(sample_data,sample_shape)
 
@@ -216,9 +217,9 @@ def get_dataset(tfrecords_folder,batch_size):
     assert file_pattern, 'No files in folder'
 
     dataset = tf.data.Dataset.list_files(str(tfrecords_folder.joinpath("*.tfrecord")))
-
+    print(dataset)
     dataset = dataset.interleave(map_func=lambda x: 
-        tf.data.TFRecordDataset(x, compression_type=None),
+        tf.data.TFRecordDataset(x, compression_type='None'),
         cycle_length=tf.data.experimental.AUTOTUNE,block_length=4
     )
     dataset = dataset.map(lambda x: parse_example(x),num_parallel_calls=tf.data.experimental.AUTOTUNE)
