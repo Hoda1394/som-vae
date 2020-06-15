@@ -216,7 +216,7 @@ def get_dataset(tfrecords_folder,batch_size):
     file_pattern = glob.glob(str(tfrecords_folder.joinpath("*.tfrecord")))
     assert file_pattern, 'No files in folder'
     print(str(tfrecords_folder.joinpath("*.tfrecord")))
-    dataset = tf.data.Dataset.list_files(str(tfrecords_folder.joinpath("*.tfrecord")))
+    dataset = tf.data.Dataset.list_files([str(tfrecords_folder.joinpath("*.tfrecord"))])
     print(dataset)
     dataset = dataset.interleave(map_func=lambda x: 
         tf.data.TFRecordDataset(x, compression_type='None'),
