@@ -198,7 +198,7 @@ def epoch(sample,batch_size):
 
     #TODO
 
-    return 1
+    return sample
 
 def get_dataset(tfrecords_folder,batch_size):
 
