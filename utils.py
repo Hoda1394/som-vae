@@ -12,6 +12,7 @@ import tensorflow as tf
 import numpy as np
 import math
 import glob
+import time
 
 
 def interpolate_arrays(arr1, arr2, num_steps=100, interpolation_length=0.3):
@@ -223,6 +224,49 @@ def get_dataset(tfrecords_folder,batch_size):
         dataset = dataset.batch(batch_size,drop_remainder=True)
         dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
         return dataset
+
+
+def prepare_2d_tf_record_dataset(dataset_dir, tf_record_save_dir, glob_ext, n_img_per_shard):
+
+    dataset_dir = Path(dataset_dir)
+    img_filenames = list(glob.glob(dataset_dir))
+
+    tf_record_save_dir = Path(tf_record_save_dir)
+
+    n_images = len(img_filenames)
+    n_shards = n_images/n_img_per_shard+1
+
+    print('{} images found'.format(n_images))
+    print('{} shards will be created'.format(n_shards))
+    print('Storing {} images in each shard'.format(n_img_per_shard))
+
+    start = time.time()
+
+    for shard in range(n_shards):
+        print('Creating {} / {} shard '.format(shard+1, n_shards))
+        
+        img_count = 0
+        tf_record_filename = str(tf_record_save_dir.joinpath('data-%03d-of-%03d.tfrecord'%(shard+1, n_shards)))
+
+        with tf.io.TFRecordWriter(tf_record_filename) as tf_record_writer:
+
+            for e, f in enumerate(img_filenames[img_count:img_count+n_img_per_shard]):
+                img = nib.load(f).get_fdata()
+
+                img = np.array(img).astype(np.uint8)
+                img_data = img.ravel().tostring()
+                img_data = tf.image.encode_png(img).tostring()
+                img_shape = img.shape
+                if len(img_shape)==3:
+                    img_shape = np.append(img_shape, 1)
+
+                tf_record_writer.write(serialize_example(img_data, img_shape))
+
+                img_count+=1
+                print('{} / {} images done'.format(img_count, n_images))
+    
+        print('Time taken for shard: {}'.format(time.time()-start))
+    print('Total time taken: {}'.format(time.time()-start))
 
 
 
