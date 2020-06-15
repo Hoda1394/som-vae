@@ -144,7 +144,7 @@ def parse_example(record):
     print(data)
     shape = data['shape']
     shape = tf.cast(shape,tf.int32)
-    print(shape.numpy())
+    print(np.array(shape))
     sample = data['data']
     sample = tf.io.decode_raw(sample, tf.uint8)
     sample = tf.cast(sample, tf.float32)
