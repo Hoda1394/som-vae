@@ -212,7 +212,7 @@ def get_dataset(tfrecords_folder,batch_size):
     # Did not standardize, did adjust the range to 0-1, prefetch might affect memory
     tfrecords_folder = Path(tfrecords_folder)
     assert tfrecords_folder.is_dir(), 'No tfrecords folder to process'
-
+    print('hey')
     file_pattern = glob.glob(str(tfrecords_folder.joinpath("*.tfrecord")))
     assert file_pattern, 'No files in folder'
     print(str(tfrecords_folder.joinpath("*.tfrecord")))
