@@ -155,31 +155,32 @@ def parse_example(record):
 
     return sample
 
-def write_cifti_tfrecords(data_pattern,tfrecords_folder,size_shard=50,compressed=False):
+def write_cifti_tfrecords(data_folder,tfrecords_folder,size_shard=50,compressed=False):
 
     # Data folder
-    paths = glob.glob(data_pattern)
-    assert paths, 'No files found'
+    data_folder = Path(data_folder)
+    img_filenames = list(data_folder.glob('*.dtseries.nii'))
+    assert img_filenames, 'No files found'
 
     # TF records folder
     tfrecords_folder = Path(tfrecords_folder)
     tfrecords_folder.mkdir(parents=True, exist_ok=True)
 
     # Shard parameters
-    num_samples=len(paths)
+    num_samples=len(img_filenames)
     print('Number of samples found: {}'.format(num_samples))
     num_shards = math.ceil(num_samples/size_shard)
-    shards = np.array_split(paths,num_shards)
 
+    shards = np.array_split(img_filenames,num_shards)   # PB ?
     tfrecords_filename = []
     progbar = tf.keras.utils.Progbar(target=num_samples, verbose=True)
 
-    for i in range(1):
+    for i in range(num_shards):
         cifti_paths = shards[i]
         tfrecords_filename = str(tfrecords_folder.joinpath('tfrecords_train{}.tfrecord'.format(i)))
         #if not compressed: tfrecords_writer = tf.io.TFRecordWriter(tfrecords_filename,options=None)
         #elif compressed: tfrecords_writer = tf.io.TFRecordWriter(tfrecords_filename,options=tf.io.TFRecordOptions(compression_type='GZIP'))
-        with tf.io.TFRecordWriter(tfrecords_filename,options=None) as tfrecords_writer:
+        with tf.io.TFRecordWriter(tfrecords_filename,options=tf.io.TFRecordOptions(compression_type=None)) as tfrecords_writer:
             for cifti_path in cifti_paths:
                 sample_data=nib.load(cifti_path).get_fdata()
                 sample_data=255*(sample_data-sample_data.min())/(sample_data.min()-sample_data.max())
@@ -203,23 +204,22 @@ def epoch(sample,batch_size):
 
     return 1
 
-def get_dataset(tfrecords_folder,batch_size,compressed=False,shuffle=True):
+def get_dataset(tfrecords_folder,batch_size):
 
     # Did not standardize, did adjust the range to 0-1, prefetch might affect memory
     tfrecords_folder = Path(tfrecords_folder)
     assert tfrecords_folder.is_dir(), 'No tfrecords folder to process'
 
     file_pattern = glob.glob(str(tfrecords_folder.joinpath("*.tfrecord")))
-
     assert file_pattern, 'No files in folder'
-    dataset = tf.data.Dataset.list_files(str(tfrecords_folder.joinpath("*.tfrecord")), shuffle=shuffle)
-    compression_type = "GZIP" if compressed else None
+
+    dataset = tf.data.Dataset.list_files(str(tfrecords_folder.joinpath("*.tfrecord")))
 
     dataset = dataset.interleave(map_func=lambda x: 
-        tf.data.TFRecordDataset(x, compression_type=compression_type),
-        cycle_length=tf.data.experimental.AUTOTUNE,
+        tf.data.TFRecordDataset(x, compression_type=None),
+        cycle_length=tf.data.experimental.AUTOTUNE,block_length=4
     )
-    dataset = dataset.map(lambda x: parse_example(x))
+    dataset = dataset.map(lambda x: parse_example(x),num_parallel_calls=tf.data.experimental.AUTOTUNE)
     dataset = dataset.shuffle(buffer_size=20)
     dataset = dataset.map(lambda x: adjust_range(x))
     dataset = dataset.map(lambda x: epoch(x,batch_size))
