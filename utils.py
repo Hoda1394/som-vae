@@ -182,7 +182,7 @@ def write_cifti_tfrecords(data_pattern,tfrecords_folder,size_shard=50,compressed
                 sample_shape=np.array(sample_data.shape).astype(np.int64)
                 sample_shape = np.append(sample_shape, 1)
 
-                print(sample_data,sample_shape)
+                print(sample_data.astype(np.uint8))
 
                 sample_data_raveled = sample_data.astype(np.uint8).ravel().tostring()
         
@@ -206,26 +206,27 @@ def epoch(sample,batch_size):
 def get_dataset(tfrecords_folder,batch_size):
 
     # Did not standardize, did adjust the range to 0-1, prefetch might affect memory
-    tfrecords_folder = Path(tfrecords_folder)
-    assert tfrecords_folder.is_dir(), 'No tfrecords folder to process'
-    print('hey')
-    file_pattern = glob.glob(str(tfrecords_folder.joinpath("*.tfrecord")))
-    assert file_pattern, 'No files in folder'
-    print(str(tfrecords_folder.joinpath("*.tfrecord")))
-    dataset = tf.data.Dataset.list_files([str(tfrecords_folder.joinpath("*.tfrecord"))])
-    print(dataset)
-    dataset = dataset.interleave(map_func=lambda x: 
-        tf.data.TFRecordDataset(x, compression_type='None'),
-        cycle_length=tf.data.experimental.AUTOTUNE,block_length=4
-    )
-    dataset = dataset.map(lambda x: parse_example(x),num_parallel_calls=tf.data.experimental.AUTOTUNE)
-    dataset = dataset.shuffle(buffer_size=20)
-    dataset = dataset.map(lambda x: adjust_range(x))
-    dataset = dataset.map(lambda x: epoch(x,batch_size))
-    dataset = dataset.unbatch()
-    dataset = dataset.batch(batch_size,drop_remainder=True)
-    dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
-    return dataset
+    with tf.device('cpu:0'):
+        tfrecords_folder = Path(tfrecords_folder)
+        assert tfrecords_folder.is_dir(), 'No tfrecords folder to process'
+        print('hey')
+        file_pattern = glob.glob(str(tfrecords_folder.joinpath("*.tfrecord")))
+        assert file_pattern, 'No files in folder'
+        print(str(tfrecords_folder.joinpath("*.tfrecord")))
+        dataset = tf.data.Dataset.list_files([str(tfrecords_folder.joinpath("*.tfrecord"))])
+        print(dataset)
+        dataset = dataset.interleave(map_func=lambda x: 
+            tf.data.TFRecordDataset(x, compression_type='None'),
+            cycle_length=tf.data.experimental.AUTOTUNE,block_length=4
+        )
+        dataset = dataset.map(lambda x: parse_example(x),num_parallel_calls=tf.data.experimental.AUTOTUNE)
+        dataset = dataset.shuffle(buffer_size=20)
+        dataset = dataset.map(lambda x: adjust_range(x))
+        dataset = dataset.map(lambda x: epoch(x,batch_size))
+        dataset = dataset.unbatch()
+        dataset = dataset.batch(batch_size,drop_remainder=True)
+        dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
+        return dataset
 
 
 
