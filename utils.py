@@ -131,7 +131,7 @@ def _bytes_feature(value):
 def _int64_feature(values):
     return tf.train.Feature(int64_list=tf.train.Int64List(value=values))
 
-def serialize_example(img, shape, label):
+def serialize_example(img, shape, label=0):
     feature = {
         'img' : _bytes_feature(img),
         'shape' : _int64_feature(shape),
