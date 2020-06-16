@@ -234,7 +234,7 @@ def prepare_2d_tf_record_dataset(dataset_dir, tf_record_save_dir, glob_ext, n_im
     tf_record_save_dir = Path(tf_record_save_dir)
 
     n_images = len(img_filenames)
-    n_shards = n_images/n_img_per_shard+1
+    n_shards = int(n_images/n_img_per_shard+1)
 
     print('{} images found'.format(n_images))
     print('{} shards will be created'.format(n_shards))
