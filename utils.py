@@ -232,6 +232,8 @@ def get_dataset(tfrecords_folder,batch_size):
         file_pattern = glob.glob(str(tfrecords_folder.joinpath("*.tfrecord")))
         assert file_pattern, 'No files in folder'
 
+        print('TF Records: ',file_pattern)
+
         dataset = tf.data.Dataset.list_files(str(tfrecords_folder.joinpath("*.tfrecord")))
         dataset = dataset.interleave(lambda x: 
             tf.data.TFRecordDataset(x, compression_type=None),
@@ -239,7 +241,7 @@ def get_dataset(tfrecords_folder,batch_size):
         dataset = dataset.map(lambda x: parse_2d_image(x),num_parallel_calls=1)
         dataset = dataset.shuffle(buffer_size=20)
         dataset = dataset.map(lambda x: adjust_range(x))
-        dataset = dataset.map(lambda x: epoch(x,batch_size))
+        #dataset = dataset.map(lambda x: epoch(x,batch_size))
         #dataset = dataset.unbatch()
         dataset = dataset.batch(batch_size,drop_remainder=True)
         dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
@@ -274,12 +276,12 @@ def prepare_2d_tf_record_dataset(dataset_dir, tf_record_save_dir, glob_ext, n_im
             for e, f in enumerate(img_filenames[img_count:img_count+n_img_per_shard]):
                 img = nib.load(f).get_fdata()
 
-                img = np.expand_dims(np.array(img),axis=2).astype(np.uint8)
+                img = np.array(img).astype(np.uint8)
                 img_data = img.ravel().tostring()
                 #img_data = tf.image.encode_png(img).ravel().tostring()
                 img_shape = img.shape
-                if len(img_shape)==3:
-                    img_shape = np.append(img_shape, 1)
+                #if len(img_shape)==3:
+                #    img_shape = np.append(img_shape, 1)
 
                 tf_record_writer.write(serialize_example(img_data, img_shape))
 
