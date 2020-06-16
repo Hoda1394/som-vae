@@ -125,12 +125,19 @@ def compute_purity(cluster_assignments, class_assignments):
     
     return purity
 
-def serialize_example(data,shape):
+def _bytes_feature(value):
+    return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
 
+def _int64_feature(values):
+    return tf.train.Feature(int64_list=tf.train.Int64List(value=values))
+
+def serialize_example(img, shape, label):
     feature = {
-        'data': tf.train.Feature(bytes_list=tf.train.BytesList(value=[data])),
-        'shape':tf.train.Feature(int64_list=tf.train.Int64List(value=shape))
+        'img' : _bytes_feature(img),
+        'shape' : _int64_feature(shape),
+        'label' : _int64_feature([label])
     }
+
     example_proto = tf.train.Example(features=tf.train.Features(feature=feature))
     return example_proto.SerializeToString()
 
@@ -234,18 +241,18 @@ def prepare_2d_tf_record_dataset(dataset_dir, tf_record_save_dir, glob_ext, n_im
     tf_record_save_dir = Path(tf_record_save_dir)
 
     n_images = len(img_filenames)
-    n_shards = int(n_images/n_img_per_shard+1)
+    n_shards = int(math.ceil(n_images/n_img_per_shard))
 
     print('{} images found'.format(n_images))
     print('{} shards will be created'.format(n_shards))
     print('Storing {} images in each shard'.format(n_img_per_shard))
 
     start = time.time()
+    img_count = 0
 
     for shard in range(n_shards):
         print('Creating {} / {} shard '.format(shard+1, n_shards))
-        
-        img_count = 0
+
         tf_record_filename = str(tf_record_save_dir.joinpath('data-%03d-of-%03d.tfrecord'%(shard+1, n_shards)))
 
         with tf.io.TFRecordWriter(tf_record_filename) as tf_record_writer:
