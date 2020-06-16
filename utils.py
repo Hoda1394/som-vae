@@ -158,6 +158,20 @@ def parse_example(record):
 
     return sample
 
+def parse_2d_image(record, target_res):
+    image_feature_description = {
+        'img': tf.io.FixedLenFeature([], tf.string),
+        'shape': tf.io.FixedLenFeature([3], tf.int64)
+    }
+    data = tf.io.parse_single_example(record, image_feature_description)
+    img = data['img']
+    img = tf.io.decode_raw(img, tf.uint8)
+    img = tf.cast(img, tf.float32)
+    img = tf.reshape(img, data['shape'])
+    #img = tf.image.resize(img, (2**target_res, 2**target_res))
+    #img = adjust_dynamic_range(img, [0.0, 255.0], [-1.0, 1.0])
+    return img
+
 def write_cifti_tfrecords(data_pattern,tfrecords_folder,size_shard=50,compressed=False):
 
     # Data folder
@@ -221,9 +235,8 @@ def get_dataset(tfrecords_folder,batch_size):
         dataset = tf.data.Dataset.list_files(str(tfrecords_folder.joinpath("*.tfrecord")))
         dataset = dataset.interleave(lambda x: 
             tf.data.TFRecordDataset(x, compression_type=None),
-            cycle_length=1,block_length=4
-        )
-        dataset = dataset.map(lambda x: parse_example(x),num_parallel_calls=1)
+            cycle_length=1,block_length=4)
+        dataset = dataset.map(lambda x: parse_2d_image(x),num_parallel_calls=1)
         dataset = dataset.shuffle(buffer_size=20)
         dataset = dataset.map(lambda x: adjust_range(x))
         dataset = dataset.map(lambda x: epoch(x,batch_size))
