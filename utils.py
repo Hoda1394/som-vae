@@ -253,7 +253,7 @@ def prepare_2d_tf_record_dataset(dataset_dir, tf_record_save_dir, glob_ext, n_im
             for e, f in enumerate(img_filenames[img_count:img_count+n_img_per_shard]):
                 img = nib.load(f).get_fdata()
 
-                img = np.array(img).astype(np.uint8)
+                img = np.expand_dims(np.array(img),axis=2).astype(np.uint8)
                 img_data = img.ravel().tostring()
                 img_data = tf.image.encode_png(img).tostring()
                 img_shape = img.shape
