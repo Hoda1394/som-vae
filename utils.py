@@ -239,7 +239,7 @@ def prepare_2d_tf_record_dataset(dataset_dir, tf_record_save_dir, glob_ext, n_im
     img_filenames = list(glob.glob(dataset_dir))
 
     tf_record_save_dir = Path(tf_record_save_dir)
-    tf_record_save_dir.mkdir(parents=True, exist_ok=False)
+    tf_record_save_dir.mkdir(parents=True, exist_ok=True)
 
     n_images = len(img_filenames)
     n_shards = int(math.ceil(n_images/n_img_per_shard))
