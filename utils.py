@@ -277,9 +277,11 @@ def prepare_2d_tf_record_dataset(dataset_dir, tf_record_save_dir, glob_ext, n_im
                 img = nib.load(f).get_fdata()
 
                 img = np.array(img).astype(np.uint8)
+                print(img.ravel().shape)
                 img_data = img.ravel().tostring()
                 #img_data = tf.image.encode_png(img).ravel().tostring()
                 img_shape = img.shape
+                print(img_shape)
                 #if len(img_shape)==3:
                 #    img_shape = np.append(img_shape, 1)
 
