@@ -158,7 +158,7 @@ def parse_example(record):
 
     return sample
 
-def parse_2d_image(record, target_res):
+def parse_2d_image(record):
     image_feature_description = {
         'img': tf.io.FixedLenFeature([], tf.string),
         'shape': tf.io.FixedLenFeature([3], tf.int64)
