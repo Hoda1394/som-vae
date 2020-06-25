@@ -131,11 +131,10 @@ def _bytes_feature(value):
 def _int64_feature(values):
     return tf.train.Feature(int64_list=tf.train.Int64List(value=values))
 
-def serialize_example(img, shape, label=0):
+def serialize_example(img, shape):
     feature = {
         'img' : _bytes_feature(img),
         'shape' : _int64_feature(shape),
-        'label' : _int64_feature([label])
     }
 
     example_proto = tf.train.Example(features=tf.train.Features(feature=feature))
@@ -277,11 +276,9 @@ def prepare_2d_tf_record_dataset(dataset_dir, tf_record_save_dir, glob_ext, n_im
                 img = nib.load(f).get_fdata()
 
                 img = np.array(img).astype(np.uint8)
-                print(img.ravel().shape)
                 img_data = img.ravel().tostring()
                 #img_data = tf.image.encode_png(img).ravel().tostring()
                 img_shape = img.shape
-                print(img_shape)
                 #if len(img_shape)==3:
                 #    img_shape = np.append(img_shape, 1)
 
