@@ -196,7 +196,7 @@ def adjust_range(sample):
 def epoch(sample,batch_size):
 
     #if sample.shape[0]%batch_size != 0: print('Batch size does not suit scan duration, excess data will be discarded')
-    series_shape = tf.shape(sample)[0]
+    series_shape = tf.shape(sample)[0].numpy()
     #block_shape = np.asarray([batch_size,series_shape[1]])
     #num_blocks = np.asarray(series_shape // block_shape)[0]
     #sample = tf.reshape(sample, np.concatenate(num_blocks,block_shape))
