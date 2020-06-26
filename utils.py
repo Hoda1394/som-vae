@@ -197,7 +197,7 @@ def epoch(sample,batch_size):
 
     #if sample.shape[0]%batch_size != 0: print('Batch size does not suit scan duration, excess data will be discarded')
     series_shape = np.asarray(tf.shape(sample))
-    block_shape = np.asarray([batch_size,series_shape[1]])
+    block_shape = np.asarray([batch_size,series_shape[1]],dtype=np.int32)
     #num_blocks = np.asarray(series_shape // block_shape)[0]
     #sample = tf.reshape(sample, np.concatenate(num_blocks,block_shape))
 
