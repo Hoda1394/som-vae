@@ -197,7 +197,7 @@ def write_cifti_tfrecords(data_pattern,tfrecords_folder,size_shard=50,compressed
         tfrecords_filename = str(tfrecords_folder.joinpath('tfrecords_train{}.tfrecord'.format(i)))
         #if not compressed: tfrecords_writer = tf.io.TFRecordWriter(tfrecords_filename,options=None)
         #elif compressed: tfrecords_writer = tf.io.TFRecordWriter(tfrecords_filename,options=tf.io.TFRecordOptions(compression_type='GZIP'))
-        with tf.io.TFRecordWriter(tfrecords_filename,options=tf.io.TFRecordOptions(compression_type=None)) as tfrecords_writer:
+        with tf.io.TFRecordWriter(tfrecords_filename) as tfrecords_writer:
             for cifti_path in cifti_paths:
                 sample_data=nib.load(cifti_path).get_fdata()
                 sample_data=255*(sample_data-sample_data.min())/(sample_data.min()-sample_data.max())
@@ -239,12 +239,12 @@ def get_dataset(tfrecords_folder,batch_size):
             tf.data.TFRecordDataset(x, compression_type=None),
             cycle_length=1,block_length=4)
         dataset = dataset.map(lambda x: parse_2d_image(x),num_parallel_calls=1)
-        dataset = dataset.shuffle(buffer_size=20)
-        dataset = dataset.map(lambda x: adjust_range(x))
+        #dataset = dataset.shuffle(buffer_size=20)
+        #dataset = dataset.map(lambda x: adjust_range(x))
         #dataset = dataset.map(lambda x: epoch(x,batch_size))
         #dataset = dataset.unbatch()
-        dataset = dataset.batch(batch_size,drop_remainder=True)
-        dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
+        #dataset = dataset.batch(batch_size,drop_remainder=True)
+        #dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
         return dataset
 
 
