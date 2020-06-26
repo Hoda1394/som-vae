@@ -217,7 +217,7 @@ def get_dataset(tfrecords_folder,epoch_size,batch_size):
         dataset = dataset.interleave(lambda x: 
             tf.data.TFRecordDataset(x, compression_type=None),
             cycle_length=1,block_length=4)
-        tf.executing_eagerly()
+        print(tf.executing_eagerly())
         dataset = dataset.map(lambda x: parse_2d_image(x),num_parallel_calls=1)
         dataset = dataset.shuffle(buffer_size=20)
 
