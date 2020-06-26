@@ -219,7 +219,7 @@ def get_dataset(tfrecords_folder,batch_size):
         dataset = dataset.map(lambda x: parse_2d_image(x),num_parallel_calls=1)
         dataset = dataset.shuffle(buffer_size=20)
         #dataset = dataset.map(lambda x: adjust_range(x))
-        dataset = dataset.map(lambda x: epoch(x,batch_size))
+        dataset = dataset.map(lambda x: tf.py_function(epoch,[x,batch_size],[tf.float32]))
         #dataset = dataset.unbatch()
         #dataset = dataset.batch(batch_size,drop_remainder=True)
         dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
