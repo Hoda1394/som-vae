@@ -354,7 +354,7 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
 
     print("Loading data")
     dataset = get_dataset(tfrecords_folder=tf_folder,batch_size=28)
-
+    print(dataset)
     for sample in dataset:
         print(sample)
 
