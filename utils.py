@@ -202,7 +202,6 @@ def epoch(sample,batch_size):
     return sample
 
 def get_dataset(tfrecords_folder,batch_size):
-    print(batch_size)
     # Did not standardize, did adjust the range to 0-1, prefetch might affect memory
     with tf.device('cpu:0'):
         tfrecords_folder = Path(tfrecords_folder)
