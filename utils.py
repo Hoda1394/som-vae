@@ -149,7 +149,6 @@ def parse_example(record):
 
     data = tf.io.parse_single_example(record, image_feature_description)
     shape = data['shape']
-    print(shape)
     shape = tf.cast(shape,tf.int32)
     sample = data['data']
     sample = tf.io.decode_raw(sample, tf.uint8)
@@ -167,7 +166,7 @@ def parse_2d_image(record):
     img = data['img']
     img = tf.io.decode_raw(img, tf.uint8)
     img = tf.cast(img, tf.float32)
-    img = tf.reshape(img, [818,65890])
+    img = tf.reshape(img, data['shape'])
     #img = tf.image.resize(img, (2**target_res, 2**target_res))
     #img = adjust_dynamic_range(img, [0.0, 255.0], [-1.0, 1.0])
     return img
