@@ -238,7 +238,7 @@ def get_dataset(tfrecords_folder,batch_size):
             tf.data.TFRecordDataset(x, compression_type=None),
             cycle_length=1,block_length=4)
         dataset = dataset.map(lambda x: parse_2d_image(x),num_parallel_calls=1)
-        #dataset = dataset.shuffle(buffer_size=20)
+        dataset = dataset.shuffle(buffer_size=20)
         #dataset = dataset.map(lambda x: adjust_range(x))
         #dataset = dataset.map(lambda x: epoch(x,batch_size))
         #dataset = dataset.unbatch()
