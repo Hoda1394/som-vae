@@ -201,7 +201,7 @@ def epoch(sample,batch_size):
     num_blocks = np.asarray(series_shape // block_shape)[0]
     #sample = tf.reshape(sample, np.concatenate(num_blocks,block_shape))
 
-    return num_block
+    return num_blocks
 
 def get_dataset(tfrecords_folder,batch_size):
     # Did not standardize, did adjust the range to 0-1, prefetch might affect memory
