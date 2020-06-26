@@ -354,7 +354,7 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     #write_cifti_tfrecords(data_pattern=data_pattern,tfrecords_folder=tf_folder,size_shard=10)
 
     print("Loading data")
-    dataset = get_dataset(tfrecords_folder=tf_folder,batch_size=2)
+    dataset = get_dataset(tfrecords_folder=tf_folder,batch_size=2,epoch_size=2)
     for sample in dataset:
         print(sample)
 

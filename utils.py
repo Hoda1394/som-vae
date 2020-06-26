@@ -203,7 +203,7 @@ def epoch(sample,batch_size):
         sample = tf.reshape(sample, np.insert(block_shape,0,num_blocks[0]))
     return sample
 
-def get_dataset(tfrecords_folder,batch_size):
+def get_dataset(tfrecords_folder,epoch_size,batch_size):
     # Did not standardize, did adjust the range to 0-1, prefetch might affect memory
     with tf.device('cpu:0'):
         tfrecords_folder = Path(tfrecords_folder)
@@ -219,9 +219,8 @@ def get_dataset(tfrecords_folder,batch_size):
         dataset = dataset.map(lambda x: parse_2d_image(x),num_parallel_calls=1)
         dataset = dataset.shuffle(buffer_size=20)
         #dataset = dataset.map(lambda x: adjust_range(x))
-        dataset = dataset.map(lambda x: tf.py_function(epoch,[x,batch_size],[tf.float32]))
-        #dataset = dataset.unbatch()
-        #dataset = dataset.batch(batch_size,drop_remainder=True)
+        dataset = dataset.map(lambda x: tf.py_function(epoch,[x,epoch_size],[tf.float32])).unbatch()
+        dataset = dataset.batch(batch_size,drop_remainder=True)
         dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
         return dataset
 
