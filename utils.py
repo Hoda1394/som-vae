@@ -196,8 +196,10 @@ def adjust_range(sample):
 def epoch(sample,batch_size):
 
     #if sample.shape[0]%batch_size != 0: print('Batch size does not suit scan duration, excess data will be discarded')
-
-    #TODO
+    series_shape = sample.shape
+    block_shape = [batch_size,sample.shape[1]]
+    num_blocks = series_shape // block_shape
+    samples = tf.reshape(sample, num_blocks + block_shape)
 
     return sample
 
@@ -217,7 +219,7 @@ def get_dataset(tfrecords_folder,batch_size):
         dataset = dataset.map(lambda x: parse_2d_image(x),num_parallel_calls=1)
         dataset = dataset.shuffle(buffer_size=20)
         #dataset = dataset.map(lambda x: adjust_range(x))
-        #dataset = dataset.map(lambda x: epoch(x,batch_size))
+        dataset = dataset.map(lambda x: epoch(x,batch_size))
         #dataset = dataset.unbatch()
         dataset = dataset.batch(batch_size,drop_remainder=True)
         dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
