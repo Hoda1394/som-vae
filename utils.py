@@ -196,11 +196,11 @@ def adjust_range(sample):
 def epoch(sample,batch_size):
 
     #if sample.shape[0]%batch_size != 0: print('Batch size does not suit scan duration, excess data will be discarded')
-    else:
-        series_shape = np.asarray(tf.shape(sample),dtype=np.int32)
-        block_shape = np.asarray([batch_size,series_shape[1]],dtype=np.int32)
-        num_blocks = series_shape // block_shape
-        sample = tf.reshape(sample, np.insert(block_shape,0,num_blocks[0]))
+    
+    series_shape = np.asarray(tf.shape(sample),dtype=np.int32)
+    block_shape = np.asarray([batch_size,series_shape[1]],dtype=np.int32)
+    num_blocks = series_shape // block_shape
+    sample = tf.reshape(sample, np.insert(block_shape,0,num_blocks[0]))
     return sample
 
 def get_dataset(tfrecords_folder,epoch_size,batch_size):
