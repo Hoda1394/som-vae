@@ -144,7 +144,7 @@ def parse_example(record):
 
     image_feature_description = {
         'data': tf.io.FixedLenFeature([], tf.string),
-        'shape': tf.io.FixedLenFeature([3], tf.int64) 
+        'shape': tf.io.FixedLenFeature([2], tf.int64) 
     }
 
     data = tf.io.parse_single_example(record, image_feature_description)
@@ -161,7 +161,7 @@ def parse_example(record):
 def parse_2d_image(record):
     image_feature_description = {
         'img': tf.io.FixedLenFeature([], tf.string),
-        'shape': tf.io.FixedLenFeature([3], tf.int64)
+        'shape': tf.io.FixedLenFeature([2], tf.int64)
     }
     data = tf.io.parse_single_example(record, image_feature_description)
     img = data['img']
@@ -202,7 +202,7 @@ def write_cifti_tfrecords(data_pattern,tfrecords_folder,size_shard=50,compressed
                 sample_data=nib.load(cifti_path).get_fdata()
                 sample_data=255*(sample_data-sample_data.min())/(sample_data.min()-sample_data.max())
                 sample_shape=np.array(sample_data.shape).astype(np.int64)
-                sample_shape = np.append(sample_shape, 1)
+                #sample_shape = np.append(sample_shape, 1)
                 print(sample_shape[0])
                 sample_data_raveled = sample_data.astype(np.uint8).ravel().tostring()
         
