@@ -140,23 +140,6 @@ def serialize_example(img, shape):
     example_proto = tf.train.Example(features=tf.train.Features(feature=feature))
     return example_proto.SerializeToString()
 
-def parse_example(record):
-
-    image_feature_description = {
-        'data': tf.io.FixedLenFeature([], tf.string),
-        'shape': tf.io.FixedLenFeature([2], tf.int64) 
-    }
-
-    data = tf.io.parse_single_example(record, image_feature_description)
-    shape = data['shape']
-    shape = tf.cast(shape,tf.int32)
-    sample = data['data']
-    sample = tf.io.decode_raw(sample, tf.uint8)
-    sample = tf.cast(sample, tf.float32)
-    sample = tf.reshape(sample,shape[:2])
-
-    return sample
-
 def parse_2d_image(record):
     image_feature_description = {
         'img': tf.io.FixedLenFeature([], tf.string),
@@ -175,7 +158,6 @@ def write_cifti_tfrecords(data_pattern,tfrecords_folder,size_shard=50,compressed
 
     # Data folder
     img_filenames = list(glob.glob(data_pattern))
-    print(img_filenames)
     assert img_filenames, 'No files found'
 
     # TF records folder
@@ -199,10 +181,8 @@ def write_cifti_tfrecords(data_pattern,tfrecords_folder,size_shard=50,compressed
         with tf.io.TFRecordWriter(tfrecords_filename) as tfrecords_writer:
             for cifti_path in cifti_paths:
                 sample_data=nib.load(cifti_path).get_fdata()
-                sample_data=255*(sample_data-sample_data.min())/(sample_data.min()-sample_data.max())
+                sample_data=255*(sample_data-sample_data.min())/(sample_data.max()-sample_data.min())
                 sample_shape=np.array(sample_data.shape).astype(np.int64)
-                #sample_shape = np.append(sample_shape, 1)
-                print(sample_shape[0])
                 sample_data_raveled = sample_data.astype(np.uint8).ravel().tostring()
         
                 tfrecords_writer.write(serialize_example(sample_data_raveled,sample_shape))
@@ -214,7 +194,7 @@ def adjust_range(sample):
     return sample
 
 def epoch(sample,batch_size):
-    print(sample)
+
     #if sample.shape[0]%batch_size != 0: print('Batch size does not suit scan duration, excess data will be discarded')
 
     #TODO
@@ -242,53 +222,10 @@ def get_dataset(tfrecords_folder,batch_size):
         #dataset = dataset.map(lambda x: adjust_range(x))
         #dataset = dataset.map(lambda x: epoch(x,batch_size))
         #dataset = dataset.unbatch()
-        #dataset = dataset.batch(batch_size,drop_remainder=True)
-        #dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
+        dataset = dataset.batch(batch_size,drop_remainder=True)
+        dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
         return dataset
 
-
-def prepare_2d_tf_record_dataset(dataset_dir, tf_record_save_dir, glob_ext, n_img_per_shard):
-
-    #dataset_dir = Path(dataset_dir)
-    img_filenames = list(glob.glob(dataset_dir))
-
-    tf_record_save_dir = Path(tf_record_save_dir)
-    tf_record_save_dir.mkdir(parents=True, exist_ok=True)
-
-    n_images = len(img_filenames)
-    n_shards = int(math.ceil(n_images/n_img_per_shard))
-
-    print('{} images found'.format(n_images))
-    print('{} shards will be created'.format(n_shards))
-    print('Storing {} images in each shard'.format(n_img_per_shard))
-
-    start = time.time()
-    img_count = 0
-
-    for shard in range(n_shards):
-        print('Creating {} / {} shard '.format(shard+1, n_shards))
-
-        tf_record_filename = str(tf_record_save_dir.joinpath('data-%03d-of-%03d.tfrecord'%(shard+1, n_shards)))
-
-        with tf.io.TFRecordWriter(tf_record_filename) as tf_record_writer:
-
-            for e, f in enumerate(img_filenames[img_count:img_count+n_img_per_shard]):
-                img = nib.load(f).get_fdata()
-
-                img = np.array(img).astype(np.float32)
-                img_data = img.ravel().tostring()
-                #img_data = tf.image.encode_png(img).ravel().tostring()
-                img_shape = img.shape
-                #if len(img_shape)==3:
-                #    img_shape = np.append(img_shape, 1)
-
-                tf_record_writer.write(serialize_example(img_data, img_shape))
-
-                img_count+=1
-                print('{} / {} images done'.format(img_count, n_images))
-    
-        print('Time taken for shard: {}'.format(time.time()-start))
-    print('Total time taken: {}'.format(time.time()-start))
 
 
 
