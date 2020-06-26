@@ -199,7 +199,7 @@ def epoch(sample,batch_size):
     series_shape = np.asarray(tf.shape(sample),dtype=np.int32)
     block_shape = np.asarray([batch_size,series_shape[1]],dtype=np.int32)
     num_blocks = np.asarray(series_shape // block_shape)[0]
-    sample = tf.reshape(sample, np.insert(block_shape,0,num_blocks)))
+    sample = tf.reshape(sample, np.insert(block_shape,0,num_blocks))
 
     return sample
 
