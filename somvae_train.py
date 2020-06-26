@@ -184,8 +184,8 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
             progress bar for training.
         generator (generator): Generator for the data batches.
     """
-    train_gen = generator("train", batch_size)
-    val_gen = generator("val", batch_size)
+    #train_gen = generator("train", batch_size)
+    #val_gen = generator("val", batch_size)
 
     #saver = tf.compat.v1.train.Saver(keep_checkpoint_every_n_hours=2.)    #could be upgraded
     #summaries = tf.compat.v1.summary.merge_all()                          #could be upgraded
@@ -237,9 +237,10 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
             pbar = tqdm(total=num_epochs*(num_batches)) 
 
         for epoch in range(num_epochs):
-            batch_val = next(val_gen)
-            model.call(inputs=batch_val)
-            test_losses.append(model.loss())
+            #batch_val = next(val_gen)
+            #model.call(inputs=batch_val)
+            #test_losses.append(model.loss())
+            test_losses.append(tf.constant(0))
 
             with writer.as_default():
                 tf.summary.scalar("test loss", test_losses[-1], step=step)
@@ -254,9 +255,9 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
             if patience_count >= patience:
                 break
         
-            for i in range(num_batches):
+            for batch_train in generator:
                 step += 1
-                batch_train = next(iter(train_gen))
+                #batch_train = next(iter(train_gen))
                 train_loss= call_train_step(batch_train)
 
                 if i%100 == 0:

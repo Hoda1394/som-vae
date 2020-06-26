@@ -199,8 +199,8 @@ def epoch(sample,batch_size):
     else:
         series_shape = np.asarray(tf.shape(sample),dtype=np.int32)
         block_shape = np.asarray([batch_size,series_shape[1]],dtype=np.int32)
-        num_blocks = np.asarray(series_shape // block_shape)[0]
-        sample = tf.reshape(sample, np.insert(block_shape,0,num_blocks))
+        num_blocks = series_shape // block_shape
+        sample = tf.reshape(sample, np.insert(block_shape,0,num_blocks[0]))
     return sample
 
 def get_dataset(tfrecords_folder,batch_size):
