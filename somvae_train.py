@@ -350,7 +350,7 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     tf_folder="/om/user/abizeul/tfrecords_ds000224_rest"
 
     #prepare_2d_tf_record_dataset(data_pattern,tf_folder,'*.dtseries.nii',10)
-    write_cifti_tfrecords(data_pattern=data_pattern,tfrecords_folder=tf_folder,size_shard=10)
+    #write_cifti_tfrecords(data_pattern=data_pattern,tfrecords_folder=tf_folder,size_shard=10)
 
     print("Loading data")
     dataset = get_dataset(tfrecords_folder=tf_folder,batch_size=2)
