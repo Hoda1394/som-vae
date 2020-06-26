@@ -149,11 +149,12 @@ def parse_example(record):
 
     data = tf.io.parse_single_example(record, image_feature_description)
     shape = data['shape']
+    print(shape)
     shape = tf.cast(shape,tf.int32)
     sample = data['data']
     sample = tf.io.decode_raw(sample, tf.uint8)
     sample = tf.cast(sample, tf.float32)
-    sample = tf.reshape(sample,shape)
+    sample = tf.reshape(sample,shape[:2])
 
     return sample
 
