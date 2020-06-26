@@ -167,7 +167,7 @@ def parse_2d_image(record):
     img = data['img']
     img = tf.io.decode_raw(img, tf.uint8)
     img = tf.cast(img, tf.float32)
-    img = tf.reshape(img, tf.cast(data['shape'],tf.int32))
+    img = tf.reshape(img, [818,65890])
     #img = tf.image.resize(img, (2**target_res, 2**target_res))
     #img = adjust_dynamic_range(img, [0.0, 255.0], [-1.0, 1.0])
     return img
