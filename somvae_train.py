@@ -341,7 +341,7 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     # Dimensions for MNIST-like data
     input_length = 2              #update for brains
     input_channels = 65890        #update for brains
-    input_duration = 32
+    input_duration = 2
 
     # get data 
     #data_generator = get_data_generator(True)
