@@ -83,7 +83,7 @@ class SOMVAE(tf.keras.Model):
             mnist (bool): Flag that tells the model if we are training in MNIST-like data (default: True).
         """
         super(SOMVAE, self).__init__()
-        self.inputs = tf.Variable(tf.zeros(shape=[batch_size, input_length, input_channels, 1],dtype=tf.float32),shape=[batch_size, input_length, input_channels, 1],trainable=False)
+        self.inputs = tf.Variable(tf.zeros(shape=[batch_size, input_channels, 1],dtype=tf.float32),shape=[batch_size, input_channels, 1],trainable=False)
         self.latent_dim = latent_dim
         self.som_dim = som_dim
         self.input_length = input_length
@@ -129,7 +129,7 @@ class SOMVAE(tf.keras.Model):
 
     def get_encoder(self):
         if not self.mnist:
-            h_0 = tf.keras.layers.Input(shape=[self.input_length, self.input_channels, 1], name='input')
+            h_0 = tf.keras.layers.Input(shape=[self.input_channels, 1], name='input')
             h_flat = tf.keras.layers.Flatten()(h_0)
             h_1 = tf.keras.layers.Dense(256, activation="relu")(h_flat)
             h_2 = tf.keras.layers.Dense(128, activation="relu")(h_1)
