@@ -260,7 +260,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
                 #batch_train = next(iter(train_gen))
                 train_loss= call_train_step(batch_train)
 
-                if i%100 == 0:
+                if step%100 == 0:
                     with writer.as_default():
                         tf.summary.scalar("train loss", train_loss, step=step)
                         writer.flush()
