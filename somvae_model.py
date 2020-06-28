@@ -129,7 +129,7 @@ class SOMVAE(tf.keras.Model):
 
     def get_encoder(self):
         if not self.mnist:
-            h_0 = tf.keras.layers.Input(shape=[None,self.input_length, self.input_channels, 1], name='input')
+            h_0 = tf.keras.layers.Input(shape=[self.input_length, self.input_channels, 1], name='input')
             h_flat = tf.keras.layers.Flatten()(h_0)
             h_1 = tf.keras.layers.Dense(256, activation="relu")(h_flat)
             h_2 = tf.keras.layers.Dense(128, activation="relu")(h_1)
