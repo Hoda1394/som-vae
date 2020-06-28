@@ -228,6 +228,7 @@ def get_dataset(tfrecords_folder,epoch_size,batch_size):
         dataset = dataset.unbatch()
         print(len(list(dataset.as_numpy_iterator())))
         dataset = dataset.batch(batch_size,drop_remainder=True)
+        dataset = dataset.map(lambda x: tf.expand_dims(x,-1))
         #dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
         return dataset
 
