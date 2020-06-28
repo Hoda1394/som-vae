@@ -227,7 +227,7 @@ def get_dataset(tfrecords_folder,epoch_size,batch_size):
         print(len(list(dataset.as_numpy_iterator())))
         dataset = dataset.unbatch()
         print(len(list(dataset.as_numpy_iterator())))
-        #dataset = dataset.batch(batch_size,drop_remainder=True)
+        dataset = dataset.batch(batch_size,drop_remainder=True)
         #dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
         return dataset
 
