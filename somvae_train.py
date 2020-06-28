@@ -339,8 +339,8 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
         dict: Results of the evaluation (NMI, Purity, MSE).
     """
     # Dimensions for MNIST-like data
-    input_length = 28              #update for brains
-    input_channels = 28            #update for brains
+    input_length = 2              #update for brains
+    input_channels = 65890        #update for brains
     input_duration = 32
 
     # get data 
@@ -361,7 +361,7 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     # build model
     model = SOMVAE(latent_dim=latent_dim, som_dim=som_dim,input_length=input_length,
                 input_channels=input_channels, batch_size=input_duration, alpha=alpha, 
-                beta=beta, gamma=gamma, tau=tau, mnist=mnist)
+                beta=beta, gamma=gamma, tau=tau, mnist=False)
 
     train_model(model,0,generator=dataset)
 
