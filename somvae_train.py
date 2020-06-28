@@ -203,7 +203,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
     optimizer2 = tf.keras.optimizers.Adam(learning_rate=learning_decay)
 
     # Initialize
-    num_batches = len(list(generator.as_numpy_iterator()))//batch_size
+    num_batches = len(list(generator.as_numpy_iterator()))
     patience_count = 0
     step = 0
     test_losses = []
