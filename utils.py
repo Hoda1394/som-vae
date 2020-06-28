@@ -197,11 +197,12 @@ def epoch(sample,batch_size):
 
     #if sample.shape[0]%batch_size != 0: print('Batch size does not suit scan duration, excess data will be discarded')
     #sample = tf.convert_to_tensor(sample)
-    print(sample.shape,tf.shape(sample)[1])
-    series_shape = tf.shape(sample)
-    block_shape = np.asarray([batch_size,series_shape[1]],dtype=np.int32)
-    num_blocks = series_shape // block_shape
-    sample = tf.reshape(sample, np.insert(block_shape,0,num_blocks[0]))
+    #print(sample.shape,tf.shape(sample)[1])
+    #series_shape = tf.shape(sample)
+    #block_shape = np.asarray([batch_size,series_shape[1]],dtype=np.int32)
+    #num_blocks = series_shape // block_shape
+    sample = tf.reshape(sample,[409,2,65890])
+    #sample = tf.reshape(sample, np.insert(block_shape,0,num_blocks[0]))
     return sample
 
 def get_dataset(tfrecords_folder,epoch_size,batch_size):
@@ -222,7 +223,7 @@ def get_dataset(tfrecords_folder,epoch_size,batch_size):
         dataset = dataset.shuffle(buffer_size=20)
 
         #dataset = dataset.map(lambda x: tf.py_function(epoch,[x,epoch_size],[]))
-        #dataset = dataset.map(lambda x: epoch(x,epoch_size))
+        dataset = dataset.map(lambda x: epoch(x,epoch_size))
         #dataset = dataset.unbatch()
         dataset = dataset.batch(batch_size,drop_remainder=True)
         dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
