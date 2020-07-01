@@ -67,10 +67,11 @@ def ex_config():
     data_set = "MNIST_data"
     save_model = False
     time_series = True
-    mnist = True
+    mnist = False
+
 
 @ex.capture
-def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
+def train_model(model, num_epochs, patience, batch_size, logdir,
         modelpath, learning_rate, interactive, generator):
     """Trains the SOM-VAE model.
     
@@ -133,7 +134,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
             #batch_val = next(val_gen)
             #model.call(inputs=batch_val)
             #test_losses.append(model.loss())
-            test_losses.append(tf.constant(0))
+            test_losses.append(tf.constant(0))    # TODO : add validation dataset
 
             with writer.as_default():
                 tf.summary.scalar("test loss", test_losses[-1], step=step)
@@ -249,13 +250,12 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
                 input_channels=input_channels, batch_size=input_duration, alpha=alpha, 
                 beta=beta, gamma=gamma, tau=tau, mnist=False)
 
-    train_model(model,0,generator=dataset)
+    train_model(model,generator=dataset)
 
     #result = evaluate_model(model,x=1)
 
     #if not save_model:
     #    shutil.rmtree(os.path.dirname(modelpath))
-    #print(result)
     #return result
     return 1
 
