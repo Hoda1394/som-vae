@@ -15,7 +15,7 @@ import sacred
 from sacred.stflow import LogFileWriter
 
 from somvae_model import SOMVAE
-from utils import *
+from somvae_utils import *
 
 ex = sacred.Experiment("hyperopt")
 ex.observers.append(sacred.observers.FileStorageObserver.create("../sacred_runs"))
