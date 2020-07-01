@@ -29,7 +29,7 @@ class SOMVAE(tf.keras.Model):
     """Class for the SOM-VAE model as described in https://arxiv.org/abs/1806.02199"""
 
     def __init__(self, latent_dim=64, som_dim=[8,8],input_length=28, input_channels=28, 
-            batch_size=32, alpha=1., beta=1., gamma=1., tau=1., mnist=True):
+            batch_size=32, alpha=1., beta=1., gamma=1., tau=1.):
         """Initialization method for the SOM-VAE model object.
         
         Args:
@@ -59,7 +59,6 @@ class SOMVAE(tf.keras.Model):
         self.beta = beta
         self.gamma = gamma
         self.tau = tau
-        self.mnist = mnist
         self.encoder_ = self.get_encoder()
         self.decoder_ = self.get_decoder()
 
