@@ -216,7 +216,7 @@ def evaluate_model(model,x, modelpath, batch_size):
  
 
 @ex.automain
-def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, tau, modelpath, save_model, mnist):
+def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, tau, modelpath, save_model, prepare, data_pattern, tf_folder, batch_size):
     """Main method to build a model, train it and evaluate it.
     
     Args:

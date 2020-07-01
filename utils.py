@@ -193,7 +193,7 @@ def adjust_range(sample):
     sample = (sample - tf.reduce_min(sample))/(tf.reduce_max(sample)-tf.reduce_min(sample))
     return sample
 
-def get_dataset(tfrecords_folder,epoch_size,batch_size):
+def get_dataset(tfrecords_folder,batch_size):
     # Did not standardize, did adjust the range to 0-1, prefetch might affect memory
     with tf.device('cpu:0'):
         tfrecords_folder = Path(tfrecords_folder)
