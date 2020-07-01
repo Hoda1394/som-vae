@@ -235,8 +235,6 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     Returns:
         dict: Results of the evaluation (NMI, Purity, MSE).
     """
-    # Dimensions for MNIST-like data
-    input_channels = 65890        #update for brains
 
     if prepare : 
         print('Preparing TF records')
