@@ -1,17 +1,8 @@
-"""
-SOM-VAE model as described in https://arxiv.org/abs/1806.02199
-Copyright (c) 2018
-Author: Vincent Fortuin
-Institution: Biomedical Informatics group, ETH Zurich
-License: MIT License
-"""
-
 import functools
 import numpy as np
 import tensorflow as tf
 
 loss_mse = tf.keras.losses.MeanSquaredError()
-
 
 def conv2d(x, shape, name, strides=(1,1)):
     """Creates a 2D convolutional layer with weight and bias variables.
@@ -33,31 +24,6 @@ def conv2d(x, shape, name, strides=(1,1)):
 def max_pool_2x2(x):
     """Creates a 2x2 max-pooling layer."""
     return tf.nn.max_pool2d(input=x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
-
-def lazy_scope(function):
-    """Creates a decorator for methods that makes their return values load lazily.
-    
-    A method with this decorator will only compute the return value once when called
-    for the first time. Afterwards, the value will be cached as an object attribute.
-    Inspired by: https://danijar.com/structuring-your-tensorflow-models
-    
-    Args:
-        function (func): Function to be decorated.
-        
-    Returns:
-        decorator: Decorator for the function.
-    """
-    attribute = "_cache_" + function.__name__
-
-    @property
-    @functools.wraps(function)
-    def decorator(self):
-        if not hasattr(self, attribute):
-            with tf.compat.v1.variable_scope(function.__name__):
-                setattr(self, attribute, function(self))
-        return getattr(self, attribute)
-    return decorator
-
 
 class SOMVAE(tf.keras.Model):
     """Class for the SOM-VAE model as described in https://arxiv.org/abs/1806.02199"""
@@ -83,6 +49,7 @@ class SOMVAE(tf.keras.Model):
             mnist (bool): Flag that tells the model if we are training in MNIST-like data (default: True).
         """
         super(SOMVAE, self).__init__()
+        # Static
         self.inputs = tf.Variable(tf.zeros(shape=[batch_size, input_channels, 1],dtype=tf.float32),shape=[batch_size, input_channels, 1],trainable=False)
         self.latent_dim = latent_dim
         self.som_dim = som_dim
@@ -93,8 +60,6 @@ class SOMVAE(tf.keras.Model):
         self.gamma = gamma
         self.tau = tau
         self.mnist = mnist
-        
-        # Static
         self.encoder_ = self.get_encoder()
         self.decoder_ = self.get_decoder()
 
@@ -103,13 +68,11 @@ class SOMVAE(tf.keras.Model):
         self.raw_probabilities = self.get_raw_probabilities()
         self.transition_probabilities = self.get_transition_probabilities()
 
-    #@lazy_scope
     def get_embeddings(self):
         """Creates variable for the SOM embeddings."""
         embeddings=tf.Variable(tf.initializers.TruncatedNormal(mean=0., stddev=0.05)(shape=self.som_dim+[self.latent_dim]),trainable=True,name='embeddings')
         return embeddings
 
-    #@lazy_scope
     def get_raw_probabilities(self):
         """Creates tensor for the transition probabilities."""
         probabilities_raw = tf.Variable(tf.zeros(self.som_dim+self.som_dim), trainable=True, name="probabilities_raw")
@@ -121,7 +84,6 @@ class SOMVAE(tf.keras.Model):
         probabilities_normalized = probabilities_positive / probabilities_summed
         return probabilities_normalized
 
-    #@lazy_scope
     def get_batch_size(self):
         """Reads the batch size from the input tensor."""
         batch_size = tf.shape(input=self.inputs)[0]
@@ -141,8 +103,6 @@ class SOMVAE(tf.keras.Model):
             h_pool1 = max_pool_2x2(h_conv1)
             h_conv2 = tf.nn.relu(conv2d(h_pool1, [4,4,256,256], "conv2"))
             h_pool2 = max_pool_2x2(h_conv2)
-            #flat_size = 7*7*256
-            #h_flat = tf.reshape(h_pool2, [-1, flat_size])
             h_flat = tf.keras.layers.Flatten()(h_pool2)
             z_e = tf.keras.layers.Dense(self.latent_dim)(h_flat)
         return tf.keras.models.Model(inputs=[h_0], outputs=[z_e], name='encoder')
@@ -150,7 +110,6 @@ class SOMVAE(tf.keras.Model):
     def get_z_e(self):
         return self.encoder_(self.inputs)
 
-    #@lazy_scope
     def get_z_dist_flat(self):
         """Computes the distances between the encodings and the embeddings."""
         z_dist = tf.math.squared_difference(tf.expand_dims(tf.expand_dims(self.z_e, 1), 1), tf.expand_dims(self.embeddings, 0))
@@ -158,14 +117,12 @@ class SOMVAE(tf.keras.Model):
         z_dist_flat = tf.reshape(z_dist_red, [self.batch_size, -1])
         return z_dist_flat
 
-    #@lazy_scope
     def get_k(self):
         """Picks the index of the closest embedding for every encoding."""
         k = tf.argmin(input=self.z_dist_flat, axis=-1)
         tf.compat.v1.summary.histogram("clusters", k)
         return k
 
-    #@lazy_scope
     def get_z_q(self):
         """Aggregates the respective closest embedding for every encoding."""
         k_1 = self.k // self.som_dim[1]
@@ -174,7 +131,6 @@ class SOMVAE(tf.keras.Model):
         z_q = tf.gather_nd(self.embeddings, k_stacked)
         return z_q
 
-    #@lazy_scope
     def get_z_q_neighbors(self):
         """Aggregates the respective neighbors in the SOM for every embedding in z_q."""
         k_1 = self.k // self.som_dim[1]
@@ -228,7 +184,6 @@ class SOMVAE(tf.keras.Model):
     def get_reconstruction_q(self):
         return self.decoder_(self.z_q)
 
-    #@lazy_scope
     def loss_reconstruction(self):
         """Computes the combined reconstruction loss for both reconstructions."""
 
@@ -237,21 +192,16 @@ class SOMVAE(tf.keras.Model):
         loss_rec_mse = loss_mse_zq + loss_mse_ze
         return loss_rec_mse
 
-    #@lazy_scope
     def loss_commit(self):
         """Computes the commitment loss."""
         loss_commit = tf.reduce_mean(input_tensor=tf.math.squared_difference(self.z_e, self.z_q))
         return loss_commit
 
-
-    #@lazy_scope
     def loss_som(self):
         """Computes the SOM loss."""
         loss_som = tf.reduce_mean(input_tensor=tf.math.squared_difference(tf.expand_dims(tf.stop_gradient(self.z_e), axis=1), self.z_q_neighbors))
         return loss_som
 
-
-    #@lazy_scope
     def loss_probabilities(self):
         """Computes the negative log likelihood loss for the transition probabilities."""
         k_1 = self.k // self.som_dim[1]
@@ -263,8 +213,6 @@ class SOMVAE(tf.keras.Model):
         loss_probabilities = -self.gamma * tf.reduce_mean(input_tensor=tf.math.log(transitions_all))
         return loss_probabilities
 
-
-    #@lazy_scope
     def loss_z_prob(self):
         """Computes the smoothness loss for the transitions given their probabilities."""
         k_1 = self.k // self.som_dim[1]
@@ -278,15 +226,12 @@ class SOMVAE(tf.keras.Model):
         loss_z_prob = tf.reduce_mean(input_tensor=weighted_z_dist_prob)
         return loss_z_prob
 
-
-    #@lazy_scope
     def loss(self):
         """Aggregates the loss terms into the total loss.""" 
         loss = (self.loss_reconstruction() + self.alpha*self.loss_commit() + self.beta*self.loss_som()
                 + self.gamma*self.loss_probabilities() + self.tau*self.loss_z_prob())
         return loss
 
-    #@lazy_scope
     def call(self,inputs):
 
         self.inputs=inputs

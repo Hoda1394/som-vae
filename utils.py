@@ -14,7 +14,6 @@ import math
 import glob
 import time
 
-
 def interpolate_arrays(arr1, arr2, num_steps=100, interpolation_length=0.3):
     """Interpolates linearly between two arrays over a given number of steps.
     The actual interpolation happens only across a fraction of those steps.
@@ -123,7 +122,13 @@ def compute_purity(cluster_assignments, class_assignments):
     
     purity = total_intersection/num_samples
     
-    return purity
+    return 
+    
+"""
+Utility functions for the SOM-VAE model
+Author: Alice Bizeul
+Institution: Senseable Intelligence Group - MIT
+"""
 
 def _bytes_feature(value):
     return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
@@ -136,11 +141,10 @@ def serialize_example(img, shape):
         'img' : _bytes_feature(img),
         'shape' : _int64_feature(shape),
     }
-
     example_proto = tf.train.Example(features=tf.train.Features(feature=feature))
     return example_proto.SerializeToString()
 
-def parse_2d_image(record):
+def parse_data(record):
     image_feature_description = {
         'img': tf.io.FixedLenFeature([], tf.string),
         'shape': tf.io.FixedLenFeature([2], tf.int64)
@@ -150,8 +154,6 @@ def parse_2d_image(record):
     img = tf.io.decode_raw(img, tf.uint8)
     img = tf.cast(img, tf.float32)
     img = tf.reshape(img, data['shape'])
-    #img = tf.image.resize(img, (2**target_res, 2**target_res))
-    #img = adjust_dynamic_range(img, [0.0, 255.0], [-1.0, 1.0])
     return img
 
 def write_cifti_tfrecords(data_pattern,tfrecords_folder,size_shard=50,compressed=False):
@@ -169,15 +171,14 @@ def write_cifti_tfrecords(data_pattern,tfrecords_folder,size_shard=50,compressed
     print('Number of samples found: {}'.format(num_samples))
     num_shards = math.ceil(num_samples/size_shard)
 
-    shards = np.array_split(img_filenames,num_shards)   # PB ?
+    shards = np.array_split(img_filenames,num_shards)  
     tfrecords_filename = []
     progbar = tf.keras.utils.Progbar(target=num_samples, verbose=True)
 
     for i in range(num_shards):
         cifti_paths = shards[i]
         tfrecords_filename = str(tfrecords_folder.joinpath('tfrecords_train{}.tfrecord'.format(i)))
-        #if not compressed: tfrecords_writer = tf.io.TFRecordWriter(tfrecords_filename,options=None)
-        #elif compressed: tfrecords_writer = tf.io.TFRecordWriter(tfrecords_filename,options=tf.io.TFRecordOptions(compression_type='GZIP'))
+
         with tf.io.TFRecordWriter(tfrecords_filename) as tfrecords_writer:
             for cifti_path in cifti_paths:
                 sample_data=nib.load(cifti_path).get_fdata()
@@ -187,22 +188,9 @@ def write_cifti_tfrecords(data_pattern,tfrecords_folder,size_shard=50,compressed
         
                 tfrecords_writer.write(serialize_example(sample_data_raveled,sample_shape))
                 progbar.add(1)
-        
 
 def adjust_range(sample):
     sample = (sample - tf.reduce_min(sample))/(tf.reduce_max(sample)-tf.reduce_min(sample))
-    return sample
-
-def epoch(sample,batch_size):
-
-    #if sample.shape[0]%batch_size != 0: print('Batch size does not suit scan duration, excess data will be discarded')
-    #sample = tf.convert_to_tensor(sample)
-    #print(sample.shape,tf.shape(sample)[1])
-    #series_shape = tf.shape(sample)
-    #block_shape = np.asarray([batch_size,series_shape[1]],dtype=np.int32)
-    #num_blocks = series_shape // block_shape
-    sample = tf.reshape(sample,[409,2,65890])
-    #sample = tf.reshape(sample, np.insert(block_shape,0,num_blocks[0]))
     return sample
 
 def get_dataset(tfrecords_folder,epoch_size,batch_size):
@@ -218,19 +206,12 @@ def get_dataset(tfrecords_folder,epoch_size,batch_size):
         dataset = dataset.interleave(lambda x: 
             tf.data.TFRecordDataset(x, compression_type=None),
             cycle_length=1,block_length=4)
-        print(tf.executing_eagerly())
-        dataset = dataset.map(lambda x: parse_2d_image(x),num_parallel_calls=1)
+        dataset = dataset.map(lambda x: parse_data(x),num_parallel_calls=1)
         dataset = dataset.shuffle(buffer_size=20)
-
-        #dataset = dataset.map(lambda x: tf.py_function(epoch,[x,epoch_size],[]))
         dataset = dataset.unbatch()
-        #dataset = dataset.map(lambda x: epoch(x,epoch_size))
-        #print(len(list(dataset.as_numpy_iterator())))
-        #dataset = dataset.unbatch()
-        #print(len(list(dataset.as_numpy_iterator())))
         dataset = dataset.batch(batch_size,drop_remainder=True)
         dataset = dataset.map(lambda x: tf.expand_dims(x,-1))
-        #dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
+        dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
         return dataset
 
 

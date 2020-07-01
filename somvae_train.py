@@ -1,14 +1,3 @@
-"""
-Script to train the SOM-VAE model as described in https://arxiv.org/abs/1806.02199
-Copyright (c) 2018
-Author: Vincent Fortuin
-Institution: Biomedical Informatics group, ETH Zurich
-License: MIT License
-
-If you want to optimize the hyperparameters using labwatch, you have to install labwatch and SMAC
-and comment in the commented out lines.
-"""
-
 import os
 import uuid
 import shutil
@@ -25,21 +14,12 @@ from tqdm import tqdm, trange
 import sacred
 from sacred.stflow import LogFileWriter
 
-# from labwatch.assistant import LabAssistant
-# from labwatch.optimizers.random_search import RandomSearch
-# from labwatch.optimizers.smac_wrapper import SMAC
-# from labwatch.optimizers.bayesian_optimization import BayesianOptimization
-# from labwatch import hyperparameters as hyper
-
 from somvae_model import SOMVAE
 from utils import *
 
 ex = sacred.Experiment("hyperopt")
 ex.observers.append(sacred.observers.FileStorageObserver.create("../sacred_runs"))
 ex.captured_out_filter = sacred.utils.apply_backspaces_and_linefeeds
-
-# ex.observers.append(sacred.observers.MongoObserver.create(db_name="somvae_hyperopt"))
-# assistant = LabAssistant(ex, "somvae_hyperopt", optimizer=SMAC, url="localhost:{}".format(db_port))
 
 @ex.config
 def ex_config():
@@ -89,82 +69,6 @@ def ex_config():
     time_series = True
     mnist = True
 
-
-# @assistant.search_space
-# def search_space():
-#     num_epochs = 20
-#     patience = 20
-#     batch_size = 32
-#     latent_dim = hyper.UniformInt(lower=64, upper=256, log_scale=True)
-#     som_dim = [8,8]
-#     learning_rate = hyper.UniformFloat(lower=0.0001, upper=0.01, log_scale=True)
-#     alpha = hyper.UniformFloat(lower=0., upper=2.)
-#     beta = hyper.UniformFloat(lower=0., upper=2.)
-#     gamma = hyper.UniformFloat(lower=0., upper=2.)
-#     tau = hyper.UniformFloat(lower=0., upper=2.)
-#     decay_factor = hyper.UniformFloat(lower=0.8, upper=1.)
-#     interactive = False
-
-(x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
-
-data_train = np.reshape(x_train, [-1,28,28,1])
-labels_train = y_train
-data_val = data_train[45000:].astype(np.float64)
-labels_val = labels_train[45000:]
-data_train = data_train[:45000].astype(np.float64)
-labels_train = data_train[:45000]
-
-@ex.capture
-def get_data_generator(time_series):
-    """Creates a data generator for the training.
-    
-    Args:
-        time_series (bool): Indicates whether or not we want interpolated MNIST time series or just
-            normal MNIST batches.
-    
-    Returns:
-        generator: Data generator for the batches."""
-
-    def batch_generator(mode="train", batch_size=100):
-        """Generator for the data batches.
-        
-        Args:
-            mode (str): Mode in ['train', 'val'] that decides which data set the generator
-                samples from (default: 'train').
-            batch_size (int): The size of the batches (default: 100).
-            
-        Yields:
-            np.array: Data batch.
-        """
-
-        assert mode in ["train", "val"], "The mode should be in {train, val}."
-        if mode=="train":
-            images = data_train.copy()
-            labels = labels_train.copy()
-        elif mode=="val":
-            images = data_val.copy()
-            labels = labels_val.copy()
-
-        for i,image in enumerate(images):
-            images[i] = image/255.0
-       
-        while True:
-            indices = np.random.permutation(np.arange(len(images)))
-            images = images[indices]
-            labels = labels[indices]
-            if time_series:
-                for i, image in enumerate(images):
-                    start_image = image
-                    end_image = images[np.random.choice(np.where(labels == (labels[i] + 1) % 10)[0])]
-                    interpolation = interpolate_arrays(start_image, end_image, batch_size)
-                    yield interpolation + np.random.normal(scale=0.01, size=interpolation.shape)
-            else:
-                for i in range(len(images)//batch_size):
-                    yield images[i*batch_size:(i+1)*batch_size]
-
-    return batch_generator
-
-
 @ex.capture
 def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
         modelpath, learning_rate, interactive, generator):
@@ -184,18 +88,7 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
             progress bar for training.
         generator (generator): Generator for the data batches.
     """
-    #train_gen = generator("train", batch_size)
-    #val_gen = generator("val", batch_size)
 
-    #saver = tf.compat.v1.train.Saver(keep_checkpoint_every_n_hours=2.)    #could be upgraded
-    #summaries = tf.compat.v1.summary.merge_all()                          #could be upgraded
-
-    #with tf.compat.v1.Session() as sess:
-    #sess.run(tf.compat.v1.global_variables_initializer())
-    
-    #with LogFileWriter(ex):                                                          #Sacred
-    #    train_writer = tf.compat.v1.summary.FileWriter(logdir+"/train", sess.graph)  #could be upgraded to TFv.2
-    #    test_writer = tf.compat.v1.summary.FileWriter(logdir+"/test", sess.graph)    #could be upgraded to TFv.2
     learning_decay = tf.keras.optimizers.schedules.ExponentialDecay(learning_rate, decay_rate=0.9, decay_steps=1000,staircase=True, name='Exp_decay')
     optimizer = tf.keras.optimizers.Adam(learning_rate=learning_decay)
 
@@ -257,7 +150,6 @@ def train_model(model, lr_val, num_epochs, patience, batch_size, logdir,
         
             for batch_train in generator:
                 step += 1
-                #batch_train = next(iter(train_gen))
                 train_loss= call_train_step(batch_train)
 
                 if step%100 == 0:
@@ -343,20 +235,14 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     input_channels = 65890        #update for brains
     input_duration = 2
 
-    # get data 
-    #data_generator = get_data_generator(True)
-
     print('Preparing TF records')
     data_pattern="/om4/group/gablab/data/datalad/openneuro/ds000224/derivatives/surface_pipeline/sub-MSC01/processed_restingstate_timecourses/ses-func*/cifti/sub-MSC01_ses-func*_task-rest_bold_32k_fsLR_2.dtseries.nii"
     tf_folder="/om/user/abizeul/tfrecords_ds000224_rest"
 
-    #prepare_2d_tf_record_dataset(data_pattern,tf_folder,'*.dtseries.nii',10)
     #write_cifti_tfrecords(data_pattern=data_pattern,tfrecords_folder=tf_folder,size_shard=10)
 
     print("Loading data")
     dataset = get_dataset(tfrecords_folder=tf_folder,batch_size=2,epoch_size=2)
-    #for sample in dataset:
-    #    print(sample)
 
     # build model
     model = SOMVAE(latent_dim=latent_dim, som_dim=som_dim,input_length=input_length,
