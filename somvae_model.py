@@ -28,7 +28,7 @@ def max_pool_2x2(x):
 class SOMVAE(tf.keras.Model):
     """Class for the SOM-VAE model as described in https://arxiv.org/abs/1806.02199"""
 
-    def __init__(self, latent_dim=64, som_dim=[8,8],input_length=28, input_channels=28, 
+    def __init__(self, latent_dim=64, som_dim=[8,8],input_channels=28, 
             batch_size=32, alpha=1., beta=1., gamma=1., tau=1., mnist=False):
         """Initialization method for the SOM-VAE model object.
         
@@ -40,7 +40,6 @@ class SOMVAE(tf.keras.Model):
             decay_factor (float): The factor for the learning rate decay (default: 0.95).
             decay_steps (int): The number of optimization steps before every learning rate
                 decay (default: 1000).
-            input_length (int): The length of the input data points (default: 28).
             input_channels (int): The number of channels of the input data points (default: 28).
             alpha (float): The weight for the commitment loss (default: 1.).
             beta (float): The weight for the SOM loss (default: 1.).
@@ -53,7 +52,7 @@ class SOMVAE(tf.keras.Model):
         self.inputs = tf.Variable(tf.zeros(shape=[batch_size, input_channels, 1],dtype=tf.float32),shape=[batch_size, input_channels, 1],trainable=False)
         self.latent_dim = latent_dim
         self.som_dim = som_dim
-        self.input_length = input_length
+        self.batch_size = batch_size
         self.input_channels = input_channels
         self.alpha = alpha
         self.beta = beta
@@ -98,7 +97,7 @@ class SOMVAE(tf.keras.Model):
             z_e = tf.keras.layers.Dense(self.latent_dim, activation="relu")(h_2)
 
         else:
-            h_0 = tf.keras.layers.Input(shape=[self.input_length, self.input_channels,1], name='input')
+            h_0 = tf.keras.layers.Input(shape=[self.batch_size, self.input_channels,1], name='input')
             h_conv1 = tf.nn.relu(conv2d(h_0, [4,4,1,256], "conv1"))
             h_pool1 = max_pool_2x2(h_conv1)
             h_conv2 = tf.nn.relu(conv2d(h_pool1, [4,4,256,256], "conv2"))

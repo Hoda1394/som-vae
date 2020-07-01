@@ -69,6 +69,7 @@ def ex_config():
     time_series = True
     mnist = False
     prepare = False
+    size_shard = 10
     tf_folder = "/om/user/abizeul/tfrecords_ds000224_rest"
     data_pattern="/om4/group/gablab/data/datalad/openneuro/ds000224/derivatives/surface_pipeline/sub-MSC01/processed_restingstate_timecourses/ses-func*/cifti/sub-MSC01_ses-func*_task-rest_bold_32k_fsLR_2.dtseries.nii"
 
@@ -216,7 +217,7 @@ def evaluate_model(model,x, modelpath, batch_size):
  
 
 @ex.automain
-def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, tau, modelpath, save_model, prepare, data_pattern, tf_folder, batch_size, mnist):
+def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, tau, modelpath, save_model, prepare, data_pattern, tf_folder, batch_size, mnist, size_shard):
     """Main method to build a model, train it and evaluate it.
     
     Args:
@@ -235,19 +236,20 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
         dict: Results of the evaluation (NMI, Purity, MSE).
     """
     # Dimensions for MNIST-like data
-    input_length = 2              #update for brains
     input_channels = 65890        #update for brains
 
     if prepare : 
         print('Preparing TF records')
-        write_cifti_tfrecords(data_pattern=data_pattern,tfrecords_folder=tf_folder,size_shard=10)
+        write_cifti_tfrecords(data_pattern=data_pattern,tfrecords_folder=tf_folder,size_shard=size_shard)
 
     print("Loading data")
     dataset = get_dataset(tfrecords_folder=tf_folder,batch_size=batch_size)
 
+    print(list(dataset.as_numpy_iterator())[0].shape[1])
+
     # build model
-    model = SOMVAE(latent_dim=latent_dim, som_dim=som_dim,input_length=input_length,
-                input_channels=input_channels, batch_size=batch_size, alpha=alpha, 
+    model = SOMVAE(latent_dim=latent_dim, som_dim=som_dim,
+                input_channels=list(dataset.as_numpy_iterator())[0].shape[1], batch_size=batch_size, alpha=alpha, 
                 beta=beta, gamma=gamma, tau=tau, mnist=mnist)
 
     train_model(model,dataset=dataset)
