@@ -100,7 +100,7 @@ def train_model(model, num_epochs, patience, batch_size, logdir,
     optimizer2 = tf.keras.optimizers.Adam(learning_rate=learning_decay)
 
     # Initialize
-    num_batches = len(list(generator.as_numpy_iterator()))
+    num_batches = len(list(dataset.as_numpy_iterator()))
     patience_count = 0
     step = 0
     test_losses = []
@@ -152,7 +152,7 @@ def train_model(model, num_epochs, patience, batch_size, logdir,
             if patience_count >= patience:
                 break
         
-            for batch_train in generator:
+            for batch_train in dataset:
                 step += 1
                 train_loss= call_train_step(batch_train)
 
@@ -216,7 +216,7 @@ def evaluate_model(model,x, modelpath, batch_size):
  
 
 @ex.automain
-def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, tau, modelpath, save_model, prepare, data_pattern, tf_folder, batch_size):
+def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, tau, modelpath, save_model, prepare, data_pattern, tf_folder, batch_size, mnist):
     """Main method to build a model, train it and evaluate it.
     
     Args:
@@ -248,7 +248,7 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     # build model
     model = SOMVAE(latent_dim=latent_dim, som_dim=som_dim,input_length=input_length,
                 input_channels=input_channels, batch_size=batch_size, alpha=alpha, 
-                beta=beta, gamma=gamma, tau=tau)
+                beta=beta, gamma=gamma, tau=tau, mnist=mnist)
 
     train_model(model,dataset=dataset)
 
