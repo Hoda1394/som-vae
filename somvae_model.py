@@ -59,6 +59,7 @@ class SOMVAE(tf.keras.Model):
         self.beta = beta
         self.gamma = gamma
         self.tau = tau
+        self.mnist = mnist
         self.encoder_ = self.get_encoder()
         self.decoder_ = self.get_decoder()
 
