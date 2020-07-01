@@ -68,11 +68,13 @@ def ex_config():
     save_model = False
     time_series = True
     mnist = False
+    tf_folder = "/om/user/abizeul/tfrecords_ds000224_rest"
+    data_pattern="/om4/group/gablab/data/datalad/openneuro/ds000224/derivatives/surface_pipeline/sub-MSC01/processed_restingstate_timecourses/ses-func*/cifti/sub-MSC01_ses-func*_task-rest_bold_32k_fsLR_2.dtseries.nii"
 
 
 @ex.capture
 def train_model(model, num_epochs, patience, batch_size, logdir,
-        modelpath, learning_rate, interactive, generator):
+        modelpath, learning_rate, interactive, dataset):
     """Trains the SOM-VAE model.
     
     Args:
@@ -236,21 +238,19 @@ def main(latent_dim, som_dim, learning_rate, decay_factor, alpha, beta, gamma, t
     input_channels = 65890        #update for brains
     input_duration = 2
 
-    print('Preparing TF records')
-    data_pattern="/om4/group/gablab/data/datalad/openneuro/ds000224/derivatives/surface_pipeline/sub-MSC01/processed_restingstate_timecourses/ses-func*/cifti/sub-MSC01_ses-func*_task-rest_bold_32k_fsLR_2.dtseries.nii"
-    tf_folder="/om/user/abizeul/tfrecords_ds000224_rest"
-
-    #write_cifti_tfrecords(data_pattern=data_pattern,tfrecords_folder=tf_folder,size_shard=10)
+    if prepare : 
+        print('Preparing TF records')
+        write_cifti_tfrecords(data_pattern=data_pattern,tfrecords_folder=tf_folder,size_shard=10)
 
     print("Loading data")
-    dataset = get_dataset(tfrecords_folder=tf_folder,batch_size=2,epoch_size=2)
+    dataset = get_dataset(tfrecords_folder=tf_folder,batch_size=batch_size)
 
     # build model
     model = SOMVAE(latent_dim=latent_dim, som_dim=som_dim,input_length=input_length,
-                input_channels=input_channels, batch_size=input_duration, alpha=alpha, 
-                beta=beta, gamma=gamma, tau=tau, mnist=False)
+                input_channels=input_channels, batch_size=batch_size, alpha=alpha, 
+                beta=beta, gamma=gamma, tau=tau, mnist=mnist)
 
-    train_model(model,generator=dataset)
+    train_model(model,dataset=dataset)
 
     #result = evaluate_model(model,x=1)
 
